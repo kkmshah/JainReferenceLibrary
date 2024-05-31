@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/rlTitle"
+    android:layout_width="match_parent"
+    android:layout_height="40dp"
+    android:background="@color/header_background"
+    android:gravity="center_vertical"
+    android:weightSum="2">
+    <ImageView
+        android:id="@+id/ivSelectLogo"
+        android:layout_width="0dp"
+        android:layout_height="23dp"
+        android:layout_gravity="center_vertical"
+        android:layout_weight="0.4"
+        android:src="@mipmap/search"
+        android:tint="@color/white" />
+
+    <TextView
+        android:id="@+id/tvTitlePage"
+        android:layout_width="0dp"
+        android:layout_height="30dp"
+        android:layout_marginLeft="20dp"
+        android:layout_weight="1.2"
+        android:text="JRL"
+        android:gravity="center_vertical"
+        android:textColor="@color/white"
+        android:textSize="14sp"
+        android:textStyle="bold" />
+
+    <ImageView
+        android:id="@+id/ivseven"
+        android:layout_width="0dp"
+        android:layout_height="35dp"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="20dp"
+        android:layout_weight="0.2"
+        android:src="@drawable/hold"
+        android:tint="@color/white" />
+
+    <ImageView
+        android:id="@+id/ivSearchSetting"
+        android:layout_width="0dp"
+        android:layout_height="35dp"
+        android:padding="5dp"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="10dp"
+        android:layout_weight="0.2"
+        android:src="@mipmap/ic_filter_setting"
+        app:tint="@color/white" />
+</LinearLayout>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/llpage"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_margin="5dp"
+    android:background="@color/white"
+    android:orientation="vertical">
+
+    <View
+        android:id="@+id/viewLine"
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:layout_marginTop="5dp"
+        android:background="@color/Grey_9"
+        android:visibility="gone" />
+
+    <ImageView
+        android:id="@+id/ivSelect"
+        android:layout_width="20dp"
+        android:layout_margin="10dp"
+        android:layout_height="20dp"
+        android:visibility="gone"
+        android:layout_gravity="left"
+        android:src="@mipmap/select" />
+
+    <com.github.chrisbanes.photoview.PhotoView
+        android:id="@+id/ivPhoto"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:layout_marginBottom="15dp" />
+</LinearLayout>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/Grey_9"
+    android:orientation="vertical">
+
+    <include
+        android:id="@+id/header"
+        layout="@layout/header" />
+
+    <com.github.chrisbanes.photoview.PhotoView
+        android:id="@+id/ivZoom"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@mipmap/app_logo"
+        android:layout_centerInParent="true"
+        android:layout_gravity="center_horizontal"
+        android:adjustViewBounds="true"
+        android:scaleType="fitStart"
+        android:background="@color/colorWhite" />
+
+    <!--<ImageView
+        android:id="@+id/image_news"
+        android:layout_centerInParent="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:layout_gravity="center_horizontal"
+        android:background="@color/colorWhite" />-->
+
+</LinearLayout>

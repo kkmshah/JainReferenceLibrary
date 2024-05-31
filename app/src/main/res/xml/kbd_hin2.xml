@@ -1,0 +1,368 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright (c) 2016 - Firoz Memon
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~                       http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<Keyboard xmlns:android="http://schemas.android.com/apk/res/android"
+    android:keyHeight="42dip"
+    android:verticalGap="5px">
+
+    <!--<Row>
+        <Key android:codes="-130"  android:keyLabel="हिन्दी" android:keyWidth="33%p" android:isRepeatable="false"/>
+        <Key android:codes="-140"  android:keyLabel="ગુજરાતી"  android:keyWidth="33%p" android:isRepeatable="false"/>
+        <Key android:codes="-150"  android:keyLabel="English"  android:keyWidth="33%p" android:isRepeatable="false"/>
+    </Row>-->
+    <Row android:rowEdgeFlags="top">
+        <Key
+            android:codes="111"
+            android:keyWidth="33.33%p"
+            android:keyLabel="A" />
+        <!--   <Key
+               android:codes="112"
+               android:isRepeatable="false"
+               android:keyWidth="25%p"
+               android:keyLabel="A=अ" />-->
+        <Key
+            android:codes="113"
+            android:isRepeatable="false"
+            android:keyWidth="33.33%p"
+            android:keyLabel="अ" />
+        <Key
+            android:codes="114"
+            android:isRepeatable="false"
+            android:keyWidth="33.33%p"
+            android:keyLabel="Indic" />
+    </Row>
+
+
+    <Row>
+        <Key
+            android:codes="-105"
+            android:horizontalGap="1%p"
+            android:keyWidth="9%p"
+            android:keyEdgeFlags="left"
+            android:keyLabel="१"
+            android:keyOutputText='१' />
+        <Key
+            android:codes="-105"
+            android:horizontalGap="1%p"
+            android:keyWidth="9%p"
+            android:keyLabel="२"
+            android:keyOutputText='२' />
+        <Key
+            android:codes="-105"
+            android:horizontalGap="1%p"
+            android:keyWidth="9%p"
+            android:keyLabel="३"
+            android:keyOutputText='३' />
+        <Key
+            android:codes="-105"
+            android:horizontalGap="1%p"
+            android:keyWidth="9%p"
+            android:keyLabel="४"
+            android:keyOutputText='४' />
+        <Key
+            android:codes="-105"
+            android:horizontalGap="1%p"
+            android:keyWidth="9%p"
+            android:keyLabel="५"
+            android:keyOutputText='५' />
+        <Key
+            android:codes="-105"
+            android:horizontalGap="1%p"
+            android:keyWidth="9%p"
+            android:keyLabel="६"
+            android:keyOutputText='६' />
+        <Key
+            android:codes="-105"
+            android:horizontalGap="1%p"
+            android:keyWidth="9%p"
+            android:keyLabel="७"
+            android:keyOutputText='७' />
+        <Key
+            android:codes="-105"
+            android:horizontalGap="1%p"
+            android:keyWidth="9%p"
+            android:keyLabel="८"
+            android:keyOutputText='८' />
+        <Key
+            android:codes="-105"
+            android:horizontalGap="1%p"
+            android:keyWidth="9%p"
+            android:keyLabel="९"
+            android:keyOutputText='९' />
+        <Key
+            android:codes="-105"
+            android:horizontalGap="1%p"
+            android:keyWidth="8%p"
+            android:keyEdgeFlags="right"
+            android:keyLabel="०"
+            android:keyOutputText='०' />
+    </Row>
+
+    <Row>
+        <Key
+            android:codes="-105"
+            android:horizontalGap="1%p"
+            android:keyWidth="9%p"
+            android:keyEdgeFlags="left"
+            android:keyLabel="अ"
+            android:keyOutputText='अ' />
+        <Key
+            android:codes="-105"
+            android:horizontalGap="1%p"
+            android:keyWidth="9%p"
+            android:keyLabel="आ"
+            android:keyOutputText='आ' />
+        <Key
+            android:codes="-105"
+            android:horizontalGap="1%p"
+            android:keyWidth="9%p"
+            android:keyLabel="इ"
+            android:keyOutputText='इ' />
+        <Key
+            android:codes="-105"
+            android:horizontalGap="1%p"
+            android:keyWidth="9%p"
+            android:keyLabel="ई"
+            android:keyOutputText='ई' />
+        <Key
+            android:codes="-105"
+            android:horizontalGap="1%p"
+            android:keyWidth="9%p"
+            android:keyLabel="उ"
+            android:keyOutputText='उ' />
+        <Key
+            android:codes="-105"
+            android:horizontalGap="1%p"
+            android:keyWidth="9%p"
+            android:keyLabel="ऊ"
+            android:keyOutputText='ऊ' />
+        <Key
+            android:codes="-105"
+            android:horizontalGap="1%p"
+            android:keyWidth="9%p"
+            android:keyLabel="ए"
+            android:keyOutputText='ए' />
+        <Key
+            android:codes="-105"
+            android:horizontalGap="1%p"
+            android:keyWidth="9%p"
+            android:keyLabel="ऐ"
+            android:keyOutputText='ऐ' />
+        <Key
+            android:codes="-105"
+            android:horizontalGap="1%p"
+            android:keyWidth="9%p"
+            android:keyLabel="ओ"
+            android:keyOutputText='ओ' />
+        <Key
+            android:codes="-105"
+            android:horizontalGap="1%p"
+            android:keyWidth="8%p"
+            android:keyEdgeFlags="right"
+            android:keyLabel="औ"
+            android:keyOutputText='औ' />
+    </Row>
+
+    <Row>
+        <Key
+            android:codes="-105"
+            android:horizontalGap="1%p"
+            android:keyWidth="9%p"
+            android:keyEdgeFlags="left"
+            android:keyLabel="ऋ"
+            android:keyOutputText='ऋ' />
+        <!--      <Key
+                  android:codes="-105"
+                  android:keyLabel="ष"
+                  android:keyOutputText='ष' />
+              <Key
+                  android:codes="-105"
+                  android:keyLabel="स"
+                  android:keyOutputText='स' />
+              <Key
+                  android:codes="-105"
+                  android:keyLabel="ह"
+                  android:keyOutputText='ह' />
+              -->
+        <Key
+            android:codes="-105"
+            android:horizontalGap="1%p"
+            android:keyWidth="9%p"
+            android:keyLabel="ँ"
+            android:keyOutputText='ँ' />
+        <Key
+            android:codes="-105"
+            android:horizontalGap="1%p"
+            android:keyWidth="9%p"
+            android:keyLabel="ृ"
+            android:keyOutputText='ृ' />
+        <Key
+            android:codes="-105"
+            android:horizontalGap="1%p"
+            android:keyWidth="9%p"
+            android:keyLabel="़"
+            android:keyOutputText='़' />
+        <Key
+            android:codes="-105"
+            android:horizontalGap="1%p"
+            android:keyWidth="9%p"
+            android:keyLabel="\?"
+            android:keyOutputText='\?' />
+        <Key
+            android:codes="-105"
+            android:horizontalGap="1%p"
+            android:keyWidth="9%p"
+            android:keyLabel="."
+            android:keyOutputText='.' />
+        <Key
+            android:codes="-105"
+            android:horizontalGap="1%p"
+            android:keyWidth="9%p"
+            android:keyLabel="-"
+            android:keyOutputText='-' />
+        <Key
+            android:codes="-105"
+            android:horizontalGap="1%p"
+            android:keyWidth="9%p"
+            android:keyLabel="ौ"
+            android:keyOutputText='ौ' />
+        <Key
+            android:codes="-105"
+            android:horizontalGap="1%p"
+            android:keyWidth="9%p"
+            android:keyLabel="ं"
+            android:keyOutputText='ं' />
+        <Key
+            android:codes="-105"
+            android:horizontalGap="1%p"
+            android:keyWidth="8%p"
+            android:keyEdgeFlags="right"
+            android:keyLabel="ः"
+            android:keyOutputText='ः' />
+    </Row>
+
+    <Row>
+        <Key
+            android:codes="-107"
+            android:horizontalGap="1%p"
+            android:keyWidth="9%p"
+            android:keyEdgeFlags="left"
+            android:keyLabel="⇧" />
+        <Key
+            android:codes="-105"
+            android:horizontalGap="1%p"
+            android:keyWidth="9%p"
+            android:keyLabel="ा"
+            android:keyOutputText='ा' />
+        <Key
+            android:codes="-105"
+            android:horizontalGap="1%p"
+            android:keyWidth="9%p"
+            android:keyLabel="ि"
+            android:keyOutputText='ि' />
+        <Key
+            android:codes="-105"
+            android:horizontalGap="1%p"
+            android:keyWidth="9%p"
+            android:keyLabel="ी"
+            android:keyOutputText='ी' />
+        <Key
+            android:codes="-105"
+            android:horizontalGap="1%p"
+            android:keyWidth="9%p"
+            android:keyLabel="ु"
+            android:keyOutputText='ु' />
+        <Key
+            android:codes="-105"
+            android:horizontalGap="1%p"
+            android:keyWidth="9%p"
+            android:keyLabel="ू"
+            android:keyOutputText='ू' />
+        <Key
+            android:codes="-105"
+            android:horizontalGap="1%p"
+            android:keyWidth="9%p"
+            android:keyLabel="े"
+            android:keyOutputText='े' />
+        <Key
+            android:codes="-105"
+            android:horizontalGap="1%p"
+            android:keyWidth="9%p"
+            android:keyLabel="ै"
+            android:keyOutputText='ै' />
+        <Key
+            android:codes="-105"
+            android:horizontalGap="1%p"
+            android:keyWidth="9%p"
+            android:keyLabel="ो"
+            android:keyOutputText='ो' />
+        <Key
+            android:codes="67"
+            android:horizontalGap="1%p"
+            android:isRepeatable="true"
+            android:keyWidth="8%p"
+            android:keyEdgeFlags="right"
+            android:keyLabel="←" />
+    </Row>
+
+
+    <Row android:rowEdgeFlags="bottom" android:verticalGap="1%p">
+
+        <Key
+            android:codes="-105"
+            android:keyEdgeFlags="left"
+            android:keyLabel="ॅ"
+            android:keyWidth="9%p"
+            android:horizontalGap="1%p"
+            android:keyOutputText='ॅ' />
+        <Key
+            android:codes="-105"
+            android:keyLabel="्"
+            android:keyWidth="9%p"
+            android:horizontalGap="1%p"
+            android:keyOutputText='्' />
+ <!--       <Key
+            android:codes="-105"
+            android:keyLabel="।"
+            android:keyWidth="9%p"
+            android:horizontalGap="1%p"
+            android:keyOutputText='।' />-->
+        <Key
+            android:codes="-105"
+            android:isRepeatable="true"
+            android:keyWidth="58%p"
+            android:horizontalGap="1%p"
+            android:keyLabel=" "
+            android:keyOutputText=' ' />
+
+        <Key
+            android:codes="-107"
+            android:keyWidth="9%p"
+            android:horizontalGap="1%p"
+            android:keyLabel="कख" />
+        <Key
+            android:codes="66"
+            android:keyWidth="9%p"
+            android:horizontalGap="1%p"
+            android:keyEdgeFlags="right"
+            android:keyLabel="↵" />
+    </Row>
+    <!--  <Row>
+          <Key android:codes="-150" android:keyLabel="Next" android:keyWidth="30%p" android:isRepeatable="false"/>
+          <Key android:codes="-150" android:keyLabel="Alternate" android:keyWidth="70%p" android:isRepeatable="false"/>
+      </Row>-->
+
+</Keyboard>

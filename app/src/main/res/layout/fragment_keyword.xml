@@ -1,0 +1,873 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/rv_keyword"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_below="@+id/appbar"
+    android:layout_marginTop="0dp"
+    android:orientation="vertical"
+
+    app:layout_behavior="@string/appbar_scrolling_view_behavior">
+    <!--<LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">-->
+    <!--
+
+        <include
+
+            android:id="@+id/header2"
+            layout="@layout/cutsomheadername"
+
+            android:visibility="visible"
+            />
+    -->
+
+
+    <LinearLayout
+        android:id="@+id/llSearch"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/header2"
+        android:background="@color/Grey_9"
+        android:orientation="vertical">
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cvSearch"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginBottom="10dp"
+            android:padding="5dp"
+            app:cardCornerRadius="2dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:weightSum="2.7">
+
+                <ImageView
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.2"
+                    android:gravity="center"
+                    android:padding="5dp"
+                    android:src="@mipmap/search"
+                    android:tint="@color/Grey_5" />
+
+                <EditText
+                    android:id="@+id/etSearchView"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="2.0"
+                    android:background="@color/transepreant"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
+                    android:gravity="center_vertical"
+                    android:hint="Search Keyword here"
+                    android:imeOptions="actionSearch"
+                    android:inputType="text"
+                    android:padding="10dp"
+                    android:text=""
+                    android:textSize="14sp"
+                    android:textStyle="normal" />
+
+                <LinearLayout
+                    android:id="@+id/llFilter"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.5"
+                    android:gravity="end"
+                    android:visibility="visible"
+                    android:weightSum="0.5">
+
+                    <View
+                        android:layout_width="1dp"
+                        android:layout_height="match_parent"
+                        android:background="@color/Grey_9" />
+
+
+                    <ImageView
+                        android:id="@+id/ivKeyboard"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="0.25"
+                        android:padding="3dp"
+                        android:src="@mipmap/keyboard"
+                        app:tint="@color/Grey_5" />
+
+                    <View
+                        android:layout_width="1dp"
+                        android:layout_height="match_parent"
+                        android:background="@color/Grey_9" />
+
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/llClose"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    android:layout_weight="0.5"
+                    android:gravity="end"
+                    android:visibility="gone"
+                    android:weightSum="0.5">
+
+                    <View
+                        android:layout_width="1dp"
+                        android:layout_height="match_parent"
+                        android:background="@color/Grey_9" />
+
+                    <ImageView
+                        android:id="@+id/ivClose"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_margin="2dp"
+                        android:layout_weight="0.2"
+                        android:gravity="center"
+                        android:padding="6dp"
+                        android:src="@mipmap/close"
+                        app:tint="@color/Grey_5" />
+
+                    <View
+                        android:layout_width="1dp"
+                        android:layout_height="match_parent"
+                        android:background="@color/Grey_9" />
+
+                    <ImageView
+                        android:id="@+id/ivSend"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_margin="2dp"
+                        android:layout_weight="0.3"
+                        android:gravity="center"
+                        android:padding="9dp"
+                        android:src="@mipmap/send"
+                        app:tint="@color/Grey_5" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
+
+        <ImageView
+            android:id="@+id/ivSimillarKeyword"
+            android:layout_width="50dp"
+            android:layout_height="30dp"
+            android:layout_gravity="end"
+            android:padding="3dp"
+            android:src="@mipmap/ic_similar_keyword"
+            android:visibility="gone"
+            app:tint="@color/Grey_5" />
+
+    </LinearLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvSearchHistoryList"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/ll_bottom"
+        android:layout_below="@+id/llSearch"
+        android:background="@color/color_keyword_search"
+        android:visibility="gone" />
+
+    <LinearLayout
+        android:id="@+id/llKeywordCount"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/llSearch"
+        android:layout_marginLeft="@dimen/spacing_middle"
+        android:layout_marginTop="5dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginBottom="5dp"
+        android:background="@color/total_count"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/tvKeywordCount"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:gravity="center"
+            android:text="100"
+            android:textColor="@color/black"
+            android:textSize="14sp"
+            android:visibility="gone" />
+
+    </LinearLayout>
+
+
+    <androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/nestedScroll"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/ll_bottom"
+        android:layout_below="@+id/llKeywordCount"
+        android:visibility="gone"
+        tools:context=".MainActivity">
+
+        <!--linear layout for displaying
+            our recycler view-->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_above="@+id/ll_buttons"
+                android:layout_below="@+id/llKeywordCount"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginRight="10dp"
+                android:background="@color/color_keyword_search"
+                android:nestedScrollingEnabled="false"
+                android:visibility="gone"
+                app:layout_behavior="com.jainelibrary.CardViewAwareScrollingViewBehavior" />
+        </LinearLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvList"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/ll_bottom"
+        android:layout_below="@+id/llKeywordCount"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginRight="10dp"
+        android:background="@color/color_keyword_search"
+        android:nestedScrollingEnabled="false"
+        android:visibility="gone"
+        app:layout_behavior="com.jainelibrary.CardViewAwareScrollingViewBehavior" />
+    <!--   <androidx.cardview.widget.CardView
+           android:id="@+id/cvList"
+           android:layout_width="match_parent"
+           android:layout_height="wrap_content"
+           android:layout_below="@+id/cvSearch"
+           android:layout_marginLeft="10dp"
+           android:layout_marginTop="10dp"
+           android:layout_marginRight="10dp">
+
+       <androidx.recyclerview.widget.RecyclerView
+           android:id="@+id/rvList"
+           android:layout_width="match_parent"
+           android:layout_height="wrap_content" />
+   </androidx.cardview.widget.CardView>
+   -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabFilter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="15dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="5dp"
+        android:src="@drawable/ic_filter"
+        android:tint="@color/filters_chips"
+        android:visibility="gone"
+        app:backgroundTint="@color/filtersfab" />
+
+    <LinearLayout
+        android:id="@+id/ll_bottom"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:id="@+id/llShowCount"
+            android:layout_width="match_parent"
+            android:layout_height="55dp"
+            android:layout_gravity="bottom"
+            android:background="@color/dark_voilet"
+            android:gravity="bottom"
+            android:orientation="horizontal"
+            android:weightSum="2">
+
+            <LinearLayout
+                android:id="@+id/llLens"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:weightSum="2">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:src="@mipmap/ic_lens"
+                        app:tint="@color/white" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_marginLeft="10dp"
+                        android:gravity="center"
+                        android:text="Lens"
+                        android:textColor="@color/colorWhite"
+                        android:textSize="18sp"
+                        android:visibility="visible"
+                        tools:ignore="RtlCompat" />
+
+                </LinearLayout>
+
+
+                <TextView
+                    android:id="@+id/tvLensCounts"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="Lens"
+                    android:textColor="@color/colorWhite"
+                    android:textSize="18sp"
+                    android:tint="@color/colorPrimary" />
+
+            </LinearLayout>
+
+
+            <View
+                android:layout_width="1dp"
+                android:layout_height="match_parent"
+                android:background="@color/white" />
+
+            <LinearLayout
+                android:id="@+id/llFocus"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:weightSum="2">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:src="@mipmap/ic_torch_new"
+                        app:tint="@color/white" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_marginLeft="10dp"
+                        android:gravity="center"
+                        android:text="Focus"
+                        android:textColor="@color/colorWhite"
+                        android:textSize="18sp"
+                        android:visibility="visible"
+                        tools:ignore="RtlCompat" />
+
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tvFocusCounts"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="0/0"
+                    android:textColor="@color/colorWhite"
+                    android:textSize="18sp"
+                    android:visibility="visible" />
+
+
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/ll_buttons"
+            android:layout_width="match_parent"
+            android:layout_height="55dp"
+            android:layout_gravity="bottom"
+            android:background="@color/dark_voilet"
+            android:gravity="bottom"
+            android:orientation="horizontal"
+            android:visibility="visible"
+            android:weightSum="4">
+
+
+            <LinearLayout
+                android:id="@+id/ivExport"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="0.7"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="3dp"
+                    android:src="@mipmap/my_reference"
+                    app:tint="@color/colorWhite" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="2dp"
+                    android:gravity="center"
+                    android:text="Save"
+                    android:textColor="@color/white"
+                    android:textSize="17sp"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+
+            <View
+                android:layout_width="1dp"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="5dp"
+                android:background="@color/colorWhite" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="2.2"
+                android:orientation="horizontal"
+                android:weightSum="2">
+
+                <LinearLayout
+                    android:id="@+id/llLensSearch"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:weightSum="2">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:src="@mipmap/ic_lens"
+                            app:tint="@color/white" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:layout_marginLeft="10dp"
+                            android:gravity="center"
+                            android:text="Lens"
+                            android:textColor="@color/colorWhite"
+                            android:textSize="18sp"
+                            android:visibility="visible"
+                            tools:ignore="RtlCompat" />
+
+                    </LinearLayout>
+
+
+                    <TextView
+                        android:id="@+id/tvLensCountsSearch"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:text="Lens"
+                        android:textColor="@color/colorWhite"
+                        android:textSize="18sp"
+                        android:tint="@color/colorPrimary" />
+                </LinearLayout>
+
+
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent"
+                    android:background="@color/white" />
+
+                <LinearLayout
+                    android:id="@+id/llFocusSearch"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:weightSum="2">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:src="@mipmap/ic_torch_new"
+                            app:tint="@color/white" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:layout_marginLeft="10dp"
+                            android:gravity="center"
+                            android:text="Focus"
+                            android:textColor="@color/colorWhite"
+                            android:textSize="18sp"
+                            android:visibility="visible"
+                            tools:ignore="RtlCompat" />
+
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/tvFocusCountsSearch"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:text="0/0"
+                        android:textColor="@color/colorWhite"
+                        android:textSize="18sp"
+                        android:visibility="visible" />
+
+
+                </LinearLayout>
+
+                <!--  <LinearLayout
+                      android:layout_width="0dp"
+                      android:layout_height="match_parent"
+                      android:layout_weight="1"
+                      android:visibility="gone"
+                      android:gravity="center"
+                      android:orientation="vertical"
+                      android:weightSum="2">
+
+                      <TextView
+                          android:layout_width="match_parent"
+                          android:layout_height="match_parent"
+                          android:gravity="center"
+                          android:text="Focus"
+                          android:textColor="@color/colorWhite"
+                          android:textSize="18sp"
+                          android:visibility="visible"
+                          tools:ignore="RtlCompat" />
+
+                      <TextView
+                          android:layout_width="match_parent"
+                          android:layout_height="0dp"
+                          android:gravity="center"
+                          android:text="Focus"
+                          android:layout_weight="1"
+                          android:textColor="@color/colorWhite"
+                          android:textSize="18sp"
+                          android:visibility="visible" />
+
+                      <ImageView
+                          android:layout_width="25dp"
+                          android:layout_height="0dp"
+                          android:layout_weight="1"
+                          android:src="@mipmap/ic_torch"
+                          app:tint="@color/white" />
+
+                  </LinearLayout>
+
+                  <LinearLayout
+                      android:layout_width="0dp"
+                      android:layout_height="match_parent"
+                      android:layout_weight="1"
+                      android:gravity="center"
+                      android:orientation="vertical"
+                      android:weightSum="2">
+
+                      <TextView
+                          android:layout_width="match_parent"
+                          android:layout_height="match_parent"
+                          android:gravity="center_vertical"
+                          android:textColor="@color/colorWhite"
+                          android:textSize="18sp"
+                          android:visibility="gone" />
+
+                      <TextView
+                          android:layout_width="match_parent"
+                          android:layout_height="0dp"
+                          android:gravity="center"
+                          android:text="Lens"
+                          android:layout_weight="1"
+                          android:textColor="@color/colorWhite"
+                          android:textSize="18sp"
+                          android:tint="@color/colorPrimary" />
+
+                      <ImageView
+                          android:layout_width="25dp"
+                          android:layout_height="0dp"
+                          android:layout_weight="1"
+                          android:src="@mipmap/ic_eye"
+                          app:tint="@color/white" />
+
+                  </LinearLayout>-->
+
+
+            </LinearLayout>
+
+            <View
+                android:layout_width="1dp"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="5dp"
+                android:background="@color/colorWhite" />
+
+            <LinearLayout
+                android:id="@+id/llNewFilter"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1.1"
+                android:orientation="vertical"
+                android:weightSum="2">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="match_parent"
+                        android:padding="2dp"
+                        android:src="@mipmap/filter"
+                        app:tint="@color/white" />
+
+
+                    <TextView
+                        android:id="@+id/button_filter"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginTop="2dp"
+                        android:gravity="center"
+                        android:text="Filters"
+                        android:textColor="@color/colorWhite"
+                        android:textSize="18sp"
+                        android:tint="@color/colorPrimary" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tvFiltersCounts"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="0/0"
+                    android:textColor="@color/colorWhite"
+                    android:textSize="18sp"
+                    android:visibility="visible" />
+
+            </LinearLayout>
+        </LinearLayout>
+
+        <com.jainelibrary.keyboard.CustomKeyboardView
+            android:id="@+id/keyboardView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/Grey_14"
+            android:keyBackground="@drawable/back_grey"
+            android:keyTextColor="@color/black"
+            android:keyTextSize="22sp"
+            android:labelTextSize="22sp"
+            android:shadowRadius="0.0"
+            android:visibility="gone" />
+    </LinearLayout>
+</RelativeLayout><!--
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/Grey_9"
+    android:backgroundTint="@color/color_keyword_search"
+    android:orientation="vertical"
+    tools:context=".fragment.KeywordFragment">
+
+    <include
+        android:id="@+id/header"
+        android:visibility="gone"
+        layout="@layout/header" />
+
+    <LinearLayout
+        android:id="@+id/llSearch"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/appbar"
+        android:background="@color/Grey_9">
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cvSearch"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginBottom="10dp"
+            android:padding="5dp"
+            app:cardCornerRadius="2dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:weightSum="2.7">
+
+                <ImageView
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.2"
+                    android:gravity="center"
+                    android:padding="5dp"
+                    android:src="@mipmap/search"
+                    android:tint="@color/Grey_5" />
+
+                <EditText
+                    android:id="@+id/etSearchView"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="2.0"
+                    android:background="@color/transepreant"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
+                    android:gravity="center_vertical"
+                    android:hint="Search Keyword here"
+                    android:padding="10dp"
+                    android:text=""
+                    android:textSize="14sp"
+                    android:textStyle="normal" />
+
+                <LinearLayout
+                    android:id="@+id/llFilter"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.5"
+                    android:gravity="end"
+                    android:visibility="visible"
+                    android:weightSum="0.5">
+
+                    <View
+                        android:layout_width="1dp"
+                        android:layout_height="match_parent"
+                        android:background="@color/Grey_9" />
+
+                    <ImageView
+                        android:id="@+id/ivKeyboard"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="0.3"
+                        android:padding="8dp"
+                        android:src="@mipmap/keyboard"
+                        android:tint="@color/Grey_5" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/llClose"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    android:layout_weight="0.5"
+                    android:gravity="end"
+                    android:visibility="gone"
+                    android:weightSum="0.5">
+
+                    <View
+                        android:layout_width="1dp"
+                        android:layout_height="match_parent"
+                        android:background="@color/Grey_9" />
+
+                    <ImageView
+                        android:id="@+id/ivClose"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_margin="2dp"
+                        android:layout_weight="0.2"
+                        android:gravity="center"
+                        android:padding="6dp"
+                        android:src="@mipmap/close"
+                        android:tint="@color/Grey_5" />
+
+                    <View
+                        android:layout_width="1dp"
+                        android:layout_height="match_parent"
+                        android:background="@color/Grey_9" />
+
+                    <ImageView
+                        android:id="@+id/ivSend"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_margin="2dp"
+                        android:layout_weight="0.3"
+                        android:gravity="center"
+                        android:padding="9dp"
+                        android:src="@mipmap/send"
+                        android:tint="@color/Grey_5" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
+
+    </LinearLayout>
+
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="15dp"
+        android:visibility="gone"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="5dp"
+        android:src="@drawable/ic_filter"
+        android:tint="@color/filters_chips"
+        app:backgroundTint="@color/filtersfab" />
+
+    <com.jainelibrary.keyboard.CustomKeyboardView
+        android:id="@+id/keyboardView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:keyTextSize="22sp"
+        android:labelTextSize="22sp"
+        android:shadowRadius="0.0"
+        android:visibility="gone" />
+
+
+</RelativeLayout>-->

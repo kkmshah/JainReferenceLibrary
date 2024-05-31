@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="@dimen/spacing_middle"
+    android:layout_marginRight="5dp"
+    android:layout_marginBottom="5dp"
+    android:background="@drawable/box_gallary"
+    android:orientation="horizontal"
+    android:padding="5dp"
+    android:weightSum="5"
+    app:cardUseCompatPadding="true">
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/llImage"
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:layout_weight="3"
+        android:clickable="true"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:padding="7dp"
+        app:cardBackgroundColor="@color/white">
+
+        <ImageView
+            android:id="@+id/ivImage"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="left"
+            android:padding="5dp"
+            android:src="@mipmap/book_close" />
+
+    </androidx.cardview.widget.CardView>
+
+
+    <!-- <View
+         android:layout_width="1dp"
+         android:layout_height="match_parent"
+         android:layout_marginTop="5dp"
+         android:background="@color/Grey_5" />-->
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:layout_weight="2"
+        android:orientation="horizontal"
+        android:padding="10dp"
+        android:weightSum="3">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="2.8"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvKeywordName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="top"
+                android:textColor="@color/colorPrimaryDark"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/tvBookName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/colorBlack"
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/tvCDate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/Grey_16"
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/tvNoteInfo"
+                android:layout_width="match_parent"
+                android:visibility="gone"
+                android:text="(Notes Added)"
+                android:layout_height="wrap_content"
+                android:textColor="@color/Grey_16"
+                android:textSize="12sp" />
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="10dp"
+            android:layout_height="25dp"
+            android:layout_gravity="top"
+            android:layout_weight="0.2">
+
+            <ImageView
+                android:id="@+id/ivMenu"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:layout_gravity="top"
+                android:src="@mipmap/image_menu" />
+        </LinearLayout>
+    </LinearLayout>
+
+</LinearLayout>

@@ -1,0 +1,323 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright (c) 2016 - Firoz Memon
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~                       http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<Keyboard xmlns:android="http://schemas.android.com/apk/res/android"
+    android:horizontalGap="0px"
+    android:keyHeight="45dip"
+    android:verticalGap="0px">
+
+    <!-- <Row>
+         <Key android:codes="-130"  android:keyLabel="हिन्दी" android:keyWidth="33%p" android:isRepeatable="false"/>
+         <Key android:codes="-140"  android:keyLabel="ગુજરાતી"  android:keyWidth="33%p" android:isRepeatable="false"/>
+         <Key android:codes="-150"  android:keyLabel="English"  android:keyWidth="33%p" android:isRepeatable="false"/>
+     </Row>-->
+    <Row>
+        <Key
+            android:codes="-105"
+            android:keyEdgeFlags="left"
+            android:keyLabel="ક"
+            android:keyOutputText='ક' />
+        <Key
+            android:codes="-105"
+            android:keyLabel="ખ"
+            android:keyOutputText='ખ' />
+        <Key
+            android:codes="-105"
+            android:keyLabel="ગ"
+            android:keyOutputText='ગ' />
+        <Key
+            android:codes="-105"
+            android:keyLabel="ઘ"
+            android:keyOutputText='ઘ' />
+        <Key
+            android:codes="-105"
+            android:keyLabel="ઙ"
+            android:keyOutputText='ઙ' />
+        <Key
+            android:codes="-105"
+            android:keyLabel="ચ"
+            android:keyOutputText='ચ' />
+        <Key
+            android:codes="-105"
+            android:keyLabel="છ"
+            android:keyOutputText='છ' />
+        <Key
+            android:codes="-105"
+            android:keyLabel="જ"
+            android:keyOutputText='જ' />
+        <Key
+            android:codes="-105"
+            android:keyLabel="ઝ"
+            android:keyOutputText='ઝ' />
+        <Key
+            android:codes="-105"
+            android:keyEdgeFlags="right"
+            android:keyLabel="ઞ"
+            android:keyOutputText='ઞ' />
+    </Row>
+
+    <Row>
+        <Key
+            android:codes="-105"
+            android:keyEdgeFlags="left"
+            android:keyLabel="ટ"
+            android:keyOutputText='ટ' />
+        <Key
+            android:codes="-105"
+            android:keyLabel="ઠ"
+            android:keyOutputText='ઠ' />
+        <Key
+            android:codes="-105"
+            android:keyLabel="ડ"
+            android:keyOutputText='ડ' />
+        <Key
+            android:codes="-105"
+            android:keyLabel="ઢ"
+            android:keyOutputText='ઢ' />
+        <Key
+            android:codes="-105"
+            android:keyLabel="ણ"
+            android:keyOutputText='ણ' />
+        <Key
+            android:codes="-105"
+            android:keyLabel="ત"
+            android:keyOutputText='ત' />
+        <Key
+            android:codes="-105"
+            android:keyLabel="થ"
+            android:keyOutputText='થ' />
+        <Key
+            android:codes="-105"
+            android:keyLabel="દ"
+            android:keyOutputText='દ' />
+        <Key
+            android:codes="-105"
+            android:keyLabel="ધ"
+            android:keyOutputText='ધ' />
+        <Key
+            android:codes="-105"
+            android:keyEdgeFlags="right"
+            android:keyLabel="ન"
+            android:keyOutputText='ન' />
+    </Row>
+
+    <Row>
+        <Key
+            android:codes="-105"
+            android:keyEdgeFlags="left"
+            android:keyLabel="પ"
+            android:keyOutputText='પ' />
+        <Key
+            android:codes="-105"
+            android:keyLabel="ફ"
+            android:keyOutputText='ફ' />
+        <Key
+            android:codes="-105"
+            android:keyLabel="બ"
+            android:keyOutputText='બ' />
+        <Key
+            android:codes="-105"
+            android:keyLabel="ભ"
+            android:keyOutputText='ભ' />
+        <Key
+            android:codes="-105"
+            android:keyLabel="મ"
+            android:keyOutputText='મ' />
+        <Key
+            android:codes="-105"
+            android:keyLabel="ય"
+            android:keyOutputText='ય' />
+        <Key
+            android:codes="-105"
+            android:keyLabel="ર"
+            android:keyOutputText='ર' />
+        <Key
+            android:codes="-105"
+            android:keyLabel="લ"
+            android:keyOutputText='લ' />
+        <Key
+            android:codes="-105"
+            android:keyLabel="વ"
+            android:keyOutputText='વ' />
+        <Key
+            android:codes="-105"
+            android:keyEdgeFlags="right"
+            android:keyLabel="શ"
+            android:keyOutputText='શ' />
+    </Row>
+
+    <Row>
+        <Key
+            android:codes="-105"
+            android:keyEdgeFlags="left"
+            android:keyLabel="ષ"
+            android:keyOutputText='ષ' />
+        <Key
+            android:codes="-105"
+            android:keyLabel="સ"
+            android:keyOutputText='સ' />
+        <Key
+            android:codes="-105"
+            android:keyLabel="હ"
+            android:keyOutputText='હ' />
+        <Key
+            android:codes="-105"
+            android:keyLabel="ળ"
+            android:keyOutputText='ળ' />
+        <Key
+            android:codes="-105"
+            android:keyLabel='ક્ષ'
+            android:keyOutputText='ક્ષ' />
+        <Key
+            android:codes="-105"
+            android:keyLabel="જ્ઞ"
+            android:keyOutputText='જ્ઞ' />
+        <Key
+            android:codes="-105"
+            android:keyLabel="ઋ"
+            android:keyOutputText='ઋ' />
+        <Key
+            android:codes="-105"
+            android:keyLabel="ૐ"
+            android:keyOutputText='ૐ' />
+        <Key
+            android:codes="-105"
+            android:keyLabel="\?"
+            android:keyOutputText='\?' />
+        <Key
+            android:codes="-105"
+            android:keyEdgeFlags="right"
+            android:keyLabel="।"
+            android:keyOutputText='।' />
+    </Row>
+
+    <Row>
+        <Key
+            android:codes="-105"
+            android:keyEdgeFlags="left"
+            android:keyLabel="ૌ"
+            android:keyOutputText='ૌ' />
+        <Key
+            android:codes="-105"
+            android:keyLabel="ં"
+            android:keyOutputText='ં' />
+        <Key
+            android:codes="-105"
+            android:keyLabel="ઃ"
+            android:keyOutputText='ઃ' />
+        <Key
+            android:codes="-105"
+            android:keyLabel="ૅ"
+            android:keyOutputText='ૅ' />
+        <Key
+            android:codes="-105"
+            android:keyLabel="ૉ"
+            android:keyOutputText='ૉ' />
+        <Key
+            android:codes="-105"
+            android:keyLabel="્"
+            android:keyOutputText='્' />
+        <Key
+            android:codes="-105"
+            android:keyLabel="ઁ"
+            android:keyOutputText='ઁ' />
+        <Key
+            android:codes="-105"
+            android:keyLabel="઼"
+            android:keyOutputText='઼' />
+        <Key
+            android:codes="-105"
+            android:keyLabel="."
+            android:keyOutputText='.' />
+        <Key
+            android:codes="-105"
+            android:keyEdgeFlags="right"
+            android:keyLabel="-"
+            android:keyOutputText='-' />
+
+    </Row>
+
+    <Row>
+        <Key
+            android:codes="-108"
+            android:keyEdgeFlags="left"
+            android:keyLabel="⇧" />
+        <Key
+            android:codes="-105"
+            android:keyLabel="ા"
+            android:keyOutputText='ા' />
+        <Key
+            android:codes="-105"
+            android:keyLabel="િ"
+            android:keyOutputText='િ' />
+        <Key
+            android:codes="-105"
+            android:keyLabel="ી"
+            android:keyOutputText='ી' />
+        <Key
+            android:codes="-105"
+            android:keyLabel="ુ"
+            android:keyOutputText='ુ' />
+        <Key
+            android:codes="-105"
+            android:keyLabel="ૂ"
+            android:keyOutputText='ૂ' />
+        <Key
+            android:codes="-105"
+            android:keyLabel="ે"
+            android:keyOutputText='ે' />
+        <Key
+            android:codes="-105"
+            android:keyLabel="ૈ"
+            android:keyOutputText='ૈ' />
+        <Key
+            android:codes="-105"
+            android:keyLabel="ો"
+            android:keyOutputText='ો' />
+        <Key
+            android:codes="67"
+            android:isRepeatable="true"
+            android:keyEdgeFlags="right"
+            android:keyLabel="←" />
+    </Row>
+
+    <Row>
+        <Key
+            android:codes="-105"
+            android:keyEdgeFlags="left"
+            android:keyLabel=","
+            android:keyOutputText=',' />
+        <Key
+            android:codes="-108"
+            android:keyLabel="૧૨૩" />
+        <Key
+            android:codes="-105"
+            android:isRepeatable="true"
+            android:keyWidth="70%p"
+            android:keyLabel=" "
+            android:keyOutputText=' ' />
+        <Key
+            android:codes="151"
+            android:keyEdgeFlags="right" android:iconPreview="@color/white"
+            android:keyIcon="@drawable/searchss" />
+
+    </Row>
+    <!--<Row>
+        <Key android:codes="-150" android:keyLabel="Next" android:keyWidth="30%p" android:isRepeatable="false"/>
+        <Key android:codes="-150" android:keyLabel="Alternate" android:keyWidth="70%p" android:isRepeatable="false"/>
+    </Row>-->
+
+</Keyboard>

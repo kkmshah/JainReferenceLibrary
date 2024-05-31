@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="40dp"
+    android:background="@color/header_background">
+
+    <ImageView
+        android:id="@+id/menu"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="7dp"
+        android:src="@mipmap/menu"
+        android:tint="@color/white"
+        android:visibility="visible" />
+
+    <LinearLayout
+        android:id="@+id/rlShortcut"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:layout_marginTop="5dp"
+        android:layout_toRightOf="@+id/menu"
+        android:gravity="center_vertical"
+        android:weightSum="7">
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="20dp"
+            android:layout_weight="1.4"
+            android:text="JRL"
+            android:textColor="@color/white"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <ImageView
+            android:id="@+id/ivFirst"
+            android:layout_width="0dp"
+            android:layout_height="23dp"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="20dp"
+            android:layout_toRightOf="@+id/title"
+            android:layout_weight="0.9"
+            android:src="@mipmap/search"
+            android:tint="@color/white" />
+
+        <ImageView
+            android:id="@+id/ivSecond"
+            android:layout_width="0dp"
+            android:layout_height="23dp"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="20dp"
+            android:layout_toRightOf="@+id/ivFirst"
+            android:layout_weight="0.9"
+            android:src="@mipmap/my_reference"
+            android:tint="@color/white" />
+
+        <ImageView
+            android:id="@+id/ivThird"
+            android:layout_width="0dp"
+            android:layout_height="23dp"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="25dp"
+            android:layout_toRightOf="@+id/ivSecond"
+            android:layout_weight="0.9"
+            android:src="@mipmap/book_store"
+            android:tint="@color/white" />
+
+        <ImageView
+            android:id="@+id/ivFour"
+            android:layout_width="0dp"
+            android:layout_height="23dp"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="20dp"
+            android:layout_toRightOf="@+id/ivThird"
+            android:layout_weight="0.9"
+            android:src="@mipmap/user_guide"
+            android:tint="@color/white" />
+
+        <ImageView
+            android:id="@+id/ivFive"
+            android:layout_width="0dp"
+            android:layout_height="23dp"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="20dp"
+            android:layout_toRightOf="@+id/ivFour"
+            android:layout_weight="0.9"
+            android:src="@mipmap/login"
+            android:tint="@color/white" />
+
+        <ImageView
+            android:id="@+id/ivSix"
+            android:layout_width="0dp"
+            android:layout_height="23dp"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="20dp"
+            android:layout_toRightOf="@+id/ivFive"
+            android:layout_weight="0.9"
+            android:src="@mipmap/home"
+            android:tint="@color/white" />
+
+
+    </LinearLayout>
+
+     <!-- <LinearLayout
+          android:id="@+id/rlTitle"
+          android:layout_width="match_parent"
+          android:layout_height="30dp"
+          android:layout_below="@+id/rlShortcut"
+          android:layout_marginTop="10dp"
+          android:layout_marginBottom="5dp"
+          android:layout_toRightOf="@+id/menu"
+          android:gravity="center_vertical"
+          android:weightSum="2">
+
+          <ImageView
+              android:id="@+id/ivSelectLogo"
+              android:layout_width="0dp"
+              android:layout_height="23dp"
+              android:layout_gravity="center_vertical"
+              android:layout_weight="0.4"
+              android:src="@mipmap/search"
+              android:tint="@color/white" />
+
+          <TextView
+              android:id="@+id/tvTitlePage"
+              android:layout_width="0dp"
+              android:layout_height="30dp"
+              android:layout_marginLeft="20dp"
+              android:layout_weight="1.2"
+              android:text="JRL"
+              android:textColor="@color/white"
+              android:textSize="18sp"
+              android:textStyle="bold" />
+
+          <ImageView
+              android:id="@+id/ivseven"
+              android:layout_width="0dp"
+              android:layout_height="35dp"
+              android:layout_centerVertical="true"
+              android:layout_marginLeft="20dp"
+
+              android:layout_weight="0.2"
+              android:src="@drawable/hold"
+              android:tint="@color/white" />
+      </LinearLayout>-->
+</RelativeLayout>

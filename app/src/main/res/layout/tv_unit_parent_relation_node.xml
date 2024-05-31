@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+
+    android:gravity="center|start"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <RelativeLayout
+        android:id="@+id/trNodeLinkIcon"
+        android:layout_width="17dp"
+        android:layout_height="82dp"
+        android:orientation="horizontal"
+        android:weightSum="2"
+        android:visibility="visible">
+        <TextView
+            android:id="@+id/tvRight"
+            android:layout_width="2dp"
+            android:layout_height="90dp"
+            android:background="@color/pink_600"
+            android:textStyle="normal" />
+        <TextView
+            android:id="@+id/tvMid"
+            android:layout_width="15dp"
+            android:layout_height="2dp"
+            android:background="@color/pink_600"
+            android:textStyle="normal"
+            android:layout_centerVertical="true" />
+
+
+    </RelativeLayout>
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cvList"
+        android:layout_width="wrap_content"
+        android:minWidth="250dp"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@id/trNodeLinkIcon"
+        android:layout_marginTop="3dp"
+        android:layout_marginBottom="2dp"
+        android:padding="15dp"
+        app:cardCornerRadius="5dp"
+        app:cardUseCompatPadding="true"
+        android:backgroundTint="@color/colorWhite">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+        <LinearLayout
+            android:id="@+id/llRelationType"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="5dp"
+            android:background="@color/pink_600"
+            android:weightSum="2"
+           >
+
+            <ImageView
+                android:id="@+id/trNodeStateIcon"
+                android:layout_width="25dp"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_gravity="start"
+                android:layout_marginRight="5dp"
+                android:layout_weight="0.1"
+                android:src="@drawable/ic_tree_arrow_right"
+                app:tint="@color/white"
+                android:visibility="visible" />
+            <TextView
+                android:id="@+id/tvUnitName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="2dp"
+                android:layout_marginRight="2dp"
+                android:layout_centerVertical="true"
+                android:maxWidth="200dp"
+                android:layout_gravity="start"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:layout_weight="1.9"
+                android:textColor="@color/colorWhite"
+                android:text="Unit Name "
+                android:textSize="16sp"
+                android:textStyle="normal"
+                android:visibility="visible"  />
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/llCounts"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:weightSum="1"
+            android:layout_toEndOf="@id/llRelationType"
+            android:paddingRight="3dp"
+            android:paddingLeft="3dp"
+            android:paddingBottom="10dp"
+            android:paddingTop="10dp">
+            <TextView
+                android:id="@+id/tvUnitChildUsers"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="0.2"
+                android:gravity="center"
+                android:layout_centerVertical="true"
+                android:textColor="@color/black"
+                android:text="U (0)"
+                android:textStyle="bold"
+                android:textSize="12sp"
+                android:visibility="visible"
+                />
+
+            <TextView
+                android:id="@+id/tvBioCount"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="0.2"
+                android:gravity="center"
+                android:layout_centerVertical="true"
+                android:textColor="@color/black"
+                android:text="B (0)"
+                android:textStyle="bold"
+                android:textSize="12sp"
+                android:visibility="visible"
+                />
+
+            <TextView
+                android:id="@+id/tvEventCount"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="0.2"
+                android:gravity="center"
+                android:layout_centerVertical="true"
+                android:textColor="@color/black"
+                android:text="E (0)"
+                android:textStyle="bold"
+                android:textSize="12sp"
+                android:visibility="visible"  />
+            <TextView
+                android:id="@+id/tvRelationCount"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="0.2"
+                android:gravity="center"
+                android:layout_centerVertical="true"
+                android:textColor="@color/black"
+                android:text="R (0)"
+                android:textStyle="bold"
+                android:textSize="12sp"
+                android:visibility="visible" />
+
+            <ImageView
+                android:id="@+id/ivUnitView"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_weight="0.1"
+                android:layout_centerVertical="true"
+                android:src="@mipmap/view"
+                app:tint="@color/colorPrimary"
+                android:visibility="visible"/>
+
+            <ImageView
+                android:id="@+id/ivUnitTree"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_weight="0.1"
+                android:layout_gravity="center_vertical"
+                android:layout_centerVertical="true"
+                android:src="@mipmap/unit_tree"
+                app:tint="@color/colorPrimary"
+                android:visibility="visible"/>
+
+        </LinearLayout>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+    <View
+        android:id="@+id/adjustWidth"
+        android:layout_toEndOf="@id/cvList"
+        android:layout_width="50dp"
+        android:visibility="invisible"
+        android:layout_height="1dp" />
+
+
+</RelativeLayout>

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/list_item_height"
+    android:background="@color/white">
+
+    <CheckBox
+        android:id="@+id/cbBooks"
+        android:layout_gravity="center_vertical"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:buttonTint="@color/blue"
+        android:gravity="center" />
+
+   <!-- <CheckBox
+        android:id="@+id/cbBooks"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:visibility="visible"
+        android:buttonTint="@color/black"
+        android:clickable="true"
+        android:focusable="true" />-->
+
+    <TextView
+        android:id="@+id/list_item_genre_name"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_toRightOf="@+id/cbBooks"
+        android:layout_toLeftOf="@+id/list_item_genre_arrow"
+        android:gravity="center_vertical"
+        android:paddingLeft="5dp"
+        android:textColor="@color/black"
+        android:textSize="14sp"
+        tools:text="Genre" />
+
+    <ImageView
+        android:id="@+id/list_item_genre_arrow"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:layout_gravity="center_vertical|end"
+        android:layout_marginRight="10dp"
+        android:src="@drawable/ic_arrow_down"
+        android:tint="@color/black" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="end"
+        android:visibility="gone"
+        android:layout_marginRight="20dp"
+        android:gravity="end|center_vertical"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tvBooksCount"
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="20"
+            android:textColor="@color/black" />
+
+        <TextView
+            android:id="@+id/tvBooks"
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:text="Books"
+            android:textColor="@color/black" />
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_alignParentBottom="true"
+        android:background="@color/Grey_9"/>
+
+</RelativeLayout>
+

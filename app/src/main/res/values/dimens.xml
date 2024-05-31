@@ -1,0 +1,33 @@
+<resources>
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <!--genaral spacing-->
+    <dimen name="spacing_xsmall">2dp</dimen>
+    <dimen name="spacing_small">3dp</dimen>
+    <dimen name="spacing_medium">5dp</dimen>
+    <dimen name="spacing_xmedium">7dp</dimen>
+    <dimen name="spacing_middle">10dp</dimen>
+    <dimen name="spacing_large">15dp</dimen>
+    <dimen name="spacing_mlarge">20dp</dimen>
+    <dimen name="spacing_xlarge">35dp</dimen>
+
+
+    <!-- FaceGraphic dimensions -->
+
+
+    <dimen name="btn_height">50dp</dimen>
+    <dimen name="radius_bg_small">6dp</dimen>
+
+    <!-- Title bar views -->
+
+    <!-- Dashboard Screen -->
+    <dimen name="margin_box">30dp</dimen>
+
+    <!-- Settings screen: icon and label dimensions | Support Screen -->
+
+    <!-- Profile Screen -->
+
+    <!-- Progress bar -->
+
+    <dimen name="list_item_height">48dp</dimen>
+
+</resources>

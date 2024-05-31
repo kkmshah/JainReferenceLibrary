@@ -1,0 +1,140 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/color_shlok_number_search"
+    android:orientation="vertical">
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cvList"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginBottom="2dp"
+        android:backgroundTint="@color/white"
+        app:cardCornerRadius="5dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_width="70dp"
+                    android:orientation="vertical"
+                    android:layout_marginRight="5dp"
+                    android:layout_height="wrap_content">
+
+                    <ImageView
+                        android:id="@+id/ivBook"
+                        android:layout_width="match_parent"
+                        android:layout_height="70dp"
+                        android:src="@mipmap/book" />
+
+                    <LinearLayout
+                        android:id="@+id/llReferenceLayout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/tvReferCount"
+                            android:layout_width="match_parent"
+                            android:layout_height="20dp"
+                            android:visibility="visible"
+                            android:gravity="right|center"
+                            android:layout_gravity="center"
+                            android:textSize="12sp"
+                            android:textStyle="normal"
+                            android:layout_weight="1"
+                            android:textColor="@color/red"
+                            android:text="1"
+                            android:layout_marginRight="2dp"/>
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="20dp"
+                            android:visibility="visible"
+                            android:gravity="left|center"
+                            android:layout_gravity="center"
+                            android:textSize="12sp"
+                            android:textStyle="normal"
+                            android:layout_weight="1"
+                            android:text="Ref."
+                            android:textColor="@color/black"/>
+
+                    </LinearLayout>
+
+
+
+                </LinearLayout>
+
+                <LinearLayout
+
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tvNotes"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="वासुदेव हिदी एक अध्ययन"
+                        android:textSize="12sp"
+                        android:textStyle="normal" />
+
+
+                    <Button
+                        android:id="@+id/btnPageNo"
+                        android:layout_width="120dp"
+                        android:layout_height="30dp"
+                        android:layout_marginTop="5dp"
+                        android:background="@color/Blue"
+                        android:text="Page 25"
+                        android:textAllCaps="false"
+                        android:textColor="@color/colorWhite_"
+                        android:textSize="12sp"
+                        android:textStyle="normal" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                android:weightSum="2">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.6"
+                    android:text="Line No"
+                    android:textColor="@color/colorBlack" />
+
+                <TextView
+                    android:id="@+id/tvBookCount"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1.4"
+                    android:text=": 5"
+                    android:textColor="@color/BrandBlack" />
+            </LinearLayout>
+        </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/Grey_9" />
+</LinearLayout>
+

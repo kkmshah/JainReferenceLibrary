@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/nav_profile"
+        android:icon="@mipmap/profile"
+        android:title="Profile"
+        android:visible="false" />
+
+    <item
+        android:id="@+id/nav_home"
+        android:icon="@mipmap/jrl_menu_icon"
+        android:title="Home" />
+
+    <item
+        android:id="@+id/nav_about"
+        android:icon="@mipmap/about"
+        android:title="About" />
+
+    <item
+        android:id="@+id/nav_user_guide"
+        android:icon="@mipmap/user_guide"
+        android:title="User Guide" />
+    <item
+        android:id="@+id/nav_keyword"
+        android:icon="@mipmap/keys"
+        android:title="Keyword Search" />
+
+    <item
+        android:id="@+id/nav_shlok"
+        android:icon="@mipmap/shlok_search"
+        android:title="Shlok Search" />
+
+    <item
+        android:id="@+id/nav_index"
+        android:icon="@drawable/index_search"
+        android:title="Index Search" />
+
+    <item
+        android:id="@+id/nav_pdf_store"
+        android:icon="@mipmap/book_store"
+        android:title="Pdf Store" />
+    <item
+        android:id="@+id/nav_my_shelf"
+        android:icon="@mipmap/my_reference"
+        android:title="My References" />
+    <item
+        android:id="@+id/data_and_users"
+        android:icon="@mipmap/datausers"
+        android:title="@string/data_users" />
+
+    <item
+        android:id="@+id/supporters"
+        android:icon="@mipmap/supporters"
+        android:visible="false"
+        android:title="Supporters" />
+
+    <item
+        android:id="@+id/nav_logout"
+        android:icon="@mipmap/logout_new"
+        android:title="Login" />
+</menu>

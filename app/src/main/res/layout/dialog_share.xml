@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/bottomSheetContainer"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="bottom"
+    android:background="@color/colorWhite"
+    android:gravity="bottom"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="@color/colorWhite"
+        android:gravity="bottom"
+        android:orientation="vertical"
+        android:padding="5dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="8dp"
+            android:layout_marginBottom="8dp"
+            android:gravity="end"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/ivClose"
+                android:layout_width="15dp"
+                android:layout_height="20dp"
+                android:src="@mipmap/close"
+                android:tint="@color/red"
+                android:visibility="gone" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/llTotal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="5dp"
+            android:visibility="visible">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:backgroundTint="@color/colorPrimary"
+                android:gravity="center_vertical"
+                android:text="Total Selected Images : "
+                android:textAlignment="viewStart"
+                android:textColor="@color/black"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                tools:ignore="RtlCompat" />
+
+            <TextView
+                android:id="@+id/tvSelectedImageCount"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:background="@drawable/box"
+                android:gravity="center_vertical"
+                android:text="100"
+                android:textAlignment="center"
+                android:textColor="@color/light_background"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                tools:ignore="RtlCompat" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/llRename"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:orientation="horizontal"
+            android:padding="5dp">
+
+            <TextView
+                android:id="@+id/tvRename"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:backgroundTint="@color/colorPrimary"
+                android:gravity="center_vertical"
+                android:text="File Name : "
+                android:textAlignment="viewStart"
+                android:textColor="@color/black"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                tools:ignore="RtlCompat" />
+
+            <EditText
+                android:id="@+id/edtRenameFile"
+                android:layout_width="match_parent"
+                android:layout_height="55dp"
+                android:background="@drawable/box"
+                android:editable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:maxLines="2"
+                android:padding="10dp"
+
+                android:textAlignment="center"
+                android:textColor="@color/light_background"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                tools:ignore="RtlCompat" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:padding="2dp"
+            android:weightSum="2">
+
+            <Button
+                android:id="@+id/btnMyShelf"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
+                android:layout_weight="1"
+                android:background="@drawable/btn_rounded_primary"
+                android:text="My References"
+                android:textColor="@color/white"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <Button
+                android:id="@+id/btnShare"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
+                android:layout_weight="1"
+                android:background="@drawable/btn_rounded_primary"
+                android:text="Share"
+                android:textColor="@color/white"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <Button
+                android:id="@+id/btnDownload"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
+                android:layout_weight="1"
+                android:background="@drawable/btn_rounded_primary"
+                android:text="Download"
+                android:textColor="@color/white"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:visibility="gone"/>
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+    <com.jainelibrary.keyboard.CustomKeyboardView
+        android:id="@+id/keyboardView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:keyTextSize="22sp"
+        android:labelTextSize="22sp"
+        android:background="@color/Grey_14"
+        android:keyBackground="@drawable/back_grey"
+        android:keyTextColor="@color/black"
+        android:shadowRadius="0.0"
+        android:visibility="gone" />
+
+</LinearLayout>
+
+
+    <!--<LinearLayout
+        android:layout_margin="5dp"
+        android:layout_alignParentBottom="true"
+        android:layout_gravity="bottom"
+
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:orientation="vertical"
+        xmlns:android="http://schemas.android.com/apk/res/android">
+
+        <TextView
+            android:background="@color/colorWhite"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:text="Select Files"
+            android:textStyle="bold" />
+
+        <TextView
+            android:background="@color/colorWhite"
+            android:id="@+id/dialog_text_book"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:layout_width="match_parent"
+            android:text="Darshika Book" />
+
+        <TextView
+            android:background="@color/colorWhite"
+            android:id="@+id/dialog_text_Modification"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:layout_width="match_parent"
+            android:text="Darshika Modification"
+            android:textStyle="bold" />
+
+        <TextView
+            android:background="@color/colorWhite"
+            android:id="@+id/dialog_text_new"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:layout_width="match_parent"
+            android:text="Darshika New" />
+
+        <Button
+            android:id="@+id/btn_Dcancel"
+            android:layout_height="wrap_content"
+            android:layout_margin="20dp"
+            android:layout_width="match_parent" />
+    </LinearLayout>-->
+

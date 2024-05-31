@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/open"
+        android:title="Open" />
+    <item
+        android:id="@+id/book_info"
+        android:title="Book Info" />
+    <item
+        android:id="@+id/share"
+        android:title="Share" />
+    <item
+        android:id="@+id/download"
+        android:title="Download" />
+    <item
+        android:id="@+id/my_reference"
+        android:title="My References" />
+    <item
+        android:id="@+id/reference_info"
+        android:title="Reference Info"
+        android:visible="false"/>
+</menu>

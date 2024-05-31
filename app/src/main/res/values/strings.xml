@@ -1,0 +1,22 @@
+<resources>
+    <string name="app_name">JRL</string>
+
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="data_users">Data &amp; Users</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="project_by">Aacharya Shree Vijay Surendrasuriswarji Jain Tatva Gyan Shala</string>
+    <string name="address">Aacharya Shree surendrasuri Jain tatvagyanshala,
+        12 Shreyanshnath society,
+        near dharnidhar derasar, vasna ,Ahmedabad -7.</string>
+    <string name="search_year_here">Search Year here</string>
+    <string name="alert">Alert</string>
+    <string name="headerRight">Jain Tatvagyanshala</string>
+    <string name="headerCenter">Jain Tatvagyanshala</string>
+    <string name="headerleft">Jain Reference Library</string>
+    <string name="FooterRight">info@jaintatvagyanshala.org</string>
+    <string name="FooterCenter">www.jaintatvagyanshala.org</string>
+    <string name="Footerleft">(M)9512234311</string>
+</resources>
+

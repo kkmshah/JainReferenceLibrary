@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#306EFF</color>
+    <color name="colorPrimaryDark">#306EFF</color>
+    <color name="colorAccent">#981010</color>
+    <!--<color name="colorPrimary">#1565C0</color>
+    <color name="colorPrimaryDark">#1565C0</color>
+    <color name="colorAccent">#1565C0</color>
+-->
+<!--    <color name="backcolor">#A9B8D4F3</color>-->
+    <color name="backcolor">#1A981010</color>
+  <!--  <color name="colorPrimary">#4A89DC</color>
+    <color name="colorPrimaryDark">#4A89DC</color>
+    <color name="colorAccent">#4A89DC</color>-->
+
+    <!--
+        <color name="colorApp">#00B0E1</color>
+    -->
+
+    <!-- FaceGraphic colors -->
+    <color name="colorWhite">#FFFFFF</color>
+    <color name="colorBlack">#000000</color>
+    <color name="BrandBlack">#E42E2A2A</color>
+
+    <color name="BLACK">@android:color/black</color>
+    <!-- <color name="back">#FBE9E7</color>-->
+    <color name="colorbuttonpresssss">#F17A7A</color>
+
+
+    <!--   <color name="colorBrand2">#2B3363</color>-->
+    <!-- <color name="colorBrand2">#B60E0E</color>-->
+    <!--  <color name="colorblue">#F1DFD9</color>-->
+    <!--<color name="colorbluelight">#E5E8F7</color>-->
+    <!--<color name="colorBrand3">#ffebee</color>-->
+    <!--  <color name="colorBrand3">#E8E3F0</color>-->
+    <color name="transepreant">@android:color/transparent</color>
+
+
+    <color name="Blue">#1c3e85</color>
+    <color name="Grey_2">#cbd0d0</color>
+    <color name="Grey_5">#696969</color>
+    <color name="Grey_6">#cbcbcb</color>
+    <color name="Grey_7">#f4f7f7</color>
+    <color name="Grey_8">#cececf</color>
+    <color name="Grey_9">#f2f2f2</color>
+    <color name="Grey_10">#f5f5f5</color>
+    <color name="Grey_11">#c2cbcc</color>
+    <color name="Grey_14">#cacaca</color>
+    <color name="Grey_15">#acacac</color>
+    <color name="Grey_16">#a2a2a2</color>
+    <color name="transparent">#00ffffff</color>
+
+
+    <!--Post card colors-->
+
+
+    <color name="colorwhite">#FFFFFF</color>
+
+    <color name="colorblack">@android:color/black</color>
+
+
+    <!--colors for modern ui-->
+
+    <!--colros for card-->
+    f
+
+
+    <!-- <color name="colorPrimary">#F76497</color>-->
+    <!-- <color name="colorPrimary">#26A69A</color>
+     <color name="colorPrimaryDark">#00897B</color>
+     <color name="colorAccent">#D81B60</color>-->
+
+
+    <color name="white">#FFFFFF</color>
+
+    <color name="red">#FF0000</color>
+
+    <color name="brown">#A52A2A</color>
+    <color name="gray">#808080</color>
+    <color name="green">#008000</color>
+    <color name="blue">#0000FF</color>
+    <color name="black">#000000</color>
+    <color name="light_black">#CB000000</color>
+
+
+    <color name="grey_10">#e6e6e6</color>
+    <color name="grey_40">#999999</color>
+    <color name="grey_60">#666666</color>
+    <color name="grey_80">#37474F</color>
+    <color name="grey_90">#263238</color>
+
+
+    <!--Material color list from https://material.io/guidelines/style/color.html-->
+
+    <color name="light_blue_A100">#80D8FF</color>
+
+    <color name="yellow_100">#FFF9C4</color>
+
+    <color name="blue_grey_50">#ECEFF1</color>
+    <color name="blue_grey_300">#90A4AE</color>
+
+    <color name="pink_600">#D81B60</color>
+
+    <color name="light_green_400">#9CCC65</color>
+    <color name="light_green_A400">#76FF03</color>
+
+    <color name="purple_400">#AB47BC</color>
+
+    <color name="orange_A700">#FF6D00</color>
+
+
+    <!--for random color generator -->
+
+
+    <color name="colorWhite_">#ffffff</color>
+    <color name="colorGray">#666666</color>
+    <!--<color name="colorRed">#f44336</color>-->
+    <color name="colorRed">#cc2500</color>
+    <color name="color_ic_red">#cc2500</color>
+
+    <color name="colorBtnEndLight">#821d64f0</color>
+
+    <!-- ProgressBar colors -->
+
+    <color name="filtersfab">#D26A1B9A</color>
+    <color name="filters_buttons">#ffffff</color>
+    <color name="filters_buttons_selected">#f2f2f2</color>
+    <color name="filters_chips">#b3e5fc</color>
+    <color name="color_footer">#3FA2F1</color>
+    <color name="background_color">#BBDEFB</color>
+    <color name="button_color">#0D47A1</color>
+
+    <color name="color_keyword_search">#FFFFFF</color>
+    <color name="color_shlok_number_search">#FFFFFF</color>
+    <color name="color_index_search">#FFFFFF</color>
+    <!--<color name="color_keyword_search">#f47a60</color>
+    <color name="color_shlok_number_search">#9CCC65</color>
+    <color name="color_index_search">#FFA500</color>-->
+   <!-- <color name="color_keyword_search">#FFD55A</color>
+    <color name="color_shlok_number_search">#293250</color>
+    <color name="color_index_search">#6DD47E</color>-->
+
+    <!--  <color name="color_keyword_search">#1DE9B6</color>
+      <color name="color_shlok_number_search">#E2FFD600</color>
+      <color name="color_index_search">#C8FF6D00</color>-->
+    <color name="color_my_shelf">#BFD50000</color>
+    <color name="color_pdf_store">#448AFF</color>
+  <!--  <color name="color_my_shelf">#40C4FF</color>-->
+
+    <color name="normal_voilet">#9326D2</color>
+   <!-- <color name="normal_voilet">#D26A1B9A</color>-->
+   <!-- <color name="dark_voilet">#E23C0A5A</color>-->
+   <!-- <color name="dark_voilet">#CC2EFA</color>
+    <color name="text_color">#4C0B5F</color>
+    <color name="header_background">#4C0B5F</color>
+    <color name="light_background">#A901DB</color>
+    <color name="light_tab_background">#8904B1</color>-->
+    <color name="dark_voilet">#306EFF</color>
+    <color name="text_color">#E65100</color>
+    <color name="header_background">#306EFF</color>
+    <color name="light_background">#E65100</color>
+    <color name="light_tab_background">#306EFF</color>
+    <color name="gray_color">#f2f2f2</color>
+    <color name="total_count">#f2f2f2</color>
+
+
+
+
+</resources>
+
+

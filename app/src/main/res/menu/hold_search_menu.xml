@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/open"
+        android:visible="true"
+        android:title="Open" />
+    <item
+        android:id="@+id/delete"
+        android:title="Delete"/>
+    <item
+        android:id="@+id/my_reference"
+        android:title="My Reference"/>
+
+</menu>
