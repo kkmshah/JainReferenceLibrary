@@ -362,7 +362,7 @@ public class FilterCategoriesActivity extends AppCompatActivity {
         strUid = SharedPrefManager.getInstance(FilterCategoriesActivity.this).getStringPref(SharedPrefManager.KEY_USER_ID);
 
         Utils.showProgressDialog(FilterCategoriesActivity.this, "Please Wait...", false);
-        ApiClient.getCategory("1", strKeyword, strUid, new Callback<CategoryResModel>() {
+        ApiClient.getCategory("0", strKeyword, strUid, new Callback<CategoryResModel>() {
             @Override
             public void onResponse(Call<CategoryResModel> call, retrofit2.Response<CategoryResModel> response) {
                 if (response.isSuccessful()) {
@@ -372,6 +372,7 @@ public class FilterCategoriesActivity extends AppCompatActivity {
                         mDataList = new ArrayList<>();
                         mDataList = response.body().getData();
                         strTotalFilter = response.body().getTotalBooks();
+                        strDescription = response.body().getDescription();
                         SharedPrefManager.getInstance(FilterCategoriesActivity.this).saveStringPref(SharedPrefManager.KEY_FILTER_CAT_IDS, strTotalFilter);
                         if (mDataList != null && mDataList.size() > 0) {
                             setCatBooksAdapter(mDataList);

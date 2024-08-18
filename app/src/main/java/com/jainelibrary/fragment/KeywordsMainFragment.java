@@ -1663,7 +1663,7 @@ public class KeywordsMainFragment extends Fragment implements IOnBackPressed, Ke
         }
 
         Utils.showProgressDialog(getActivity(), "Please Wait...", false);
-        ApiClient.getCategory("1", strKeyword, strUId, new Callback<CategoryResModel>() {
+        ApiClient.getCategory("0", strKeyword, strUId, new Callback<CategoryResModel>() {
             @Override
             public void onResponse(Call<CategoryResModel> call, retrofit2.Response<CategoryResModel> response) {
                 if (response.isSuccessful()) {

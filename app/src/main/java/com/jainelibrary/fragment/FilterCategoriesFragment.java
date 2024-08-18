@@ -194,6 +194,10 @@ public class FilterCategoriesFragment extends Fragment {
                     CategoryResModel categoryResModel = response.body();
                     Log.e("responseData :", new GsonBuilder().setPrettyPrinting().create().toJson(categoryResModel));
                     if (response.body().isStatus()) {
+                        strDescription = response.body().getDescription();
+
+                        Log.e("strDescription", strDescription);
+
                         mDataList = new ArrayList<>();
                         mDataList = response.body().getData();
                         if (mDataList != null && mDataList.size() > 0) {
