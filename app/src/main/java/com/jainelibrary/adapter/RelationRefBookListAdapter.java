@@ -17,6 +17,7 @@ import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.jainelibrary.R;
+import com.jainelibrary.model.BiodataMemoryDetailsModel;
 import com.jainelibrary.model.RelationModel;
 import com.jainelibrary.model.RelationModel;
 import com.squareup.picasso.Picasso;
@@ -45,6 +46,8 @@ public class RelationRefBookListAdapter extends RecyclerView.Adapter<RelationRef
         //void onBookClick(ArrayList<RelationModel.ReferenceBook> mBookModel, int position);
 
         void onBookClick(View view, RelationModel.ReferenceBook bookPageModel, int position);
+
+        void onBookImageZoomClick(View view, RelationModel.ReferenceBook bookPageModel, int position);
     }
 
     @NonNull
@@ -70,6 +73,13 @@ public class RelationRefBookListAdapter extends RecyclerView.Adapter<RelationRef
 
         if (strBookImage != null && strBookImage.length() > 0) {
             Picasso.get().load(strBookImage).into(holder.ivBook);
+            holder.ivBook.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    listener.onBookImageZoomClick(view, bookList.get(position), position);;
+
+                }
+            });
         } else {
             holder.ivBook.setImageTintList(ColorStateList.valueOf(mContext.getResources().getColor(R.color.light_background)));
         }

@@ -61,6 +61,7 @@ public class MyShelfResModel implements Serializable {
         String book_id;
         String book_name;
         String book_image;
+        String book_large_image;
         String type_id,type_name;
         String type;
         String cdate;
@@ -106,6 +107,14 @@ public class MyShelfResModel implements Serializable {
 
         public void setBook_image(String book_image) {
             this.book_image = book_image;
+        }
+
+        public String getBook_large_image() {
+            return book_large_image;
+        }
+
+        public void setBook_large_image(String book_large_image) {
+            this.book_large_image = book_large_image;
         }
 
         public void setType_id(String type_id) {

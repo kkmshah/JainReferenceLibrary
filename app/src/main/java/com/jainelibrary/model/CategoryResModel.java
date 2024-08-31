@@ -86,6 +86,7 @@ public class CategoryResModel {
             String author_name;
             String prakashak_name;
             String book_image;
+            String book_large_image;
             String filter;
             String keyword_count;
             String year_count;
@@ -111,6 +112,14 @@ public class CategoryResModel {
                 this.year_count = year_count;
             }
 
+            public String getBook_large_image() {
+                return book_large_image;
+            }
+
+            public void setBook_large_image(String book_large_image) {
+                this.book_large_image = book_large_image;
+            }
+
             public void setFilter(String filter) {
                 this.filter = filter;
             }
@@ -131,11 +140,11 @@ public class CategoryResModel {
                 this.prakashak_name = publisher_name;
             }
 
-            public String getBook_url() {
+            public String getBook_image() {
                 return book_image;
             }
 
-            public void setBook_url(String book_url) {
+            public void setBook_image(String book_url) {
                 this.book_image = book_url;
             }
 

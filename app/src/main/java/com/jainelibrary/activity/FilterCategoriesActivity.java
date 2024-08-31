@@ -420,8 +420,16 @@ public class FilterCategoriesActivity extends AppCompatActivity {
         LinearLayoutManager layoutManager = new LinearLayoutManager(FilterCategoriesActivity.this);
         multiCheckAdapter = new MultiCheckGenreAdapter(false, GenreDataFactory.makeMultiCheckGenres(mCatList), bookIdList, count,FilterCategoriesActivity.this, new MultiCheckGenreAdapter.OnZoomListener() {
             @Override
-            public void OnZoomClick(View view, int position, String s) {
+            public void OnZoomClick(String strImageUrl, String fallbackImage) {
+                if(strImageUrl.isEmpty()) {
+                    return;
+                }
+                Intent i = new Intent(FilterCategoriesActivity.this, ZoomImageActivity.class);
+                i.putExtra("image", strImageUrl);
+                i.putExtra("fallbackImage", fallbackImage);
 
+                i.putExtra("url", true);
+                startActivity(i);
             }
         });
         Log.e("gen : " + GenreDataFactory.makeMultiCheckGenres(mCatList).size() + "", bookIdList.size() + "");

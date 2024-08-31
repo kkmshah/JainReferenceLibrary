@@ -43,9 +43,18 @@ public class FilterBooksAdapter extends RecyclerView.Adapter<FilterBooksAdapter.
     @Override
     public void onBindViewHolder(@NonNull final MyViewHolder myViewHolder, final int position) {
         myViewHolder.tvName.setText(filterBookList.get(position).getName());
-        String strUrl = filterBookList.get(position).getFocusUrl();
+        String strUrl = filterBookList.get(position).getBook_image();
+
         if (strUrl != null && strUrl.length() > 0) {
             Picasso.get().load(strUrl).placeholder(R.drawable.noimage).into(myViewHolder.ivImage);
+            myViewHolder.ivImage.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+
+                    onFocusSelectListener.onBookImageClick(filterBookList.get(position), position);
+                }
+            });
         }
         Log.e(TAG,"url : " + strUrl);
         int filter = filterBookList.get(position).getFilter();
@@ -81,6 +90,7 @@ public class FilterBooksAdapter extends RecyclerView.Adapter<FilterBooksAdapter.
 
     public interface onFocusSelectListener {
         void onFocusSelect(List<FilterBookResModel.FilterModel> filterBookList, int position);
+        void onBookImageClick(FilterBookResModel.FilterModel filterBook, int position);
     }
 
     public static class MyViewHolder extends RecyclerView.ViewHolder {

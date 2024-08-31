@@ -58,45 +58,42 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
            // Log.e(TAG, "BookName : " + strBookName);
             holder.tvBookName.setText(Html.fromHtml(strBookName));
 
+        } else {
+            holder.tvBookName.setText("");
         }
 
-        if (strAutherName != null && strAutherName.length() > 0) {
-            //   strAutherName = " \n " + strAutherName/* + "&#91;" + "ले" + "&#93; "*/;
-            // strOtherName = strOtherName + "\n"+strAutherName;
-            if (!strAutherName.equalsIgnoreCase("0"))
-            {
-                holder.tvAuther.setText(Html.fromHtml(strAutherName));}
-            else {
-                holder.tvAuther.setText("");
-            }
-
+        if (strAutherName != null && strAutherName.length() > 0 && !strAutherName.equalsIgnoreCase("0")) {
+            holder.tvAuther.setText(Html.fromHtml(strAutherName));
+        } else {
+            holder.tvAuther.setText("");
         }
 
-        if (strPublisherName != null && strPublisherName.length() > 0) {
+        if (strPublisherName != null && strPublisherName.length() > 0 && !strPublisherName.equalsIgnoreCase("0")) {
             //  strPublisherName = "\n " + strPublisherName /*+ "&#91;" + "प्रका" + "&#93;"*/;
             //  strOtherName = strOtherName + "\n"+strPublisherName;
             //Log.e(TAG, "PublisherName : " + strPublisherName);
-            if(!strPublisherName.equalsIgnoreCase("0"))
-            holder.tvPublisher.setText(Html.fromHtml(strPublisherName));else {
 
-                    holder.tvPublisher.setText("");
-
-            }
+            holder.tvPublisher.setText(Html.fromHtml(strPublisherName));
+        } else {
+            holder.tvPublisher.setText("");
         }
 
         if (strOtherName != null && strOtherName.length() > 0) {
             //  holder.tvBookName.setText(Html.fromHtml(strOtherName));
         }
 
-        String strBookURl = filesModelsList.get(position).getBook_url();
+        String strBookURl = filesModelsList.get(position).getBook_image();
+        String strLargeBookImage = filesModelsList.get(position).getBook_large_image();
         if (strBookURl != null && strBookURl.length() > 0) {
             Picasso.get().load(strBookURl).placeholder(R.drawable.book).into(holder.ivImage);
+        }else {
+            Picasso.get().load(R.drawable.book).into(holder.ivImage);
         }
         holder.ivImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (strBookURl != null && strBookURl.length() > 0) {
-                    onImageZoomListener.onImageClick(position, strBookURl);
+                if (strLargeBookImage != null && strLargeBookImage.length() > 0) {
+                    onImageZoomListener.onImageClick(position, strLargeBookImage, strBookURl);
                 }
             }
         });
@@ -189,6 +186,6 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
     }
 
     public interface OnImageZoomListener {
-        public void onImageClick(int position, String s);
+        public void onImageClick(int position, String strImage, String fallbackUrl);
     }
 }

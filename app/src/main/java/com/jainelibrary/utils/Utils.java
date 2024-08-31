@@ -6,6 +6,8 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DownloadManager;
 import android.app.ProgressDialog;
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -43,6 +45,9 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.CustomTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.jainelibrary.JRL;
@@ -54,6 +59,7 @@ import com.jainelibrary.activity.LoginWithPasswordActivity;
 import com.jainelibrary.activity.MainActivity;
 import com.jainelibrary.activity.NotesActivity;
 import com.jainelibrary.activity.YearListActivity;
+import com.jainelibrary.activity.ZoomImageActivity;
 import com.jainelibrary.manager.ConnectionManager;
 import com.jainelibrary.model.FilterResModel;
 import com.jainelibrary.model.FilterResModelLIst;
@@ -61,6 +67,7 @@ import com.jainelibrary.model.UserDetailsResModel;
 import com.jainelibrary.retrofit.ApiClient;
 import com.jainelibrary.retrofitResModel.BookListResModel;
 import com.jainelibrary.retrofitResModel.ClearHoldReferenceModel;
+import com.jainelibrary.utils.DownloadImage.DownloadImage;
 import com.wc.widget.dialog.IosDialog;
 
 import java.io.ByteArrayOutputStream;
@@ -68,6 +75,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
@@ -728,6 +736,93 @@ public class Utils {
     public static String getColoredSpanned(String text, String color) {
         String input = "<font color=" + color + ">" + text + "</font>";
         return input;
+    }
+
+
+    public static void downloadImageFromURL(Activity activity, String imageUrl) {
+
+         DownloadImage.downloadImageFromURL(activity, imageUrl);
+//        if (!Utils.mediaStoreDownloadsDir.exists())
+//            Utils.mediaStoreDownloadsDir.mkdirs();
+//
+//        Utils.showProgressDialog(activity, "Please Wait...", false);
+//        Glide.with(activity).asBitmap().load(imageUrl).into(new CustomTarget<Bitmap>() {
+//            @Override
+//            public void onResourceReady(Bitmap resource, Transition<? super Bitmap> transition) {
+//                Utils.dismissProgressDialog();
+//                ContentValues values = new ContentValues();
+//                values.put(MediaStore.Images.Media.DISPLAY_NAME, "JRL_"+System.currentTimeMillis()+".jpeg");
+//                values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
+//                ContentResolver contentResolver = activity.getContentResolver();
+//                Uri imageUri = contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+//                // Open an output stream to write the image
+//                try (OutputStream out = contentResolver.openOutputStream(imageUri)) {
+//                    resource.compress(Bitmap.CompressFormat.JPEG, 100, out);
+//                    //Utils.showInfoDialog(activity, "Image Saved successfully.");
+//                    Toast.makeText(activity.getApplicationContext(), "Image Saved!.", Toast.LENGTH_SHORT).show();
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//            @Override
+//            public void onLoadCleared(Drawable placeholder) {
+//                Utils.dismissProgressDialog();
+//            }
+//        });
+
+    }
+
+
+    public static void shareContentWithImage(Activity activity, String title, String message, String imageUrl) {
+
+        String strMessage = message + "\n Get Latest JRL APP from here : https://play.google.com/store/apps/details?id=" + activity.getPackageName();
+
+        Utils.showProgressDialog(activity, "Please Wait...", false);
+        Glide.with(activity).asBitmap().load(imageUrl).into(new CustomTarget<Bitmap>() {
+            @Override
+            public void onResourceReady(Bitmap resource, Transition<? super Bitmap> transition) {
+
+                Utils.dismissProgressDialog();
+
+                Intent shareIntent = new Intent();
+                shareIntent.setAction(Intent.ACTION_SEND);
+                shareIntent.setType("text/plain");
+                shareIntent.putExtra(Intent.EXTRA_SUBJECT, title);
+                shareIntent.putExtra(Intent.EXTRA_TEXT, strMessage);
+                shareIntent.putExtra(Intent.EXTRA_TITLE, title);
+
+                ContentResolver contentResolver = activity.getContentResolver();
+                ContentValues values = new ContentValues();
+                values.put(MediaStore.Images.Media.DISPLAY_NAME, "jrl_share_"+System.currentTimeMillis()+".jpeg");
+                values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
+                Uri imageUri = contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+
+                try (OutputStream out = contentResolver.openOutputStream(imageUri)) {
+                    resource.compress(Bitmap.CompressFormat.JPEG, 100, out);
+                    String mimeType = activity.getContentResolver().getType(imageUri);
+
+                    if (mimeType == null) {
+                        mimeType = "image/jpeg"; // Fallback if MIME type is not found
+                    }
+                    shareIntent.setType(mimeType);
+                    shareIntent.putExtra(Intent.EXTRA_STREAM, imageUri);
+                    shareIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                Intent chooser = Intent.createChooser(shareIntent, title);
+                new Handler().postDelayed(() -> activity.getContentResolver().delete(imageUri, null, null), 60000);
+                activity.startActivity(chooser);
+            }
+
+            @Override
+            public void onLoadCleared(Drawable placeholder) {
+                // Handle if the image load is canceled
+                Utils.dismissProgressDialog();
+            }
+        });
     }
 
     public static void downloadPdf(String filename, String url, Activity activity) {

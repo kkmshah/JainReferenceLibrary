@@ -182,15 +182,17 @@ public class MultiCheckGenreAdapter extends CheckableChildRecyclerViewAdapter<Mu
                 notifyDataSetChanged();
             }
         });
-        /*holder.ivBookImage.setOnClickListener(new View.OnClickListener() {
+        holder.ivBookImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if ((((Book) parentBookList.get(bookTemp.getParentPos()).getItems().get(childIndex)).getBook_url() != null) &&
-                        ((Book) parentBookList.get(bookTemp.getParentPos()).getItems().get(childIndex)).getBook_url().length() == 0)
-                    ;
-                onzoomListener.OnZoomClick(view, oldFlatPostion, ((Book) parentBookList.get(bookTemp.getParentPos()).getItems().get(childIndex)).getBook_url());
+
+                Book book = (Book) parentBookList.get(bookTemp.getParentPos()).getItems().get(childIndex);
+                if(book.getBook_large_image().isEmpty()) {
+                    return;
+                }
+                onzoomListener.OnZoomClick(book.getBook_large_image(), book.getBook_image());
             }
-        });*/
+        });
     }
 
     public boolean isSelected(String bookId) {
@@ -219,7 +221,7 @@ public class MultiCheckGenreAdapter extends CheckableChildRecyclerViewAdapter<Mu
     }
 
     public interface OnZoomListener {
-        public void OnZoomClick(View view, int position, String s);
+        public void OnZoomClick(String imageUrl, String fallbackImageUrl);
     }
 
     ////////// Parent View Holder ////////////////

@@ -163,6 +163,11 @@
             android:exported="true"
             android:windowSoftInputMode="stateAlwaysHidden" />
         <activity
+            android:name=".activity.ImageSliderActivity"
+            android:screenOrientation="portrait"
+            android:exported="true"
+            android:windowSoftInputMode="stateAlwaysHidden" />
+        <activity
             android:name=".activity.AppendixActivity"
             android:screenOrientation="portrait"
             android:exported="true"

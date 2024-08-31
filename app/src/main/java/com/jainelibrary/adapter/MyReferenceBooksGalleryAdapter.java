@@ -79,6 +79,12 @@ public class MyReferenceBooksGalleryAdapter extends RecyclerView.Adapter<MyRefer
         }*/
         if (strBookImage != null && strBookImage.length() > 0) {
             Picasso.get().load(strBookImage).into(holder.ivImage);
+            holder.ivImage.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    onImageClickListener.onZoomClick(filesModelsList.get(position));
+                }
+            });
         }else{
             Picasso.get().load(R.drawable.noimage).into(holder.ivImage);
         }
@@ -110,5 +116,6 @@ public class MyReferenceBooksGalleryAdapter extends RecyclerView.Adapter<MyRefer
     }
     public interface OnImageClickListener {
         void onMenuGalleryClick(ArrayList<MyShelfResModel.MyShelfModel> filesModelsList, int position, ImageView ivMenu);
+        void onZoomClick(MyShelfResModel.MyShelfModel filesModelsList);
     }
 }

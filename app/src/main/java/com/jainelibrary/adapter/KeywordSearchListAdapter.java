@@ -42,6 +42,8 @@ public class KeywordSearchListAdapter extends RecyclerView.Adapter<KeywordSearch
 
     public interface SearchInterfaceListener {
         void onDetailsClick(View view, BookListResModel.BookDetailsModel mKeywordModel, int position);
+        void onBookImageClick(View view, BookListResModel.BookDetailsModel mKeywordModel, int position);
+
     }
 
     @Override
@@ -53,7 +55,7 @@ public class KeywordSearchListAdapter extends RecyclerView.Adapter<KeywordSearch
         String strPageNo = mBookList.get(position).getPage_no();
         String strPdfPageNo = mBookList.get(position).getPdf_page_no();
         String strAutherName = mBookList.get(position).getAuthor_name();
-        String strBookUrl = mBookList.get(position).getBook_url();
+        String strBookUrl = mBookList.get(position).getBook_image();
 
         if (strPdfPageNo == null || strPdfPageNo.length() == 0) {
             mBookList.get(position).setPdf_page_no(strPageNo);
@@ -114,6 +116,13 @@ public class KeywordSearchListAdapter extends RecyclerView.Adapter<KeywordSearch
         } else {
             holder.ivBook.setImageTintList(ColorStateList.valueOf(mContext.getResources().getColor(R.color.light_background)));
         }
+
+        holder.ivBook.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                searchInterfaceListener.onBookImageClick(view, mBookList.get(position), position);
+            }
+        });
 
         Log.e("bookpagemodel", bookPageModels.size() + "");
 

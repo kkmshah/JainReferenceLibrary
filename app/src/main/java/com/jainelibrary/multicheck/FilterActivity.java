@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.jainelibrary.R;
+import com.jainelibrary.activity.ZoomImageActivity;
 import com.jainelibrary.fragment.KeywordsMainFragment;
 import com.jainelibrary.adapter.FilterBooksAdapter;
 import com.jainelibrary.adapter.FilterMainCatAdapter;
@@ -331,6 +332,23 @@ public class FilterActivity extends AppCompatActivity implements FilterMainCatAd
 
     }
 
+    public void onBookImageClick(FilterBookResModel.FilterModel filterBook, int position) {
+        String strBookIds = String.valueOf(filterBook.getId());
+        boolean isBookSelected = filterBook.isSelected();
+        Log.e(TAG, "strBookIds or selected --" + strBookIds + isBookSelected);
+
+        String strImageUrl = filterBook.getBook_large_image();
+        String fallbackImage = filterBook.getBook_image();
+
+        Log.e("strImageUrl--", "index--" + strImageUrl);
+        Intent i = new Intent(this, ZoomImageActivity.class);
+        i.putExtra("image", strImageUrl);
+        i.putExtra("fallbackImage", fallbackImage);
+
+        i.putExtra("url", true);
+        startActivity(i);
+
+    }
     @Override
     public void onLensSelect(List<SearchOptionResModel.SearchOptionModel> optionModelList, int position) {
         String strBookIds = String.valueOf(optionModelList.get(position).getId());
@@ -383,9 +401,14 @@ public class FilterActivity extends AppCompatActivity implements FilterMainCatAd
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         multiCheckAdapter = new MultiCheckGenreAdapter(false, GenreDataFactory.makeMultiCheckGenres(mCatList), bookIdList, count, FilterActivity.this, new MultiCheckGenreAdapter.OnZoomListener() {
-            @Override
-            public void OnZoomClick(View view, int position, String s) {
+            public void OnZoomClick(String strImageUrl, String fallbackImage) {
 
+                Intent i = new Intent(FilterActivity.this, ZoomImageActivity.class);
+                i.putExtra("image", strImageUrl);
+                i.putExtra("fallbackImage", fallbackImage);
+
+                i.putExtra("url", true);
+                startActivity(i);
             }
         });
         Log.e("gen : " + GenreDataFactory.makeMultiCheckGenres(mCatList).size() + "", bookIdList.size() + "");

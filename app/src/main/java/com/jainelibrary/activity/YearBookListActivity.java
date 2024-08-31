@@ -6,8 +6,6 @@ import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.inputmethodservice.Keyboard;
 import android.net.Uri;
@@ -15,14 +13,12 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
@@ -39,6 +35,8 @@ import com.jainelibrary.model.AddShelfResModel;
 import com.jainelibrary.model.UserDetailsResModel;
 import com.jainelibrary.retrofit.ApiClient;
 import com.jainelibrary.retrofitResModel.BookListResModel;
+import com.jainelibrary.retrofitResModel.CheckMyShelfFileNameResModel;
+import com.jainelibrary.retrofitResModel.CreatePdfFileUrlResModel;
 import com.jainelibrary.retrofitResModel.ShareOrDownloadMyShelfResModel;
 import com.jainelibrary.utils.SharedPrefManager;
 import com.jainelibrary.utils.Utils;
@@ -51,9 +49,6 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
-import okhttp3.MediaType;
-import okhttp3.MultipartBody;
-import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -68,7 +63,7 @@ public class YearBookListActivity extends AppCompatActivity implements YearBookL
     ArrayList<BookListResModel.BookDetailsModel.BookPageModel> mBookModel = new ArrayList<>();
     BookListResModel.BookDetailsModel mBookDataModels = new BookListResModel.BookDetailsModel();
     RecyclerView rvYearBook;
-    String strYearTypeId, strYearId, strYearValue, strBookName, strTypeRef, strUID, shareText, strUsername, strUserDetails, PackageName, strTypeId, strPdfLink;
+    String strYearTypeId, strYearId, strYearValue, strBookName, strTypeRef, strUID, shareText, strUsername, strUserDetails, PackageName, strTypeId;
     LinearLayout llExplore;
     private YearBookListAdapter mSearchListAdapter;
     private static final int REFERENCE_CODE = 1;
@@ -128,7 +123,7 @@ public class YearBookListActivity extends AppCompatActivity implements YearBookL
                 boolean isLogin = SharedPrefManager.getInstance(YearBookListActivity.this).getBooleanPreference(SharedPrefManager.IS_LOGIN);
                 if (isLogin) {
                     //callBookDetailsPdfApi(strKeyId,strBookIds);
-                    getYearBookPdf(strYearTypeId, strYearValue);
+                    getShareDialog(strYearTypeId, strYearValue);
                 } else {
                     askLogin();
                 }
@@ -169,35 +164,107 @@ public class YearBookListActivity extends AppCompatActivity implements YearBookL
     }
 
 
-
-    private void getYearBookPdf(String strYearTypeId, String strYearValue) {
+    private void saveYearBookFile( String strYearTypeId, String strYearValue, String strUId, String strEdtRenamefile, String totalKeywordCount, boolean isShare) {
         if (!ConnectionManager.checkInternetConnection(YearBookListActivity.this)) {
             Utils.showInfoDialog(YearBookListActivity.this, "Please check internet connection");
             return;
         }
+
         Utils.showProgressDialog(YearBookListActivity.this, "Please Wait...", false);
-        ApiClient.getYearBookPdf(strYearTypeId, strYearValue, strBookIds, new Callback<ResponseBody>() {
+        ApiClient.checkMyShelfFileName(strUId, strEdtRenamefile, new Callback<CheckMyShelfFileNameResModel>() {
             @Override
-            public void onResponse(Call<ResponseBody> call, retrofit2.Response<ResponseBody> response) {
+            public void onResponse(Call<CheckMyShelfFileNameResModel> call, retrofit2.Response<CheckMyShelfFileNameResModel> response) {
+                if (!response.isSuccessful()  ) {
+                    Utils.dismissProgressDialog();
+                    Utils.showInfoDialog(YearBookListActivity.this, "Please try again!");
+                    return;
+                }
+
+                if(!response.body().isStatus()) {
+                    Utils.dismissProgressDialog();
+                    Utils.showInfoDialog(YearBookListActivity.this, "" + response.body().getMessage());
+                    return;
+                }
+
+
+                Log.e("responseData Req", strYearTypeId+ "==" + strYearValue + "==" +strBookIds);
+                ApiClient.createYearBookPdf( strYearTypeId, strYearValue, strBookIds, new Callback<CreatePdfFileUrlResModel>() {
+                    @Override
+                    public void onResponse(Call<CreatePdfFileUrlResModel> call, retrofit2.Response<CreatePdfFileUrlResModel> response) {
+                        Utils.dismissProgressDialog();
+                        Log.e("responseData :", new GsonBuilder().setPrettyPrinting().create().toJson(response.body()));
+
+                        if (response.isSuccessful()) {
+                            if (response.body().isStatus()) {
+                                String strTmpPdfUrl = response.body().getPdf_url();
+                                if (strTmpPdfUrl != null && strTmpPdfUrl.length() > 0) {
+                                    callAddMyShelfApi(strTmpPdfUrl, strUId, strEdtRenamefile, totalKeywordCount, isShare);
+                                } else {
+                                    Utils.showInfoDialog(YearBookListActivity.this, "KeywordData not saved");
+                                }
+                            }else {
+                                Utils.showInfoDialog(YearBookListActivity.this, "KeywordData not saved");
+                            }
+
+                        } else {
+                            Utils.showInfoDialog(YearBookListActivity.this, "KeywordData not saved");
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<CreatePdfFileUrlResModel> call, Throwable t) {
+                        String message = t.getMessage();
+                        Log.e("error", "onFailure--- " + message);
+                        Utils.dismissProgressDialog();
+                    }
+                });
+
+            }
+            @Override
+            public void onFailure(Call<CheckMyShelfFileNameResModel> call, Throwable t) {
+                String message = t.getMessage();
+                Log.e("error", "onFailure--- " + message);
                 Utils.dismissProgressDialog();
+            }
+        });
+
+    }
+
+    private void callAddMyShelfApi(String fileUrl, String strUId, String strEdtRenamefile, String totalKeywordCount, boolean isShare) {
+        String type =  "3" + strYearTypeId;
+        String typeref = REF_TYPE_REFERENCE_PAGE;
+        String typeId = strYearId;
+        String fileType = "3";
+
+        Utils.showProgressDialog(YearBookListActivity.this, "Please Wait...", false);
+        ApiClient.addMyShelfsWithUrl(strUId, null, typeId, type, typeref, strEdtRenamefile, null, totalKeywordCount, fileType, fileUrl, new Callback<AddShelfResModel>() {
+            @Override
+            public void onResponse(Call<AddShelfResModel> call, Response<AddShelfResModel> response) {
+                /*Log.e("responseData :", new GsonBuilder().setPrettyPrinting().create().toJson(response));*/
                 if (response.isSuccessful()) {
-                    ResponseBody keywordSearchModel1 = response.body();
-                    Log.e("responseData Keyword :", new GsonBuilder().setPrettyPrinting().create().toJson(keywordSearchModel1));
-                    String strPdfFile = downloadFile(keywordSearchModel1);
-                    if (strPdfFile != null && strPdfFile.length() > 0) {
-                        // showExportDialog(view, strPdfFile);
-                        getShareDialog(strPdfFile);
+                    /*Log.e("responseData :", new GsonBuilder().setPrettyPrinting().create().toJson(response));*/
+                    Utils.dismissProgressDialog();
+                    if (response.body().isStatus()) {
+                        String strPdfLink = response.body().getPdf_url();
+                        String strPdfImage = response.body().getPdf_image();
+                        if (isShare) {
+                            callShareMyShelfsApi(strUId, shareText, strPdfLink, strPdfImage);
+                        }
+                        else {
+                            Utils.showInfoDialog(YearBookListActivity.this, "Data added in My Reference.");
+                        }
                     } else {
-                        Utils.showInfoDialog(YearBookListActivity.this, "Pdf data not download");
+                        Utils.showInfoDialog(YearBookListActivity.this, "" + response.body().getMessage());
                     }
                 }
             }
 
             @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
+            public void onFailure(Call<AddShelfResModel> call, Throwable t) {
                 String message = t.getMessage();
-                Log.e("error", "theme---" + message);
+                Log.e("error", message);
                 Utils.dismissProgressDialog();
+                Utils.showInfoDialog(YearBookListActivity.this, "Something went wrong please try again later");
             }
         });
     }
@@ -247,6 +314,15 @@ public class YearBookListActivity extends AppCompatActivity implements YearBookL
         }*/
     }
 
+    public void onZoomClick(View view, BookListResModel.BookDetailsModel.BookPageModel book) {
+        Intent i = new Intent(YearBookListActivity.this, ZoomImageActivity.class);
+        String strImageUrl = book.getBook_large_image();
+        String fallbackImage = book.getBook_image();
+        i.putExtra("image", strImageUrl);
+        i.putExtra("fallbackImage", fallbackImage);
+        i.putExtra("url", true);
+        startActivity(i);
+    }
 
     private void askLogin() {
         Utils.showLoginDialogForResult(YearBookListActivity.this, REFERENCE_CODE);
@@ -288,7 +364,7 @@ public class YearBookListActivity extends AppCompatActivity implements YearBookL
         }
     }
 
-    public void getShareDialog(String strPdfFile) {
+    public void getShareDialog(String strYearTypeId, String strYearValue) {
         List<String> mReferenceStringList = new ArrayList<>();
         bottomSheetDialog = new BottomSheetDialog(YearBookListActivity.this, R.style.BottomSheetDialogTheme);
         View bottomSheetDialogView = LayoutInflater.from(getApplicationContext()).inflate(R.layout.dialog_share, (LinearLayout) findViewById(R.id.bottomSheetContainer));
@@ -339,34 +415,15 @@ public class YearBookListActivity extends AppCompatActivity implements YearBookL
 //                callShareMyShelfsApi(strUID, shareText, strFilePath);
                 //strPdfFile = PdfCreator.createTextPdf(mediaStorageKeyWordRefDir.getAbsolutePath(), strEdtRenamefile, mReferenceStringList);
                 bottomSheetDialog.cancel();
-                Constantss.FILE_NAME = "JainRefLibrary" + "_" + strBookName + "_" + mYearBookModel.size() + " /";
-                Constantss.FILE_NAME_PDF = "JainRefLibrary" + " / " + strBookName + "_" + mYearBookModel.size() + " /";
                 String strEdtRenamefile = edtRenameFile.getText().toString();
                 // String strPdfFile = PdfCreator.createTextPdf(mediaStorageKeyWordDir.getAbsolutePath(), strEdtRenamefile, mReferenceStringList);
-                if (strPdfFile != null && strPdfFile.length() > 0) {
-                    File mFile = new File(strPdfFile);
-                    callAddMyShelfApi(strUID, mReferenceStringList, mFile,strEdtRenamefile, true);
+                if ( Integer.valueOf(strReferenceCount) > 0) {
+                    saveYearBookFile(strYearTypeId, strYearValue, strUID, strEdtRenamefile, strReferenceCount, true);
                 }
 
             }
         });
-        btnDownload.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                bottomSheetDialog.cancel();
-                String strEdtRenamefile = edtRenameFile.getText().toString();
-                Constantss.FILE_NAME = strEdtRenamefile;
-                Constantss.FILE_NAME = "JainRefLibrary" + "_" + strBookName + "_" + mYearBookModel.size() + " /";
-                Constantss.FILE_NAME_PDF = "JainRefLibrary" + " / " + strBookName + "_" + mYearBookModel.size() + " /";
-                /*Constantss.FILE_NAME = "JainRefLibrary" + "_" + strBookName + "_" + strBookPageNo + "_" + mBookModel.size() + " /";
-                Constantss.FILE_NAME_PDF = "JainRefLibrary" + " / " + strBookName + "_" + strBookPageNo + "_" + mYearBookModel.size() + " /";*/
-                String strFilePath = Utils.getMediaStorageDir(getApplicationContext()) + File.separator + edtRenameFile.getText().toString() + ".pdf";
-                new File(strPdfFile).renameTo(new File(strFilePath));
-                callDownloadMyShelfsApi(strUID, strFilePath);
-                // String strPdfFile = PdfCreator.createTextPdf(mediaStorageKeyWordRefDir.getAbsolutePath(), strEdtRenamefile, mReferenceStringList);
 
-            }
-        });
 
         btnMyShelf.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -377,9 +434,8 @@ public class YearBookListActivity extends AppCompatActivity implements YearBookL
                 Constantss.FILE_NAME_PDF = "JainRefLibrary" + " / " + strBookName + "_" + mYearBookModel.size() + " /";
                 String strEdtRenamefile = edtRenameFile.getText().toString();
                 // String strPdfFile = PdfCreator.createTextPdf(mediaStorageKeyWordDir.getAbsolutePath(), strEdtRenamefile, mReferenceStringList);
-                if (strPdfFile != null && strPdfFile.length() > 0) {
-                    File mFile = new File(strPdfFile);
-                    callAddMyShelfApi(strUID, mReferenceStringList, mFile,strEdtRenamefile, false);
+                if ( Integer.valueOf(strReferenceCount) > 0) {
+                    saveYearBookFile(strYearTypeId, strYearValue, strUID, strEdtRenamefile, strReferenceCount, false);
                 }
             }
         });
@@ -469,7 +525,7 @@ public class YearBookListActivity extends AppCompatActivity implements YearBookL
         });
     }
 
-    private void callShareMyShelfsApi(String strUserId, String shareText, String strPdfFile) {
+    private void callShareMyShelfsApi(String strUserId, String shareText, String strPdfLink, String strPdfImage) {
         if (!ConnectionManager.checkInternetConnection(this)) {
             Utils.showInfoDialog(YearBookListActivity.this, "Please check internet connection");
             return;
@@ -506,14 +562,16 @@ public class YearBookListActivity extends AppCompatActivity implements YearBookL
                             if (strPdfLink != null && strPdfLink.length() > 0) {
                                 String shareData = " Get Latest JainTatva Books here : https://play.google.com/store/apps/details?id=" + PackageName;
                                 String strMessage = strPdfLink; //" " + strBookName;
-                                Intent intent = new Intent();
-                                intent.setAction(Intent.ACTION_SEND);
-                                intent.setType("text/plain");
-                                intent.putExtra(Intent.EXTRA_SUBJECT, shareData);
-                                intent.putExtra(Intent.EXTRA_TEXT, strMessage);
-                                intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                                intent.setFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                                startActivity(Intent.createChooser(intent, shareData));
+                                Utils.shareContentWithImage(YearBookListActivity.this, "JRL Year Data PDF", strMessage, strPdfImage);
+//
+//                                Intent intent = new Intent();
+//                                intent.setAction(Intent.ACTION_SEND);
+//                                intent.setType("text/plain");
+//                                intent.putExtra(Intent.EXTRA_SUBJECT, shareData);
+//                                intent.putExtra(Intent.EXTRA_TEXT, strMessage);
+//                                intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+//                                intent.setFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+//                                startActivity(Intent.createChooser(intent, shareData));
                             }
                         } catch (Exception e) {
                             Log.e("Exception Error", "Error---" + e.getMessage());
@@ -534,63 +592,6 @@ public class YearBookListActivity extends AppCompatActivity implements YearBookL
         });
     }
 
-    private void callAddMyShelfApi(String strUserId, List<String> mList, File mFile, String strEdtRenamefile, boolean isShare) {
-        //Constantss.FILE_NAME_PDF = "JainRefLibrary" + " / " + strKeyName + "_" + strPageNo + "_" + mYearBookList.size() + " /";
-        MultipartBody.Part filePart = null;
-
-
-        if (mFile.exists())
-            filePart = MultipartBody.Part.createFormData("pdf_file", mFile.getName(), RequestBody.create(MediaType.parse("*/*"), mFile));
-
-        RequestBody uid = RequestBody.create(MediaType.parse("text/*"), strUserId);
-        RequestBody filename = RequestBody.create(MediaType.parse("text/*"),strEdtRenamefile);
-        RequestBody type = RequestBody.create(MediaType.parse("text/*"), "3" + strYearTypeId);
-        RequestBody typeref = RequestBody.create(MediaType.parse("text/*"), "1");
-        RequestBody typeId = RequestBody.create(MediaType.parse("text/*"), strYearId);
-        RequestBody count = RequestBody.create(MediaType.parse("text/*"), strReferenceCount);
-        RequestBody fileType = RequestBody.create(MediaType.parse("text/*"), "3");
-        Log.e("fileType :", " "+fileType);
-        Utils.showProgressDialog(YearBookListActivity.this, "Please Wait...", false);
-        ApiClient.addMyShelfs(uid, null, typeId, type, typeref, filename, null, count, fileType, filePart, new Callback<AddShelfResModel>() {
-            @Override
-            public void onResponse(Call<AddShelfResModel> call, Response<AddShelfResModel> response) {
-                if (response.isSuccessful()) {
-                    /*Log.e("responseData :", new GsonBuilder().setPrettyPrinting().create().toJson(response));*/
-
-                    Utils.dismissProgressDialog();
-                    if (response.isSuccessful()) {
-                        if (response.body().isStatus()) {
-                            //Toast.makeText(getApplicationContext(), strYearValue + "Year's books added in My Reference.", Toast.LENGTH_LONG).show();
-                            strPdfLink = response.body().getPdf_url();
-                            if (isShare) {
-                                callShareMyShelfsApi(strUserId, shareText, "");
-                            }
-                            else {
-                                Utils.showInfoDialog(YearBookListActivity.this, "Data added in My Reference.");
-                            }
-                        } else {
-                            Utils.showInfoDialog(YearBookListActivity.this, response.body().getMessage());
-                            //Toast.makeText(getApplicationContext(), "Some Error Occured..", Toast.LENGTH_LONG).show();
-                        }
-                    } else {
-                        Log.e("error--", "ResultError--" + response.message());
-                    }
-                }
-            }
-
-
-            @Override
-            public void onFailure(Call<AddShelfResModel> call, Throwable t) {
-                String message = t.getMessage();
-                Log.e("error", message);
-                Utils.dismissProgressDialog();
-                Utils.showInfoDialog(YearBookListActivity.this, "Something went wrong please try again later");
-
-            }
-        });
-
-    }
-
     public void share(String shareData, String mFilePath) {
         File mFile = new File(mFilePath);
         Uri fileUri = Uri.fromFile(mFile);
@@ -598,7 +599,7 @@ public class YearBookListActivity extends AppCompatActivity implements YearBookL
         {
             fileUri = FileProvider.getUriForFile(getApplicationContext(), BuildConfig.APPLICATION_ID + ".provider", mFile);
         }
-        //  Uri fileUri = FileProvider.getUriForFile(KeywordSearchDetailsActivity.this, KeywordSearchDetailsActivity.this.getApplicationContext().getPackageName() + ".provider", mFile);
+        //  Uri fileUri = FileProvider.getUriForFile(YearBookListActivity.this, YearBookListActivity.this.getApplicationContext().getPackageName() + ".provider", mFile);
         Intent intentShareFile = new Intent(Intent.ACTION_SEND);
         intentShareFile.setType(URLConnection.guessContentTypeFromName(mFile.getName()));
         intentShareFile.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);

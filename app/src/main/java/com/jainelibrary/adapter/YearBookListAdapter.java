@@ -90,9 +90,15 @@ public class YearBookListAdapter extends RecyclerView.Adapter<YearBookListAdapte
         listener.onClick(view, mBookModel);
     }
 
+    public void onBookImageClick(View view, BookListResModel.BookDetailsModel.BookPageModel mBookModel, int position) {
+        Log.e(TAG, "onBookClick --" + yearBookLists.size());
+        listener.onZoomClick(view, mBookModel);
+    }
+
 
     public interface BookClickListener {
         void onClick(View view, BookListResModel.BookDetailsModel.BookPageModel yearBookLists);
+        void onZoomClick(View view, BookListResModel.BookDetailsModel.BookPageModel yearBookLists);
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {

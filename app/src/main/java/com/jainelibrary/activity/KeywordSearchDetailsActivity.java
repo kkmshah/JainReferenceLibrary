@@ -14,7 +14,6 @@ import android.os.CountDownTimer;
 import android.os.StrictMode;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -45,6 +44,8 @@ import com.jainelibrary.model.AddShelfResModel;
 import com.jainelibrary.model.UserDetailsResModel;
 import com.jainelibrary.retrofit.ApiClient;
 import com.jainelibrary.retrofitResModel.BookListResModel;
+import com.jainelibrary.retrofitResModel.CheckMyShelfFileNameResModel;
+import com.jainelibrary.retrofitResModel.CreatePdfFileUrlResModel;
 import com.jainelibrary.retrofitResModel.ShareOrDownloadMyShelfResModel;
 import com.jainelibrary.utils.PdfCreator;
 import com.jainelibrary.utils.SharedPrefManager;
@@ -59,9 +60,6 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
-import okhttp3.MediaType;
-import okhttp3.MultipartBody;
-import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -92,7 +90,7 @@ public class KeywordSearchDetailsActivity extends AppCompatActivity implements K
     private ArrayList<BookListResModel.BookDetailsModel.BookPageModel> pageModels = new ArrayList<>();
     ArrayList<String> strpageno = new ArrayList<>();
     ArrayList<String> strpagenodetail = new ArrayList<>();
-    private String strUID, strPdfLink;
+    private String strUID;
     int pagecount;
     CountDownTimer timer;
     String strEdtRenamefile = null, strUserId, shareText, strTypeRef;
@@ -120,7 +118,8 @@ public class KeywordSearchDetailsActivity extends AppCompatActivity implements K
             public void onClick(View view) {
                 boolean isLogin = SharedPrefManager.getInstance(KeywordSearchDetailsActivity.this).getBooleanPreference(SharedPrefManager.IS_LOGIN);
                 if (isLogin) {
-                    callBookDetailsPdfApi(strKeyId,strBookIds);
+                    getShareDialog(strKeyId, strBookIds);
+                  //  callBookDetailsPdfApi(strKeyId,strBookIds);
                 } else {
                     askLogin();
                 }
@@ -338,7 +337,7 @@ public class KeywordSearchDetailsActivity extends AppCompatActivity implements K
         });
     }
 
-    private void callShareMyShelfsApi(String strUserId, String shareText, String strPdfFile) {
+    private void callShareMyShelfsApi(String strUserId, String shareText, String strPdfLink, String strPdfImage) {
         if (!ConnectionManager.checkInternetConnection(this)) {
             Utils.showInfoDialog(KeywordSearchDetailsActivity.this, "Please check internet connection");
             return;
@@ -352,9 +351,8 @@ public class KeywordSearchDetailsActivity extends AppCompatActivity implements K
         ApiClient.shareMyShelfs(strUserId, strTypeRef, new Callback<ShareOrDownloadMyShelfResModel>() {
             @Override
             public void onResponse(Call<ShareOrDownloadMyShelfResModel> call, retrofit2.Response<ShareOrDownloadMyShelfResModel> response) {
+                Utils.dismissProgressDialog();
                 if (response.isSuccessful()) {
-                    Utils.dismissProgressDialog();
-
                     //   Log.e("responseData :", new GsonBuilder().setPrettyPrinting().create().toJson(response));
 
                     if (response.body().isStatus()) {
@@ -371,24 +369,27 @@ public class KeywordSearchDetailsActivity extends AppCompatActivity implements K
 //                                Log.e("share--", "file not exits" + strPdfFile);
 //                            }
 //                        }
+
                         try {
                             if (strPdfLink != null && strPdfLink.length() > 0) {
-                                String shareData = " Get Latest JainTatva Books here : https://play.google.com/store/apps/details?id=" + PackageName;
+                               // String shareData = " Get Latest JainTatva Books here : https://play.google.com/store/apps/details?id=" + PackageName;
                                 String strMessage = strPdfLink; //" " + strBookName;
-                                Intent intent = new Intent();
-                                intent.setAction(Intent.ACTION_SEND);
-                                intent.setType("text/plain");
-                                intent.putExtra(Intent.EXTRA_SUBJECT, shareData);
-                                intent.putExtra(Intent.EXTRA_TEXT, strMessage);
-                                intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                                intent.setFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                                startActivity(Intent.createChooser(intent, shareData));
+
+                                Utils.shareContentWithImage(KeywordSearchDetailsActivity.this, "JRL Keyword Book(s) PDF", strMessage, strPdfImage);
+//                                Intent intent = new Intent();
+//                                intent.setAction(Intent.ACTION_SEND);
+//                                intent.setType("text/plain");
+//                                intent.putExtra(Intent.EXTRA_SUBJECT, shareData);
+//                                intent.putExtra(Intent.EXTRA_TEXT, strMessage);
+//                                intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+//                                intent.setFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+//                                startActivity(Intent.createChooser(intent, shareData));
                             }
                         } catch (Exception e) {
                             Log.e("Exception Error", "Error---" + e.getMessage());
                         }
 
-                        //Toast.makeText(ReferencePageActivity.this, "" + response.body().getMessage(), Toast.LENGTH_SHORT).show();
+                     //   Toast.makeText(KeywordSearchDetailsActivity.this, "" + response.body().isStatus(), Toast.LENGTH_SHORT).show();
                     }else{
                         //Toast.makeText(ReferencePageActivity.this, "" + response.body().getMessage(), Toast.LENGTH_SHORT).show();
                     }
@@ -401,61 +402,6 @@ public class KeywordSearchDetailsActivity extends AppCompatActivity implements K
                 Log.e("onFailure :", "Move All Api : "+throwable.getMessage());
             }
         });
-    }
-
-    private void callAddMyShelfApi(String strUserId, List<String> mList, File mFile, String strEdtRenamefile, boolean isShare) {
-        Constantss.FILE_NAME_PDF = "JainRefLibrary" + " / " + strKeyName + "_" + strPageNo + "_" + mReferenceBookList.size() + " /";
-        MultipartBody.Part filePart = null;
-
-
-        if (mFile.exists())
-            filePart = MultipartBody.Part.createFormData("pdf_file", mFile.getName(), RequestBody.create(MediaType.parse("*/*"), mFile));
-
-        RequestBody uid = RequestBody.create(MediaType.parse("text/*"), strUserId);
-        RequestBody filename = RequestBody.create(MediaType.parse("text/*"),strEdtRenamefile);
-        RequestBody type = RequestBody.create(MediaType.parse("text/*"), "0");
-        RequestBody typeref = RequestBody.create(MediaType.parse("text/*"), REF_TYPE_REFERENCE_PAGE);
-        RequestBody typeId = RequestBody.create(MediaType.parse("text/*"), strKeyId);
-        RequestBody count = RequestBody.create(MediaType.parse("text/*"), strTotalCount);
-        RequestBody fileType = RequestBody.create(MediaType.parse("text/*"), "3");
-        Log.e("fileType :", " "+fileType);
-        Utils.showProgressDialog(KeywordSearchDetailsActivity.this, "Please Wait...", false);
-        ApiClient.addMyShelfs(uid, null, typeId, type, typeref, filename, null, count, fileType, filePart, new Callback<AddShelfResModel>() {
-            @Override
-            public void onResponse(Call<AddShelfResModel> call, Response<AddShelfResModel> response) {
-                if (response.isSuccessful()) {
-                    /*Log.e("responseData :", new GsonBuilder().setPrettyPrinting().create().toJson(response));*/
-
-                    Utils.dismissProgressDialog();
-                    if (response.isSuccessful()) {
-                        if (response.body().isStatus()) {
-                            strPdfLink = response.body().getPdf_url();
-                            if (isShare) {
-                                callShareMyShelfsApi(strUID, shareText, "");
-                            }
-                            else {
-                                Utils.showInfoDialog(KeywordSearchDetailsActivity.this, "Keywords Added In My Reference.");
-                            }
-                        } else {
-                            Utils.showInfoDialog(KeywordSearchDetailsActivity.this, "Some Error Occured..");
-                        }
-                    } else {
-                        Log.e("error--", "ResultError--" + response.message());
-                    }
-                }
-            }
-
-
-            @Override
-            public void onFailure(Call<AddShelfResModel> call, Throwable t) {
-                String message = t.getMessage();
-                Log.e("error", message);
-                Utils.dismissProgressDialog();
-                Utils.showInfoDialog(KeywordSearchDetailsActivity.this, "Something went wrong please try again later");
-
-            }
-        });
-
     }
 
     public void getInfoDialogs(String strNotes, String strType, String strTypeRef, String strTite, String strKeywordId) {
@@ -489,7 +435,7 @@ public class KeywordSearchDetailsActivity extends AppCompatActivity implements K
         dialog.show();
     }
 
-    public void getShareDialog(String strPdfFile) {
+    public void getShareDialog(String strKeyId, String strBookIds) {
         List<String> mReferenceStringList = new ArrayList<>();
         bottomSheetDialog = new BottomSheetDialog(KeywordSearchDetailsActivity.this, R.style.BottomSheetDialogTheme);
         View bottomSheetDialogView = LayoutInflater.from(getApplicationContext()).inflate(R.layout.dialog_share, (LinearLayout) findViewById(R.id.bottomSheetContainer));
@@ -542,18 +488,21 @@ public class KeywordSearchDetailsActivity extends AppCompatActivity implements K
 //                callShareMyShelfsApi(strUID, shareText, strNewPDFile);
                 //strPdfFile = PdfCreator.createTextPdf(mediaStorageKeyWordRefDir.getAbsolutePath(), strEdtRenamefile, mReferenceStringList);
                 bottomSheetDialog.cancel();
-                Constantss.FILE_NAME = "JainRefLibrary" + "_" + strKeyName + "_" + strPageNo + "_" + mReferenceBookList.size() + " /";
-                Constantss.FILE_NAME_PDF = "JainRefLibrary" + " / " + strKeyName + "_" + strPageNo + "_" + mReferenceBookList.size() + " /";
                 String strEdtRenamefile = edtRenameFile.getText().toString();
                 // String strPdfFile = PdfCreator.createTextPdf(mediaStorageKeyWordDir.getAbsolutePath(), strEdtRenamefile, mReferenceStringList);
-                if (strPdfFile != null && strPdfFile.length() > 0) {
-                    File mFile = new File(strPdfFile);
-                    if (mFile.exists()) {
-                        callAddMyShelfApi(strUID, mReferenceStringList, mFile,strEdtRenamefile, true);
-                    } else {
-                        Log.e("download--", "file not exits" + strPdfFile);
-                    }
+
+                if ( Integer.valueOf(strTotalCount) > 0) {
+                    saveKeywordDetailsFile( strKeyId, strBookIds, strUID, strEdtRenamefile, strTotalCount, true);
                 }
+
+//                if (strPdfFile != null && strPdfFile.length() > 0) {
+//                    File mFile = new File(strPdfFile);
+//                    if (mFile.exists()) {
+//                        callAddMyShelfApi(strUID ,strEdtRenamefile, true);
+//                    } else {
+//                        Log.e("download--", "file not exits" + strPdfFile);
+//                    }
+//                }
 
             }
         });
@@ -602,17 +551,10 @@ public class KeywordSearchDetailsActivity extends AppCompatActivity implements K
 
 
                 bottomSheetDialog.cancel();
-                Constantss.FILE_NAME = "JainRefLibrary" + "_" + strKeyName + "_" + strPageNo + "_" + mReferenceBookList.size() + " /";
-                Constantss.FILE_NAME_PDF = "JainRefLibrary" + " / " + strKeyName + "_" + strPageNo + "_" + mReferenceBookList.size() + " /";
                 String strEdtRenamefile = edtRenameFile.getText().toString();
                // String strPdfFile = PdfCreator.createTextPdf(mediaStorageKeyWordDir.getAbsolutePath(), strEdtRenamefile, mReferenceStringList);
-                if (strPdfFile != null && strPdfFile.length() > 0) {
-                    File mFile = new File(strPdfFile);
-                    if (mFile.exists()) {
-                        callAddMyShelfApi(strUID, mReferenceStringList, mFile,strEdtRenamefile, false);
-                    } else {
-                        Log.e("download--", "file not exits" + strPdfFile);
-                    }
+                if ( Integer.valueOf(strTotalCount) > 0) {
+                    saveKeywordDetailsFile(strKeyId, strBookIds, strUID, strEdtRenamefile, strTotalCount, false);
                 }
             }
         });
@@ -837,6 +779,22 @@ public class KeywordSearchDetailsActivity extends AppCompatActivity implements K
         }
     }
 
+
+    @Override
+    public void onBookImageClick(View view, BookListResModel.BookDetailsModel mBookDetails,
+                               int position) {
+        String strImageUrl = mBookDetails.getBook_large_image();
+        String fallbackImage = mBookDetails.getBook_image();
+
+        Log.e("strImageUrl--", "index--" + strImageUrl);
+        Intent i = new Intent(this, ZoomImageActivity.class);
+        i.putExtra("image", strImageUrl);
+        i.putExtra("fallbackImage", fallbackImage);
+
+        i.putExtra("url", true);
+        startActivity(i);
+    }
+
     public void share(String shareData, String mFilePath) {
         File mFile = new File(mFilePath);
         Uri fileUri = Uri.fromFile(mFile);//  Uri fileUri = FileProvider.getUriForFile(KeywordSearchDetailsActivity.this, KeywordSearchDetailsActivity.this.getApplicationContext().getPackageName() + ".provider", mFile);
@@ -854,40 +812,111 @@ public class KeywordSearchDetailsActivity extends AppCompatActivity implements K
         startActivity(Intent.createChooser(intentShareFile, shareData));
     }
 
-    private void callBookDetailsPdfApi(String strKeyId,  String strBookIds) {
+    private void saveKeywordDetailsFile( String strKeyId, String strBookIds, String strUId, String strEdtRenamefile, String totalKeywordCount, boolean isShare) {
         if (!ConnectionManager.checkInternetConnection(KeywordSearchDetailsActivity.this)) {
             Utils.showInfoDialog(KeywordSearchDetailsActivity.this, "Please check internet connection");
             return;
         }
 
         Utils.showProgressDialog(KeywordSearchDetailsActivity.this, "Please Wait...", false);
-
-        ApiClient.getKeywordBookDetailsPdf(strKeyId,strBookIds, new Callback<ResponseBody>() {
+        ApiClient.checkMyShelfFileName(strUId, strEdtRenamefile, new Callback<CheckMyShelfFileNameResModel>() {
             @Override
-            public void onResponse(Call<ResponseBody> call, retrofit2.Response<ResponseBody> response) {
+            public void onResponse(Call<CheckMyShelfFileNameResModel> call, retrofit2.Response<CheckMyShelfFileNameResModel> response) {
+                if (!response.isSuccessful()  ) {
+                    Utils.dismissProgressDialog();
+                    Utils.showInfoDialog(KeywordSearchDetailsActivity.this, "Please try again!");
+                    return;
+                }
+
+                if(!response.body().isStatus()) {
+                    Utils.dismissProgressDialog();
+                    Utils.showInfoDialog(KeywordSearchDetailsActivity.this, "" + response.body().getMessage());
+                    return;
+                }
+
+
+                Log.e("responseData Req", strKeyId + "" +strBookIds);
+                ApiClient.createKeywordBookDetailsPdf( strKeyId, strBookIds, new Callback<CreatePdfFileUrlResModel>() {
+                    @Override
+                    public void onResponse(Call<CreatePdfFileUrlResModel> call, retrofit2.Response<CreatePdfFileUrlResModel> response) {
+                        Utils.dismissProgressDialog();
+                    Log.e("responseData :", new GsonBuilder().setPrettyPrinting().create().toJson(response.body()));
+
+                        if (response.isSuccessful()) {
+                            if (response.body().isStatus()) {
+                                String strTmpPdfUrl = response.body().getPdf_url();
+                                if (strTmpPdfUrl != null && strTmpPdfUrl.length() > 0) {
+                                    callAddMyShelfApi(strTmpPdfUrl, strUId, strEdtRenamefile, totalKeywordCount, isShare);
+                                } else {
+                                    Utils.showInfoDialog(KeywordSearchDetailsActivity.this, "KeywordData not saved");
+                                }
+                            }else {
+                                Utils.showInfoDialog(KeywordSearchDetailsActivity.this, "KeywordData not saved");
+                            }
+
+                        } else {
+                            Utils.showInfoDialog(KeywordSearchDetailsActivity.this, "KeywordData not saved");
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<CreatePdfFileUrlResModel> call, Throwable t) {
+                        String message = t.getMessage();
+                        Log.e("error", "onFailure--- " + message);
+                        Utils.dismissProgressDialog();
+                    }
+                });
+
+            }
+            @Override
+            public void onFailure(Call<CheckMyShelfFileNameResModel> call, Throwable t) {
+                String message = t.getMessage();
+                Log.e("error", "onFailure--- " + message);
                 Utils.dismissProgressDialog();
+            }
+        });
+
+    }
+
+    private void callAddMyShelfApi(String fileUrl, String strUId, String strEdtRenamefile, String totalKeywordCount, boolean isShare) {
+        String type =  "0";
+        String typeref = REF_TYPE_REFERENCE_PAGE;
+        String strFileType = "3";
+        Log.e("fileType :", " "+strFileType);
+
+        Utils.showProgressDialog(KeywordSearchDetailsActivity.this, "Please Wait...", false);
+        ApiClient.addMyShelfsWithUrl(strUId, null, strKeyId, type, typeref, strEdtRenamefile, null, totalKeywordCount, strFileType, fileUrl, new Callback<AddShelfResModel>() {
+            @Override
+            public void onResponse(Call<AddShelfResModel> call, Response<AddShelfResModel> response) {
+                /*Log.e("responseData :", new GsonBuilder().setPrettyPrinting().create().toJson(response));*/
                 if (response.isSuccessful()) {
-                    ResponseBody keywordSearchModel1 = response.body();
-                    Log.e("responseData Keyword :", new GsonBuilder().setPrettyPrinting().create().toJson(keywordSearchModel1));
-                    String strPdfFile = downloadFile(keywordSearchModel1);
-                    if (strPdfFile != null && strPdfFile.length() > 0) {
-                       // showExportDialog(view, strPdfFile);
-                        getShareDialog(strPdfFile);
+                    /*Log.e("responseData :", new GsonBuilder().setPrettyPrinting().create().toJson(response));*/
+                    Utils.dismissProgressDialog();
+                    if (response.body().isStatus()) {
+                        String strPdfLink = response.body().getPdf_url();
+                        String strPdfImage = response.body().getPdf_image();
+                        if (isShare) {
+                            callShareMyShelfsApi(strUId, shareText, strPdfLink, strPdfImage);
+                        }
+                        else {
+                            Utils.showInfoDialog(KeywordSearchDetailsActivity.this, "Keywords Added In My Reference.");
+                        }
                     } else {
-                        Utils.showInfoDialog(KeywordSearchDetailsActivity.this, "Pdf data not download");
+                        Utils.showInfoDialog(KeywordSearchDetailsActivity.this, "" + response.body().getMessage());
                     }
                 }
             }
 
             @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
+            public void onFailure(Call<AddShelfResModel> call, Throwable t) {
                 String message = t.getMessage();
-                Log.e("error", "onFailure--- " + message);
-                Utils.showInfoDialog(KeywordSearchDetailsActivity.this, "Pdf data not download");
+                Log.e("error", message);
                 Utils.dismissProgressDialog();
+                Utils.showInfoDialog(KeywordSearchDetailsActivity.this, "Something went wrong please try again later");
             }
         });
     }
+
 
     public String downloadFile(ResponseBody body) {
         try {

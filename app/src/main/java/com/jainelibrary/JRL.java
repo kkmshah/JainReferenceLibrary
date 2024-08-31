@@ -4,6 +4,7 @@ import android.app.Application;
 import android.util.Log;
 
 import com.jainelibrary.retrofitResModel.BookListResModel;
+import com.jainelibrary.utils.StorageManager;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -19,6 +20,7 @@ public class JRL extends Application {
         mBookDetailsList = new ArrayList<>();
         mApplication = this;
         Picasso.setSingletonInstance(new Picasso.Builder(this).build());
+        StorageManager.init(getApplicationContext());
     }
 
     public static JRL getInstance() {

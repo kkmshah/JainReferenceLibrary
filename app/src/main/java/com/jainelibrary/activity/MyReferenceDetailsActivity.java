@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -27,7 +28,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.animation.GlideAnimation;
+import com.bumptech.glide.request.target.CustomTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.google.gson.GsonBuilder;
 import com.jainelibrary.BuildConfig;
@@ -379,13 +381,17 @@ public class MyReferenceDetailsActivity extends AppCompatActivity implements MyR
                     mAddShelfModel.setStrUrl(strImage);
                     addMyShlefList.add(mAddShelfModel);
 
-                    Glide.with(MyReferenceDetailsActivity.this).load(strImage).asBitmap().into(new SimpleTarget<Bitmap>() {
+                    Glide.with(MyReferenceDetailsActivity.this).asBitmap().load(strImage).into(new CustomTarget<Bitmap>() {
                         @Override
-                        public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
+                        public void onResourceReady(Bitmap resource, Transition<? super Bitmap> glideAnimation) {
                             resource.compress(Bitmap.CompressFormat.PNG, 100, new ByteArrayOutputStream());
                             HashMap<String, Uri> map = new HashMap<>();
                             map.put(strImage, Uri.parse(MediaStore.Images.Media.insertImage(MyReferenceDetailsActivity.this.getContentResolver(), resource, "JRL_" + System.currentTimeMillis(), null)));
                             imageFiles.add(map);
+                        }
+                        @Override
+                        public void onLoadCleared(Drawable placeholder) {
+                            // Handle cleanup if the target is cleared
                         }
                     });
                 }

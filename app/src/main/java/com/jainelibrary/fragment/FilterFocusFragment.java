@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.gson.GsonBuilder;
 import com.jainelibrary.R;
+import com.jainelibrary.activity.ZoomImageActivity;
 import com.jainelibrary.adapter.FilterBooksAdapter;
 import com.jainelibrary.manager.ConnectionManager;
 import com.jainelibrary.retrofit.ApiClient;
@@ -255,6 +256,23 @@ public class FilterFocusFragment extends Fragment implements FilterBooksAdapter.
     }
 
 
+    public void onBookImageClick(FilterBookResModel.FilterModel filterBook, int position) {
+        String strBookIds = String.valueOf(filterBook.getId());
+        boolean isBookSelected = filterBook.isSelected();
+        Log.e(TAG, "strBookIds or selected --" + strBookIds + isBookSelected);
+
+        String strImageUrl = filterBook.getBook_large_image();
+        String fallbackImage = filterBook.getBook_image();
+
+        Log.e("strImageUrl--", "index--" + strImageUrl);
+        Intent i = new Intent(getActivity(), ZoomImageActivity.class);
+        i.putExtra("image", strImageUrl);
+        i.putExtra("fallbackImage", fallbackImage);
+
+        i.putExtra("url", true);
+        startActivity(i);
+
+    }
     @Override
     public void onFocusSelect(List<FilterBookResModel.FilterModel> filterBookList, int position) {
         String strBookIds = String.valueOf(filterBookList.get(position).getId());

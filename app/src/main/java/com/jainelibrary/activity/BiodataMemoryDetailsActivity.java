@@ -37,6 +37,7 @@ import com.jainelibrary.Constantss;
 import com.jainelibrary.R;
 import com.jainelibrary.adapter.BiodataRefBookListAdapter;
 import com.jainelibrary.adapter.CntMtrListAdapter;
+import com.jainelibrary.adapter.KeywordSearchListAdapter;
 import com.jainelibrary.adapter.SliderAdapter;
 import com.jainelibrary.adapter.UnitBiodataListAdapter;
 import com.jainelibrary.adapter.UnitEventListAdapter;
@@ -66,6 +67,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.List;
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -277,7 +279,7 @@ public class BiodataMemoryDetailsActivity extends AppCompatActivity implements C
         sliderPrev.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                tvBiodataImageCount.setText(sliderView.getCurrentPagePosition()+1 + "/" + sliderView.getSliderAdapter().getCount());
+                //tvBiodataImageCount.setText(sliderView.getCurrentPagePosition()+1 + "/" + sliderView.getSliderAdapter().getCount());
                 sliderView.slideToPreviousPosition();
             }
         });
@@ -287,7 +289,7 @@ public class BiodataMemoryDetailsActivity extends AppCompatActivity implements C
             @Override
             public void onClick(View view) {
                 sliderView.slideToNextPosition();
-                tvBiodataImageCount.setText(sliderView.getCurrentPagePosition()+1 + "/" + sliderView.getSliderAdapter().getCount());
+                //tvBiodataImageCount.setText(sliderView.getCurrentPagePosition()+1 + "/" + sliderView.getSliderAdapter().getCount());
 
             }
         });
@@ -297,7 +299,20 @@ public class BiodataMemoryDetailsActivity extends AppCompatActivity implements C
 
         // adding the urls inside array list
         sliderView.setAutoCycle(false);
-        SliderAdapter adapter = new SliderAdapter(this, imageFiles);
+        SliderAdapter adapter = new SliderAdapter(this, imageFiles, false, new SliderAdapter.OnImageClickListener(){
+            @Override
+            public void onZoomClick(List<ImageFileModel> imageFileList, int position) {
+                Intent i = new Intent(BiodataMemoryDetailsActivity.this, ImageSliderActivity.class);
+                i.putExtra("imageList", imageFiles);
+                i.putExtra("current", position);
+                startActivity(i);
+            }
+
+            @Override
+            public void setCurrentPositions(int position) {
+                tvBiodataImageCount.setText(position+1 + "/" + sliderView.getSliderAdapter().getCount());
+            }
+        });
 
         // below method is used to set auto cycle direction in left to
         // right direction you can change according to requirement.
@@ -312,7 +327,7 @@ public class BiodataMemoryDetailsActivity extends AppCompatActivity implements C
         sliderView.setScrollTimeInSec(3);
 
 
-        tvBiodataImageCount.setText(sliderView.getCurrentPagePosition()+1 + "/" + sliderView.getSliderAdapter().getCount());
+       // tvBiodataImageCount.setText(sliderView.getCurrentPagePosition()+1 + "/" + sliderView.getSliderAdapter().getCount());
         if(imageFiles.size()<=1) {
             llSliderControl.setVisibility(View.GONE);
         }
@@ -486,6 +501,15 @@ public class BiodataMemoryDetailsActivity extends AppCompatActivity implements C
         }*/
     }
 
+
+    public void onBookImageZoomClick(View view, BiodataMemoryDetailsModel.ReferenceBook referenceBook, int position)  {
+        Intent i = new Intent(BiodataMemoryDetailsActivity.this, ZoomImageActivity.class);
+
+        i.putExtra("image", referenceBook.getBook_large_image());
+        i.putExtra("fallbackImage", referenceBook.getBook_image());
+        i.putExtra("url", true);
+        startActivity(i);
+    }
 
     public void onViewUnitClickListeners() {
 

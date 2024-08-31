@@ -10,6 +10,10 @@ public class AddShelfResModel {
     String id;
     String pdf_url;
 
+    String pdf_large_image;
+
+    String pdf_image;
+
     public String getType_id() {
         return type_id;
     }
@@ -32,6 +36,22 @@ public class AddShelfResModel {
 
     public void setPdf_url(String pdf_url) {
         this.pdf_url = pdf_url;
+    }
+
+    public String getPdf_large_image() {
+        return pdf_large_image;
+    }
+
+    public void setPdf_large_image(String pdf_large_image) {
+        this.pdf_large_image = pdf_large_image;
+    }
+
+    public String getPdf_image() {
+        return pdf_image;
+    }
+
+    public void setPdf_image(String pdf_image) {
+        this.pdf_image = pdf_image;
     }
 
     public void setKeyword_id(String type_id) {

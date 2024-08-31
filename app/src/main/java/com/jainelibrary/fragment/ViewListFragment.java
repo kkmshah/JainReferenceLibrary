@@ -395,6 +395,9 @@ public class ViewListFragment extends Fragment implements ViewListAdapter.ViewLi
                 mBookDataModels.setPublisher_name(strPublisherName);
                 mBookDataModels.setTranslator(strTranslator);
                 mBookDataModels.setBook_url(strBookUrl);
+                mBookDataModels.setBook_image(filesModel.getBook_image());
+                mBookDataModels.setBook_large_image(filesModel.getBook_large_image());
+
                 mBookDataModels.setPdf_link(strPDfUrl);
                 mBookDataModels.setFlag(strFlag);
 

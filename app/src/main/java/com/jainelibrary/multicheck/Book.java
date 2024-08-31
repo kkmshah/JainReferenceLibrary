@@ -24,11 +24,15 @@ public class Book implements Parcelable {
     private String author_name;
     private String publisher_name;
     private String book_url;
+    private String book_image;
+    private String book_large_image;
     private int parentPos;
 
-    public Book(String name, String bookUrl, String authorName, String publisherName, int parentPos, String id, boolean isSelected , String strKeywordCount, String strYearCount) {
+    public Book(String name, String bookUrl, String bookImage, String bookLargeImage, String authorName, String publisherName, int parentPos, String id, boolean isSelected , String strKeywordCount, String strYearCount) {
         this.name = name;
         this.book_url = bookUrl;
+        this.book_image = bookImage;
+        this.book_large_image = bookLargeImage;
         this.author_name = authorName;
         this.publisher_name = publisherName;
         this.keyword_count = strKeywordCount;
@@ -80,6 +84,22 @@ public class Book implements Parcelable {
 
     public void setBook_url(String book_url) {
         this.book_url = book_url;
+    }
+
+    public String getBook_image() {
+        return book_image;
+    }
+
+    public void setBook_image(String book_image) {
+        this.book_image = book_image;
+    }
+
+    public String getBook_large_image() {
+        return book_large_image;
+    }
+
+    public void setBook_large_image(String book_large_image) {
+        this.book_large_image = book_large_image;
     }
 
     public String getId() {

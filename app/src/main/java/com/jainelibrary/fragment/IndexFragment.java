@@ -8,27 +8,22 @@ import android.os.StrictMode;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.appbar.AppBarLayout;
-import com.jainelibrary.JRL;
 import com.jainelibrary.R;
-import com.jainelibrary.activity.BookIndexActivity;
-import com.jainelibrary.activity.HidingScrollListener;
 import com.jainelibrary.activity.IndexSearchDetailsActivity;
+import com.jainelibrary.activity.ZoomImageActivity;
 import com.jainelibrary.adapter.IndexBooksAdapter;
 import com.jainelibrary.adapter.IndexSearchAdapter;
 import com.jainelibrary.keyboard.CustomKeyboardView;
@@ -45,7 +40,7 @@ import java.util.ArrayList;
 import retrofit2.Call;
 import retrofit2.Callback;
 
-public class IndexFragment extends Fragment implements IndexSearchAdapter.SearchInterfaceListener, IndexBooksAdapter.OnImageClickListener {
+public class IndexFragment extends Fragment implements IndexSearchAdapter.SearchInterfaceListener, IndexBooksAdapter.OnBookClickListeners {
 
     private final String TAG = "IndexFragment";
     private EditText etSearchView;
@@ -302,6 +297,20 @@ public class IndexFragment extends Fragment implements IndexSearchAdapter.Search
         rvList.setAdapter(mSearchListAdapter);
 
 
+    }
+
+    @Override
+    public void onImageClick(ArrayList<BookListResModel.BookDetailsModel> indexBookList, int position, ImageView ivMenu) {
+        String strImageUrl = indexBookList.get(position).getBook_large_image();
+        String fallbackImage = indexBookList.get(position).getBook_image();
+
+        Log.e("strImageUrl--", "index--" + strImageUrl);
+        Intent i = new Intent(getActivity(), ZoomImageActivity.class);
+        i.putExtra("image", strImageUrl);
+        i.putExtra("fallbackImage", fallbackImage);
+
+        i.putExtra("url", true);
+        startActivity(i);
     }
 
     @Override

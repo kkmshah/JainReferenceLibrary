@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.inputmethodservice.Keyboard;
 import android.net.Uri;
 import android.os.Bundle;
@@ -29,7 +30,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.animation.GlideAnimation;
+import com.bumptech.glide.request.target.CustomTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
@@ -152,13 +154,17 @@ public class AppendixActivity extends AppCompatActivity implements ReferencePage
                     mAddShelfModel.setStrUrl(strImage);
                     addMyShlefList.add(mAddShelfModel);
 
-                    Glide.with(AppendixActivity.this).load(strImage).asBitmap().into(new SimpleTarget<Bitmap>() {
+                    Glide.with(AppendixActivity.this).asBitmap().load(strImage).into(new CustomTarget<Bitmap>() {
                         @Override
-                        public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
+                        public void onResourceReady(Bitmap resource, Transition<? super Bitmap> glideAnimation) {
                             resource.compress(Bitmap.CompressFormat.PNG, 100, new ByteArrayOutputStream());
                             HashMap<String, Uri> map = new HashMap<>();
                             map.put(strImage, Uri.parse(MediaStore.Images.Media.insertImage(AppendixActivity.this.getContentResolver(), resource, "JRL_" + System.currentTimeMillis(), null)));
                             imageFiles.add(map);
+                        }
+                        @Override
+                        public void onLoadCleared(Drawable placeholder) {
+                            // Handle if the image load is canceled
                         }
                     });
                 }

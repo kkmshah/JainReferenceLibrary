@@ -48,17 +48,24 @@ public class KeywordSearchViewAdapter extends RecyclerView.Adapter<KeywordSearch
         String strKeyWordName = keywordList.get(position).getName();
         boolean isExact = keywordList.get(position).isExact();
         boolean isSimilar = keywordList.get(position).isSimmilar();
+        boolean isLoader = keywordList.get(position).isLoader();
         String totalSizeText = keywordList.get(position).getStrTotalSizeText();
         if (isExact || isSimilar){
-            if (isExact){
-                holder.tvExactKeyword.setBackgroundColor(mContext.getResources().getColor(R.color.button_color));
-            }else{
-                holder.tvExactKeyword.setTextColor(mContext.getResources().getColor(R.color.black));
-                holder.tvExactKeyword.setBackgroundColor(mContext.getResources().getColor(R.color.background_color));
-            }
+//            if (isExact){
+//                holder.tvExactKeyword.setBackgroundColor(mContext.getResources().getColor(R.color.button_color));
+//            }else{
+//                holder.tvExactKeyword.setTextColor(mContext.getResources().getColor(R.color.black));
+//                holder.tvExactKeyword.setBackgroundColor(mContext.getResources().getColor(R.color.background_color));
+//            }
+//            holder.tvExactKeyword.setVisibility(View.VISIBLE);
+//            holder.tvExactKeyword.setText(totalSizeText);
+        } else if(isLoader) {
+            holder.cvList.setVisibility(View.GONE);
             holder.tvExactKeyword.setVisibility(View.VISIBLE);
             holder.tvExactKeyword.setText(totalSizeText);
-        }else{
+            holder.tvExactKeyword.setTextColor(mContext.getResources().getColor(R.color.black));
+            holder.tvExactKeyword.setBackgroundColor(mContext.getResources().getColor(R.color.background_color));
+        } else{
             holder.tvExactKeyword.setVisibility(View.GONE);
         }
 

@@ -25,6 +25,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.gson.GsonBuilder;
 import com.jainelibrary.R;
 import com.jainelibrary.activity.HidingScrollListener;
+import com.jainelibrary.activity.ZoomImageActivity;
 import com.jainelibrary.manager.ConnectionManager;
 import com.jainelibrary.model.CategoryResModel;
 import com.jainelibrary.multicheck.Book;
@@ -255,8 +256,14 @@ public class FilterFocusCatFragment extends Fragment {
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
         multiCheckAdapter = new MultiCheckGenreAdapter(true, GenreDataFactory.makeMultiCheckGenres(mCatList), selectedBookIdList, count, getActivity(), new MultiCheckGenreAdapter.OnZoomListener() {
             @Override
-            public void OnZoomClick(View view, int position, String s) {
+            public void OnZoomClick(String strImageUrl, String fallbackImage) {
 
+                Intent i = new Intent(getActivity(), ZoomImageActivity.class);
+                i.putExtra("image", strImageUrl);
+                i.putExtra("fallbackImage", fallbackImage);
+
+                i.putExtra("url", true);
+                startActivity(i);
             }
         });
         Log.e("gen : " + GenreDataFactory.makeMultiCheckGenres(mCatList).size() + "", selectedBookIdList.size() + "");

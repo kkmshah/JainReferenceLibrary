@@ -63,6 +63,7 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -139,7 +140,7 @@ public class UnitDetailsActivity extends AppCompatActivity implements UnitBiodat
         sliderPrev.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                tvImageCount.setText(sliderView.getCurrentPagePosition() + 1 + "/" + sliderView.getSliderAdapter().getCount());
+               // tvImageCount.setText(sliderView.getCurrentPagePosition() + 1 + "/" + sliderView.getSliderAdapter().getCount());
                 sliderView.slideToPreviousPosition();
             }
         });
@@ -149,7 +150,7 @@ public class UnitDetailsActivity extends AppCompatActivity implements UnitBiodat
             @Override
             public void onClick(View view) {
                 sliderView.slideToNextPosition();
-                tvImageCount.setText(sliderView.getCurrentPagePosition() + 1 + "/" + sliderView.getSliderAdapter().getCount());
+               // tvImageCount.setText(sliderView.getCurrentPagePosition() + 1 + "/" + sliderView.getSliderAdapter().getCount());
 
             }
         });
@@ -162,7 +163,19 @@ public class UnitDetailsActivity extends AppCompatActivity implements UnitBiodat
         }
         // adding the urls inside array list
         sliderView.setAutoCycle(false);
-        SliderAdapter adapter = new SliderAdapter(this, imageFiles);
+        SliderAdapter adapter = new SliderAdapter(this, imageFiles, false, new SliderAdapter.OnImageClickListener(){
+            @Override
+            public void onZoomClick(List<ImageFileModel> imageFileList, int position) {
+                Intent i = new Intent(UnitDetailsActivity.this, ImageSliderActivity.class);
+                i.putExtra("imageList", imageFiles);
+                i.putExtra("current", position);
+                startActivity(i);
+            }
+            @Override
+            public void setCurrentPositions(int position) {
+                tvImageCount.setText(position+1 + "/" + sliderView.getSliderAdapter().getCount());
+            }
+        });
 
         // below method is used to set auto cycle direction in left to
         // right direction you can change according to requirement.
@@ -177,7 +190,7 @@ public class UnitDetailsActivity extends AppCompatActivity implements UnitBiodat
         sliderView.setScrollTimeInSec(3);
 
 
-        tvImageCount.setText(sliderView.getCurrentPagePosition() + 1 + "/" + sliderView.getSliderAdapter().getCount());
+       // tvImageCount.setText(sliderView.getCurrentPagePosition() + 1 + "/" + sliderView.getSliderAdapter().getCount());
         if (imageFiles.size() <= 1) {
             llSliderControl.setVisibility(View.GONE);
         }

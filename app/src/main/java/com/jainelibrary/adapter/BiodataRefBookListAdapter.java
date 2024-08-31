@@ -45,6 +45,7 @@ public class BiodataRefBookListAdapter extends RecyclerView.Adapter<BiodataRefBo
         //void onBookClick(ArrayList<BiodataMemoryDetailsModel.ReferenceBook> mBookModel, int position);
 
         void onBookClick(View view, BiodataMemoryDetailsModel.ReferenceBook bookPageModel, int position);
+        void onBookImageZoomClick(View view, BiodataMemoryDetailsModel.ReferenceBook bookPageModel, int position);
     }
 
     @NonNull
@@ -70,6 +71,13 @@ public class BiodataRefBookListAdapter extends RecyclerView.Adapter<BiodataRefBo
 
         if (strBookImage != null && strBookImage.length() > 0) {
             Picasso.get().load(strBookImage).into(holder.ivBook);
+            holder.ivBook.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    listener.onBookImageZoomClick(view, bookList.get(position), position);;
+
+                }
+            });
         } else {
             holder.ivBook.setImageTintList(ColorStateList.valueOf(mContext.getResources().getColor(R.color.light_background)));
         }

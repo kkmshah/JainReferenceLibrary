@@ -16,6 +16,7 @@ import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.jainelibrary.R;
+import com.jainelibrary.multicheck.Book;
 import com.jainelibrary.retrofitResModel.BookListResModel;
 import com.jainelibrary.utils.Utils;
 import com.squareup.picasso.Picasso;
@@ -59,12 +60,20 @@ public class ShlokSutraDetailsListAdapter extends RecyclerView.Adapter<ShlokSutr
 
         String strAutherName = granthList.get(position).getAuthor_name();
         String strPublisherName = granthList.get(position).getPublisher_name();
-        String strBookUrl = granthList.get(position).getBook_url();
+        String strBookImage = granthList.get(position).getBook_image();
 
 
 
-        if (strBookUrl != null && strBookUrl.length() > 0) {
-            Picasso.get().load(strBookUrl).into(holder.ivBook);
+        if (strBookImage != null && strBookImage.length() > 0) {
+            Picasso.get().load(strBookImage).into(holder.ivBook);
+            holder.ivBook.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+
+                    searchInterfaceListener.onZoomClick(granthList.get(position).getBook_large_image(), granthList.get(position).getBook_image());
+                }
+            });
+
         } else {
             holder.ivBook.setImageTintList(ColorStateList.valueOf(mContext.getResources().getColor(R.color.light_background)));
         }
@@ -154,6 +163,7 @@ public class ShlokSutraDetailsListAdapter extends RecyclerView.Adapter<ShlokSutr
 
     public interface SearchInterfaceListener {
         void onDetailsClick(View view, BookListResModel.BookDetailsModel grathModel, int position);
+        void onZoomClick(String image, String fallbackImage);
     }
 
     @Override

@@ -43,6 +43,7 @@ import com.jainelibrary.activity.HidingScrollListener;
 import com.jainelibrary.activity.KeywordHighlightActivity;
 import com.jainelibrary.activity.LoginWithPasswordActivity;
 import com.jainelibrary.activity.PdfViewActivity;
+import com.jainelibrary.activity.ZoomImageActivity;
 import com.jainelibrary.adapter.FilesImageAdapter;
 import com.jainelibrary.adapter.MyReferenceFilesListAdapter;
 import com.jainelibrary.keyboard.CustomKeyboardView;
@@ -55,6 +56,7 @@ import com.jainelibrary.model.UserDetailsResModel;
 import com.jainelibrary.retrofit.ApiClient;
 import com.jainelibrary.retrofitResModel.ShareOrDownloadMyShelfResModel;
 import com.jainelibrary.utils.SharedPrefManager;
+import com.jainelibrary.utils.StorageManager;
 import com.jainelibrary.utils.Utils;
 
 import java.io.File;
@@ -200,7 +202,7 @@ public class FilesFragment extends Fragment implements FilesImageAdapter.OnImage
             strUId = SharedPrefManager.getInstance(getActivity()).getStringPref(SharedPrefManager.KEY_USER_ID);
             Log.e("UserId---", "UserId---" + strUId);
             if (strUId != null && strUId.length() > 0) {
-                callMyShelfListApi(strUId, strFlag, isGallery);
+                callMyShelfListApi(strUId, strFlag, isGallery, false);
             }
         } else {
             askLogin();
@@ -231,7 +233,7 @@ public class FilesFragment extends Fragment implements FilesImageAdapter.OnImage
                         if (strValue != null && strValue.length() > 0) {
                             callSearchMyShelfApi(strValue);
                         } else {
-                            callMyShelfListApi(strUId, strFlag, isGallery);
+                            callMyShelfListApi(strUId, strFlag, isGallery, false);
                         }
                     }
                 }
@@ -241,7 +243,7 @@ public class FilesFragment extends Fragment implements FilesImageAdapter.OnImage
                         if (strValue != null && strValue.length() > 0) {
                             callSearchMyShelfApi(strValue);
                         } else {
-                            callMyShelfListApi(strUId, strFlag, isGallery);
+                            callMyShelfListApi(strUId, strFlag, isGallery, false);
                         }
                     }
                 }
@@ -263,13 +265,13 @@ public class FilesFragment extends Fragment implements FilesImageAdapter.OnImage
                             callSearchMyShelfApi(strValue);
                         } else {
                             isGallery = false;
-                            callMyShelfListApi(strUId, strFlag, isGallery);
+                            callMyShelfListApi(strUId, strFlag, isGallery, false);
                         }
                     }
                 }
                 if (strSpinnerB != null && strSpinnerB.equalsIgnoreCase("Gallery")) {
                     isGallery = true;
-                    callMyShelfListApi(strUId, strFlag, isGallery);
+                    callMyShelfListApi(strUId, strFlag, isGallery, false);
                 }
             }
 
@@ -415,7 +417,7 @@ public class FilesFragment extends Fragment implements FilesImageAdapter.OnImage
                     case R.id.share:
 
                         if (strOptionPdfUrl != null && strOptionPdfUrl.length() > 0) {
-                            callShareMyShelfsApi(strUId, strOptionPdfUrl, strBookNames);
+                            callShareMyShelfsApi(strUId, strOptionPdfUrl, strBookNames, notesDetailList.get(position).getBook_image());
 
                         } else {
                             if (isSelectedButNotPdf) {
@@ -462,7 +464,7 @@ public class FilesFragment extends Fragment implements FilesImageAdapter.OnImage
         popup.show();
     }
 
-    private void callShareMyShelfsApi(String strUserId, String strOptionPdfUrl, String strBookName) {
+    private void callShareMyShelfsApi(String strUserId, String strOptionPdfUrl, String strBookName, String imageUrl) {
         if (!ConnectionManager.checkInternetConnection(getActivity())) {
             Utils.showInfoDialog(getActivity(), "Please check internet connection");
             return;
@@ -487,22 +489,25 @@ public class FilesFragment extends Fragment implements FilesImageAdapter.OnImage
                             callListHoldSearchKeyword(strUserId);
                         }*/
 
-                        Utils.showProgressDialog(getActivity(), "Please wait...", false);
+//                        Utils.showProgressDialog(getActivity(), "Please wait...", false);
+//
+//                        Utils.dismissProgressDialog();
 
-                        Utils.dismissProgressDialog();
 
-                        if (strOptionPdfUrl != null) {
-                            String shareText = strBookNames + "shared with you by " + strUsername + "\n" + "Download app from here :" + "\n" + "https://play.google.com/store/apps/details?id=" + PackageName;
-                            String strMessage = strOptionPdfUrl; //" " + strBookName;
-                            Intent intent = new Intent();
-                            intent.setAction(Intent.ACTION_SEND);
-                            intent.setType("text/plain");
-                            intent.putExtra(Intent.EXTRA_SUBJECT, shareText);
-                            intent.putExtra(Intent.EXTRA_TEXT, strMessage);
-                            intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                            intent.setFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                            startActivity(Intent.createChooser(intent, shareText));
-                        }
+                        Utils.shareContentWithImage(getActivity(), strBookName, strOptionPdfUrl, imageUrl);
+//                        if (strOptionPdfUrl != null) {
+//                            String shareText = strBookName + "shared with you by " + strUsername ; //+ "\n" + "Download app from here :" + "\n" + "https://play.google.com/store/apps/details?id=" + PackageName;
+//                            String strMessage = strOptionPdfUrl; //" " + strBookName;
+//                            Intent intent = new Intent();
+//                            intent.setAction(Intent.ACTION_SEND);
+//                            intent.setType("text/plain");
+//                            intent.putExtra(Intent.EXTRA_SUBJECT, shareText);
+//                            intent.putExtra(Intent.EXTRA_TEXT, strMessage);
+//                            intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+//                            intent.setFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+//                            startActivity(Intent.createChooser(intent, shareText));
+//                            Utils.shareContentWithImage(getActivity(), shareText, strMessage, imageUrl);
+//                        }
 
 //                        File file = downloadShareFile(strOptionPdfUrl, strBookName);
 //                        if (file != null) {
@@ -587,7 +592,7 @@ public class FilesFragment extends Fragment implements FilesImageAdapter.OnImage
 
                     if (response.body().isStatus()) {
                         Utils.showInfoDialog(getActivity(), "" + response.body().getMessage());
-                        callMyShelfListApi(strUId, strFlag, isGallery);
+                        callMyShelfListApi(strUId, strFlag, isGallery, true);
                     } else {
                         Log.e("error--", "statusFalse--" + response.body().getMessage());
                     }
@@ -744,14 +749,42 @@ public class FilesFragment extends Fragment implements FilesImageAdapter.OnImage
         });
     }
 
-    public void callMyShelfListApi(String strUId, String strFlag, boolean isGallery) {
+    private void setCallMyShelfListRes(ArrayList<MyShelfResModel.MyShelfModel> myShelfResModels) {
+
+        if (myShelfResModels != null && myShelfResModels.size() > 0) {
+            if (isGallery) {
+                rvMyShelf.setVisibility(View.GONE);
+                rvImage.setVisibility(View.VISIBLE);
+                tvDisclaimer.setVisibility(View.VISIBLE);
+                tvDisclaimer.setText(myShelfResModels.size() + " Reference Files Found");
+                setGalleryListData(myShelfResModels);
+            } else {
+                rvMyShelf.setVisibility(View.VISIBLE);
+                rvImage.setVisibility(View.GONE);
+                tvDisclaimer.setVisibility(View.VISIBLE);
+                tvDisclaimer.setText(myShelfResModels.size() + " Reference Files Found");
+                setMyShelfList(myShelfResModels);
+            }
+        }
+    }
+
+    public void callMyShelfListApi(String strUId, String strFlag, boolean isGallery, boolean skipCache) {
+        String cacheKey = Utils.REF_TYPE_REFERENCE_PAGE+"_"+strUId+"_"+strFlag+"_"+ (isGallery ? "1": "0");
+        boolean notCacheData = true;
+        ArrayList<MyShelfResModel.MyShelfModel> myShelfCacheResModels = StorageManager.getMyShelfListResponse(cacheKey, skipCache);
+        if (myShelfCacheResModels != null && myShelfCacheResModels.size() > 0) {
+            notCacheData = false;
+            setCallMyShelfListRes(myShelfCacheResModels);
+        }
         if (!ConnectionManager.checkInternetConnection(getActivity())) {
-            Utils.showInfoDialog(getActivity(), "Please check internet connection");
+            if(notCacheData) {
+                Utils.showInfoDialog(getActivity(), "Please check internet connection");
+            }
             return;
         }
-
-
-        Utils.showProgressDialog(getActivity(), "Please Wait...", false);
+        if(notCacheData) {
+            Utils.showProgressDialog(getActivity(), "Please Wait...", false);
+        }
         ApiClient.getMyShelfList(strUId, strFlag, Utils.REF_TYPE_REFERENCE_PAGE, new Callback<MyShelfResModel>() {
             @Override
             public void onResponse(Call<MyShelfResModel> call, retrofit2.Response<MyShelfResModel> response) {
@@ -763,19 +796,8 @@ public class FilesFragment extends Fragment implements FilesImageAdapter.OnImage
                         ArrayList<MyShelfResModel.MyShelfModel> myShelfResModels = new ArrayList<>();
                         myShelfResModels = response.body().getData();
                         if (myShelfResModels != null && myShelfResModels.size() > 0) {
-                            if (isGallery) {
-                                rvMyShelf.setVisibility(View.GONE);
-                                rvImage.setVisibility(View.VISIBLE);
-                                tvDisclaimer.setVisibility(View.VISIBLE);
-                                tvDisclaimer.setText(myShelfResModels.size() + " Reference Files Found");
-                                setGalleryListData(myShelfResModels);
-                            } else {
-                                rvMyShelf.setVisibility(View.VISIBLE);
-                                rvImage.setVisibility(View.GONE);
-                                tvDisclaimer.setVisibility(View.VISIBLE);
-                                tvDisclaimer.setText(myShelfResModels.size() + " Reference Files Found");
-                                setMyShelfList(myShelfResModels);
-                            }
+                            setCallMyShelfListRes(myShelfResModels);
+                            StorageManager.setMyShelfListResponse(myShelfResModels, cacheKey);
                         } else {
                             rvMyShelf.setVisibility(View.GONE);
                             rvImage.setVisibility(View.GONE);
@@ -899,6 +921,16 @@ public class FilesFragment extends Fragment implements FilesImageAdapter.OnImage
                 //selectOption(searchList.get(position));
             }
         }*/
+    }
+
+    public void onZoomClick(MyShelfResModel.MyShelfModel list) {
+        Intent i = new Intent(getActivity(), ZoomImageActivity.class);
+        String strImageUrl = list.getBook_large_image();
+        String fallbackImage = list.getBook_image();
+        i.putExtra("image", strImageUrl);
+        i.putExtra("fallbackImage", fallbackImage);
+        i.putExtra("url", true);
+        startActivity(i);
     }
 
     @Override

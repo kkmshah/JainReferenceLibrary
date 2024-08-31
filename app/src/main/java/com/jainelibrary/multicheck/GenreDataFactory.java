@@ -32,7 +32,9 @@ public class GenreDataFactory {
             String strTitle = mCatBookModelList.get(i).getName();
             String strId = mCatBookModelList.get(i).getId();
             String strAuthorName = mCatBookModelList.get(i).getAuthor_name();
-            String strBookUrl = mCatBookModelList.get(i).getBook_url();
+            String strBookUrl = mCatBookModelList.get(i).getBook_image();
+            String strBookImage = mCatBookModelList.get(i).getBook_image();
+            String strBookLargeImage = mCatBookModelList.get(i).getBook_large_image();
             String strPublisherName = mCatBookModelList.get(i).getPublisher_name();
             String strFilter = mCatBookModelList.get(i).getFilter();
             String strKeywordCount = mCatBookModelList.get(i).getKeyword_count();
@@ -41,7 +43,7 @@ public class GenreDataFactory {
             if (strFilter != null && strFilter.equalsIgnoreCase("1")){
                 isSelected = true;
             }
-            Book bookModel = new Book(strTitle, strBookUrl, strAuthorName, strPublisherName, pos ,strId,isSelected,strKeywordCount, strYearCount);
+            Book bookModel = new Book(strTitle, strBookUrl, strBookImage, strBookLargeImage, strAuthorName, strPublisherName, pos ,strId,isSelected,strKeywordCount, strYearCount);
             mBookList.add(bookModel);
         }
         return mBookList;

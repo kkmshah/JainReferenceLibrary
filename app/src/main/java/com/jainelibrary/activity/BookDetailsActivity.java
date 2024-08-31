@@ -31,11 +31,13 @@ import com.jainelibrary.R;
 import com.jainelibrary.adapter.BookDetailsAppendixAdapter;
 import com.jainelibrary.manager.ConnectionManager;
 import com.jainelibrary.model.AddShelfResModel;
+import com.jainelibrary.model.MyShelfResModel;
 import com.jainelibrary.retrofit.ApiClient;
 import com.jainelibrary.retrofitResModel.BookListResModel;
 import com.jainelibrary.retrofitResModel.ShareOrDownloadMyShelfResModel;
 import com.jainelibrary.utils.PdfCreator;
 import com.jainelibrary.utils.SharedPrefManager;
+import com.jainelibrary.utils.StorageManager;
 import com.jainelibrary.utils.Utils;
 import com.squareup.picasso.Picasso;
 import com.wc.widget.dialog.IosDialog;
@@ -63,7 +65,7 @@ public class BookDetailsActivity extends AppCompatActivity implements PopupMenu.
             tvHintVikramSavant, tvHintIsviSan, tvHintVeerSavant, tvHintUncountedPageNo, tvHintPDFPageNo;
     TextView txtName, txtLanguage,  txtPrakashak, txtGranthmala, txtApurti, txtPatr, txtAuthor, txtVikramSavant,
             txtIsviSan, txtVeerSavant, txtUncountedPageNo, txtPDFPageNo;
-    private String strBookUrl,strBookId, strBookName, strFlag;
+    private String strBookImage, strBookLargeImage, strBookId, strBookName, strFlag;
     LinearLayout llName, llAavruti, llGranthmala, llPrakashak,  llLanguage, llPatr, llAuthor, llVikramSavant,
             llIsviSan, llVeerSavant, llUncountedPageNo, llPDFPageNo;
     private CardView cvDetails;
@@ -115,7 +117,8 @@ public class BookDetailsActivity extends AppCompatActivity implements PopupMenu.
             strBookName = mBookDataModels.getBook_name();
             strKeyword = mBookDataModels.getKeyword();
             strFlag = mBookDataModels.getFlag();
-            strBookUrl = mBookDataModels.getBook_url();
+            strBookImage = mBookDataModels.getBook_image();
+            strBookLargeImage = mBookDataModels.getBook_large_image();
             strPdfUrl = mBookDataModels.getPdf_link();
         }else {
             strBookId = getIntent().getStringExtra("bookid");
@@ -127,8 +130,8 @@ public class BookDetailsActivity extends AppCompatActivity implements PopupMenu.
             callBookDetailsAppendiApi(strBookId, strFlag);
         }
 
-        if (strBookUrl != null && strBookUrl.length() > 0) {
-            Picasso.get().load(strBookUrl).placeholder(R.drawable.progress_animation).error(R.drawable.noimage).into(ivBookLogo);
+        if (strBookImage != null && strBookImage.length() > 0) {
+            Picasso.get().load(strBookImage).placeholder(R.drawable.progress_animation).error(R.drawable.noimage).into(ivBookLogo);
         }
         /*if (strFlag != null && strFlag.equalsIgnoreCase("0")) {
             rlPdfOption.setVisibility(View.GONE);
@@ -167,6 +170,13 @@ public class BookDetailsActivity extends AppCompatActivity implements PopupMenu.
 
     private void onEventListner() {
 
+        ivBookLogo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onZoomClick(strBookLargeImage, strBookImage);
+
+            }
+        });
         /*llReferencePage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -314,6 +324,13 @@ public class BookDetailsActivity extends AppCompatActivity implements PopupMenu.
         }
     }
 
+    public void onZoomClick(String strImageUrl, String fallbackImage) {
+        Intent i = new Intent(BookDetailsActivity.this, ZoomImageActivity.class);
+        i.putExtra("image", strImageUrl);
+        i.putExtra("fallbackImage", fallbackImage);
+        i.putExtra("url", true);
+        startActivity(i);
+    }
     @Override
     public boolean onMenuItemClick(MenuItem item) {
         switch (item.getItemId()) {
@@ -350,13 +367,122 @@ public class BookDetailsActivity extends AppCompatActivity implements PopupMenu.
         startActivity(i);
     }
 
+    private void setBookDetailsAppendixResponse(ArrayList<BookListResModel.BookDetailsModel> mBookDetailsRes) {
+        if (mBookDetailsRes != null && mBookDetailsRes.size() > 0) {
+            mBookDetails = mBookDetailsRes;
+            tvNoDataFound.setVisibility(View.GONE);
+            cvDetails.setVisibility(View.VISIBLE);
+            strBookName = mBookDetails.get(0).getBook_name();
+            String strAuthorName = mBookDetails.get(0).getAuthor_name();
+            String strEditorName = mBookDetails.get(0).getEditor_name();
+            String strPublisherName = mBookDetails.get(0).getPublisher_name();
+            String strLetter = mBookDetails.get(0).getPatr();
+            String strPart = mBookDetails.get(0).getPart();
+            String strAavruti = mBookDetails.get(0).getEdition();
+            String strGranthMala = mBookDetails.get(0).getGranthmala();
+            String strLanguage = mBookDetails.get(0).getLanguage();
+            strPdfLink = mBookDetails.get(0).getPdf_link();
+            String strVikramSavant = mBookDetails.get(0).getVikram_savant();
+            String strIsviSan = mBookDetails.get(0).getIsvi_san();
+            String strVeerSavant = mBookDetails.get(0).getVeer_savant();
+            String strUncountedPageNo = mBookDetails.get(0).getUncounted_page_no();
+            String strPdfPageNo = mBookDetails.get(0).getPdf_page_no();
+
+            if (strBookName != null && strBookName.length() > 0) {
+                txtName.setText(strBookName);
+            } else {
+                llName.setVisibility(View.GONE);
+            }
+
+            if (strAuthorName != null && strAuthorName.length() > 0) {
+                txtAuthor.setText(strAuthorName);
+            } else {
+                llAuthor.setVisibility(View.GONE);
+            }
+
+            if (strPublisherName != null && strPublisherName.length() > 0) {
+                txtPrakashak.setText(strPublisherName);
+            } else {
+                llPrakashak.setVisibility(View.GONE);
+            }
+
+
+            if (strLetter != null && strLetter.length() > 0) {
+                txtPatr.setText(strLetter);
+            } else {
+                llPatr.setVisibility(View.GONE);
+            }
+
+            if (strAavruti != null && strAavruti.length() > 0) {
+                txtApurti.setText(strAavruti);
+            } else {
+                llAavruti.setVisibility(View.GONE);
+            }
+            if (strGranthMala != null && strGranthMala.length() > 0) {
+                txtGranthmala.setText(strGranthMala);
+            } else {
+                llGranthmala.setVisibility(View.GONE);
+            }
+            if (strLanguage != null && strLanguage.length() > 0) {
+                txtLanguage.setText(strLanguage);
+            } else {
+                llLanguage.setVisibility(View.GONE);
+            }
+
+            if (strVikramSavant != null && strVikramSavant.length() > 0) {
+                txtVikramSavant.setText(strVikramSavant);
+            } else {
+                llVikramSavant.setVisibility(View.GONE);
+            }
+
+            if (strIsviSan != null && strIsviSan.length() > 0) {
+                txtIsviSan.setText(strIsviSan);
+            } else {
+                llIsviSan.setVisibility(View.GONE);
+            }
+
+            if (strVeerSavant != null && strVeerSavant.length() > 0) {
+                txtVeerSavant.setText(strVeerSavant);
+            } else {
+                llVeerSavant.setVisibility(View.GONE);
+            }
+
+            if (strUncountedPageNo != null && strUncountedPageNo.length() > 0) {
+                txtUncountedPageNo.setText(strUncountedPageNo);
+            } else {
+                llUncountedPageNo.setVisibility(View.GONE);
+            }
+
+            if (strPdfPageNo != null && strPdfPageNo.length() > 0) {
+                txtPDFPageNo.setText(strPdfPageNo);
+            } else {
+                llPDFPageNo.setVisibility(View.GONE);
+            }
+
+            ArrayList<BookListResModel.BookDetailsModel.BookAppendixModel> mAppensixModel = mBookDetails.get(0).getAppendix();
+            if (mAppensixModel != null && mAppensixModel.size() > 0) {
+                setAppendixData(mAppensixModel);
+            }
+
+        }
+    }
     public void callBookDetailsAppendiApi(String strBookID, String strFlag) {
+        String cacheKey ="_"+ strBookID+ "_"+strFlag;
+        boolean notCacheData = true;
+        ArrayList<BookListResModel.BookDetailsModel> mBookDetailsCacheModelList = StorageManager.getBookAppendixDetails(cacheKey);
+        if (mBookDetailsCacheModelList != null && mBookDetailsCacheModelList.size() > 0) {
+            notCacheData = false;
+            setBookDetailsAppendixResponse(mBookDetailsCacheModelList);
+        }
         if (!ConnectionManager.checkInternetConnection(BookDetailsActivity.this)) {
-            Utils.showInfoDialog(BookDetailsActivity.this, "Please check internet connection");
+            if(notCacheData) {
+                Utils.showInfoDialog(BookDetailsActivity.this, "Please check internet connection");
+            }
             return;
         }
-
-        Utils.showProgressDialog(BookDetailsActivity.this, "Please Wait...", false);
+        if(notCacheData) {
+            Utils.showProgressDialog(BookDetailsActivity.this, "Please Wait...", false);
+        }
         ApiClient.getBookAppendixDetails(strBookID, strFlag, new Callback<BookListResModel>() {
             @Override
             public void onResponse(Call<BookListResModel> call, retrofit2.Response<BookListResModel> response) {
@@ -370,100 +496,8 @@ public class BookDetailsActivity extends AppCompatActivity implements PopupMenu.
                         mBookDetails = new ArrayList<>();
                         mBookDetails = response.body().getData();
                         if (mBookDetails != null && mBookDetails.size() > 0) {
-                            tvNoDataFound.setVisibility(View.GONE);
-                            cvDetails.setVisibility(View.VISIBLE);
-                            strBookName = mBookDetails.get(0).getBook_name();
-                            String strAuthorName = mBookDetails.get(0).getAuthor_name();
-                            String strEditorName = mBookDetails.get(0).getEditor_name();
-                            String strPublisherName = mBookDetails.get(0).getPublisher_name();
-                            String strLetter = mBookDetails.get(0).getPatr();
-                            String strPart = mBookDetails.get(0).getPart();
-                            String strAavruti = mBookDetails.get(0).getEdition();
-                            String strGranthMala = mBookDetails.get(0).getGranthmala();
-                            String strLanguage = mBookDetails.get(0).getLanguage();
-                            strPdfLink = mBookDetails.get(0).getPdf_link();
-                            String strVikramSavant = mBookDetails.get(0).getVikram_savant();
-                            String strIsviSan = mBookDetails.get(0).getIsvi_san();
-                            String strVeerSavant = mBookDetails.get(0).getVeer_savant();
-                            String strUncountedPageNo = mBookDetails.get(0).getUncounted_page_no();
-                            String strPdfPageNo = mBookDetails.get(0).getPdf_page_no();
-
-                            if (strBookName != null && strBookName.length() > 0) {
-                                txtName.setText(strBookName);
-                            } else {
-                                llName.setVisibility(View.GONE);
-                            }
-
-                            if (strAuthorName != null && strAuthorName.length() > 0) {
-                                txtAuthor.setText(strAuthorName);
-                            } else {
-                                llAuthor.setVisibility(View.GONE);
-                            }
-
-                            if (strPublisherName != null && strPublisherName.length() > 0) {
-                                txtPrakashak.setText(strPublisherName);
-                            } else {
-                                llPrakashak.setVisibility(View.GONE);
-                            }
-
-
-                            if (strLetter != null && strLetter.length() > 0) {
-                                txtPatr.setText(strLetter);
-                            } else {
-                                llPatr.setVisibility(View.GONE);
-                            }
-
-                            if (strAavruti != null && strAavruti.length() > 0) {
-                                txtApurti.setText(strAavruti);
-                            } else {
-                                llAavruti.setVisibility(View.GONE);
-                            }
-                            if (strGranthMala != null && strGranthMala.length() > 0) {
-                                txtGranthmala.setText(strGranthMala);
-                            } else {
-                                llGranthmala.setVisibility(View.GONE);
-                            }
-                            if (strLanguage != null && strLanguage.length() > 0) {
-                                txtLanguage.setText(strLanguage);
-                            } else {
-                                llLanguage.setVisibility(View.GONE);
-                            }
-
-                            if (strVikramSavant != null && strVikramSavant.length() > 0) {
-                                txtVikramSavant.setText(strVikramSavant);
-                            } else {
-                                llVikramSavant.setVisibility(View.GONE);
-                            }
-
-                            if (strIsviSan != null && strIsviSan.length() > 0) {
-                                txtIsviSan.setText(strIsviSan);
-                            } else {
-                                llIsviSan.setVisibility(View.GONE);
-                            }
-
-                            if (strVeerSavant != null && strVeerSavant.length() > 0) {
-                                txtVeerSavant.setText(strVeerSavant);
-                            } else {
-                                llVeerSavant.setVisibility(View.GONE);
-                            }
-
-                            if (strUncountedPageNo != null && strUncountedPageNo.length() > 0) {
-                                txtUncountedPageNo.setText(strUncountedPageNo);
-                            } else {
-                                llUncountedPageNo.setVisibility(View.GONE);
-                            }
-
-                            if (strPdfPageNo != null && strPdfPageNo.length() > 0) {
-                                txtPDFPageNo.setText(strPdfPageNo);
-                            } else {
-                                llPDFPageNo.setVisibility(View.GONE);
-                            }
-
-                            ArrayList<BookListResModel.BookDetailsModel.BookAppendixModel> mAppensixModel = mBookDetails.get(0).getAppendix();
-                            if (mAppensixModel != null && mAppensixModel.size() > 0) {
-                                setAppendixData(mAppensixModel);
-                            }
-
+                            setBookDetailsAppendixResponse(mBookDetails);
+                            StorageManager.setBookAppendixDetails(mBookDetails, cacheKey);
                         } else {
                             cvDetails.setVisibility(View.GONE);
                             tvNoDataFound.setVisibility(View.VISIBLE);

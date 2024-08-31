@@ -39,16 +39,36 @@ public class FilterBookResModel {
     public class FilterModel {
         int book_id;
         String book_name;
-        String book_url;
+//        String book_url;
+
+        String book_image;
+
+        String book_large_image;
         int filter;
         boolean isSelected;
+//
+//        public String getFocusUrl() {
+//            return book_url;
+//        }
+//
+//        public void setFocusUrl(@NonNull String book_url) {
+//            this.book_url = book_url;
+//        }
 
-        public String getFocusUrl() {
-            return book_url;
+        public String getBook_image() {
+            return book_image;
         }
 
-        public void setFocusUrl(@NonNull String book_url) {
-            this.book_url = book_url;
+        public void setBook_image(String book_image) {
+            this.book_image = book_image;
+        }
+
+        public String getBook_large_image() {
+            return book_large_image;
+        }
+
+        public void setBook_large_image(String book_large_image) {
+            this.book_large_image = book_large_image;
         }
 
         public int getFilter() {

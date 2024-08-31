@@ -312,6 +312,7 @@ public class BiodataMemoryDetailsModel implements Serializable {
         String translator;
         String pdf_url;
         String book_image;
+        String book_large_image;
         String book_page_image_url;
         String book_pdf_page_no;
         ArrayList<ReferencePage> reference_pages = new ArrayList<ReferencePage>();
@@ -394,6 +395,14 @@ public class BiodataMemoryDetailsModel implements Serializable {
 
         public void setBook_image(String book_image) {
             this.book_image = book_image;
+        }
+
+        public String getBook_large_image() {
+            return book_large_image;
+        }
+
+        public void setBook_large_image(String book_large_image) {
+            this.book_large_image = book_large_image;
         }
 
         public String getBook_page_image_url() {

@@ -53,6 +53,9 @@ public class PdfStoreListResModel {
         String translator;
         String pdf_page_no;
         String book_url;
+
+        String book_image;
+        String book_large_image;
         String pdf_url;
 
         public String getKeyword_id() {
@@ -77,6 +80,22 @@ public class PdfStoreListResModel {
 
         public void setBook_url(String book_url) {
             this.book_url = book_url;
+        }
+
+        public String getBook_image() {
+            return book_image;
+        }
+
+        public void setBook_image(String book_image) {
+            this.book_image = book_image;
+        }
+
+        public String getBook_large_image() {
+            return book_large_image;
+        }
+
+        public void setBook_large_image(String book_large_image) {
+            this.book_large_image = book_large_image;
         }
 
         public String getBook_id() {

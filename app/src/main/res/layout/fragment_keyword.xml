@@ -158,6 +158,144 @@
 
         </androidx.cardview.widget.CardView>
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:weightSum="3"
+            >
+            <androidx.cardview.widget.CardView
+                android:id="@+id/btn_exact_match"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:layout_marginBottom="2dp"
+                android:orientation="horizontal"
+                android:layout_weight="1"
+                android:paddingRight="3dp"
+                android:paddingLeft="3dp"
+                android:paddingBottom="10dp"
+                android:paddingTop="10dp"
+                android:padding="15dp"
+                app:cardCornerRadius="5dp"
+                android:background="@color/dark_voilet"
+                app:cardUseCompatPadding="true">
+
+                <LinearLayout
+                    android:id="@+id/llExactMatch"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:background="@color/button_color"
+                    android:padding="5dp"
+                    android:weightSum="1">
+                        <TextView
+                            android:id="@+id/tvExactMatchTab"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="2dp"
+                            android:layout_marginRight="2dp"
+                            android:layout_centerVertical="true"
+                            android:layout_gravity="center"
+                            android:ellipsize="end"
+                            android:maxLines="1"
+                            android:textColor="@color/colorWhite"
+                            android:text="Exact Match"
+                            android:textSize="16sp"
+                            android:textStyle="normal"
+                            android:visibility="visible"  />
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+            <androidx.cardview.widget.CardView
+                android:id="@+id/btn_similar_match"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:layout_marginBottom="2dp"
+                android:orientation="horizontal"
+                android:layout_weight="1"
+                android:paddingRight="3dp"
+                android:paddingLeft="3dp"
+                android:paddingBottom="10dp"
+                android:paddingTop="10dp"
+                android:padding="15dp"
+                app:cardCornerRadius="5dp"
+                app:cardUseCompatPadding="true">
+
+                <LinearLayout
+                    android:id="@+id/llSimilarMatch"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="5dp"
+                    android:background="@color/grey_60"
+                    android:weightSum="1"
+                    >
+                    <TextView
+                        android:id="@+id/tvSimilarMatchTab"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="2dp"
+                        android:layout_marginRight="2dp"
+                        android:layout_centerVertical="true"
+                        android:layout_gravity="center"
+                        android:ellipsize="end"
+                        android:maxLines="1"
+                        android:textColor="@color/colorWhite"
+                        android:text="Similar Match"
+                        android:textSize="16sp"
+                        android:textStyle="normal" />
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/btn_match"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:layout_marginBottom="2dp"
+                android:orientation="horizontal"
+                android:layout_weight="1"
+                android:paddingRight="3dp"
+                android:paddingLeft="3dp"
+                android:paddingBottom="10dp"
+                android:paddingTop="10dp"
+                android:padding="15dp"
+                app:cardCornerRadius="5dp"
+                app:cardUseCompatPadding="true">
+
+                <LinearLayout
+                    android:id="@+id/llMatch"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="5dp"
+                    android:background="@color/grey_60"
+                    android:weightSum="1"
+                    >
+
+                    <TextView
+                        android:id="@+id/tvMatchTab"
+                        android:layout_width="wrap_content"
+                        android:layout_height="21dp"
+                        android:layout_centerVertical="true"
+                        android:layout_gravity="center"
+                        android:layout_marginLeft="2dp"
+                        android:layout_marginRight="2dp"
+                        android:ellipsize="end"
+                        android:maxLines="1"
+                        android:text="All"
+                        android:textColor="@color/colorWhite"
+                        android:textSize="16sp"
+                        android:textStyle="normal"
+                        android:visibility="visible" />
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+        </LinearLayout>
         <ImageView
             android:id="@+id/ivSimillarKeyword"
             android:layout_width="50dp"
@@ -234,6 +372,8 @@
                 android:nestedScrollingEnabled="false"
                 android:visibility="gone"
                 app:layout_behavior="com.jainelibrary.CardViewAwareScrollingViewBehavior" />
+
+
         </LinearLayout>
 
     </androidx.core.widget.NestedScrollView>
@@ -250,7 +390,9 @@
         android:background="@color/color_keyword_search"
         android:nestedScrollingEnabled="false"
         android:visibility="gone"
-        app:layout_behavior="com.jainelibrary.CardViewAwareScrollingViewBehavior" />
+        app:layout_behavior="com.jainelibrary.CardViewAwareScrollingViewBehavior" >
+    </androidx.recyclerview.widget.RecyclerView>
+
     <!--   <androidx.cardview.widget.CardView
            android:id="@+id/cvList"
            android:layout_width="match_parent"
@@ -266,6 +408,7 @@
            android:layout_height="wrap_content" />
    </androidx.cardview.widget.CardView>
    -->
+
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fabFilter"
         android:layout_width="wrap_content"

@@ -44,6 +44,8 @@ import com.jainelibrary.model.AddShelfResModel;
 import com.jainelibrary.model.UserDetailsResModel;
 import com.jainelibrary.retrofit.ApiClient;
 import com.jainelibrary.retrofitResModel.BookListResModel;
+import com.jainelibrary.retrofitResModel.CheckMyShelfFileNameResModel;
+import com.jainelibrary.retrofitResModel.CreatePdfFileUrlResModel;
 import com.jainelibrary.retrofitResModel.ShareOrDownloadMyShelfResModel;
 import com.jainelibrary.utils.PdfCreator;
 import com.jainelibrary.utils.SharedPrefManager;
@@ -188,7 +190,7 @@ public class IndexSearchDetailsActivity extends AppCompatActivity
             public void onClick(View view) {
                 boolean isLogin = SharedPrefManager.getInstance(IndexSearchDetailsActivity.this).getBooleanPreference(SharedPrefManager.IS_LOGIN);
                 if (isLogin) {
-                    callBookIndexPdf(strIndexId);
+                    getShareDialog(strIndexId);
                     /*if (bookDetailsModels != null && bookDetailsModels.size() > 0) {
                         List<String> mReferenceStringList = new ArrayList<>();
                         if (mReferenceBookList != null && mReferenceBookList.size() > 0) {
@@ -215,7 +217,7 @@ public class IndexSearchDetailsActivity extends AppCompatActivity
         });
     }
 
-    public void getShareDialog(final String strPdfFile) {
+    public void getShareDialog(String strIndexId) {
         bottomSheetDialog = new BottomSheetDialog(IndexSearchDetailsActivity.this, R.style.BottomSheetDialogTheme);
         View bottomSheetDialogView = LayoutInflater.from(getApplicationContext()).inflate(R.layout.dialog_share, (LinearLayout) findViewById(R.id.bottomSheetContainer));
         LinearLayout bottomSheetContainer = bottomSheetDialogView.findViewById(R.id.bottomSheetContainer);
@@ -265,46 +267,34 @@ public class IndexSearchDetailsActivity extends AppCompatActivity
 ////                strPdfFile = PdfCreator.createTextPdf(mediaStorageKeyWordRefDir.getAbsolutePath(), Constantss.FILE_NAME, mReferenceStringList);
 //                callShareMyShelfsApi(strUserId, shareText, strNewPDFile);
                 bottomSheetDialog.cancel();
-                Constantss.FILE_NAME = "JainRefLibrary" + "_" + strIndexWordName + "_" + mReferenceBookList.size() + " /";
-                Constantss.FILE_NAME_PDF = "JainRefLibrary" + " / " + strIndexWordName + "_" + mReferenceBookList.size() + " /";
                 String strEdtRenamefile = edtRenameFile.getText().toString();
-                String strNewPDFile = Utils.getMediaStorageDir(getApplicationContext()) + File.separator + strEdtRenamefile + ".pdf";
-                new File(strPdfFile).renameTo(new File(strNewPDFile));
-//                callBookIndexPdf(strIndexId, mReferenceStringList);
-                //strPdfFile = PdfCreator.createTextPdf(mediaStorageKeyWordDir.getAbsolutePath(), strEdtRenamefile, mReferenceStringList);
-                callAddMyShelfApi(strUID, new File(strNewPDFile),strEdtRenamefile, true);
-
+                if(Integer.valueOf(strTotalCount) > 0) {
+                    saveBookIndexFile(strIndexId, strUID, strEdtRenamefile, strTotalCount, true);
+                }
             }
         });
-        btnDownload.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                bottomSheetDialog.cancel();
-                String strEdtRenamefile = edtRenameFile.getText().toString();
-                String strNewPDFile = Utils.getMediaStorageDir(getApplicationContext()) + File.separator + strEdtRenamefile + ".pdf";
-                new File(strPdfFile).renameTo(new File(strNewPDFile));
-                Constantss.FILE_NAME = strEdtRenamefile;
-                Constantss.FILE_NAME_PDF = "JainRefLibrary /" + strIndexWordName + " /";
-//                strPdfFile = PdfCreator.createTextPdf(mediaStorageKeyWordRefDir.getAbsolutePath(), strEdtRenamefile, mReferenceStringList);
-                callDownloadMyShelfsApi(strUserId, strNewPDFile);
-
-            }
-        });
+//        btnDownload.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                bottomSheetDialog.cancel();
+//                String strEdtRenamefile = edtRenameFile.getText().toString();
+//                String strNewPDFile = Utils.getMediaStorageDir(getApplicationContext()) + File.separator + strEdtRenamefile + ".pdf";
+//                new File(strPdfFile).renameTo(new File(strNewPDFile));
+//                Constantss.FILE_NAME = strEdtRenamefile;
+//                Constantss.FILE_NAME_PDF = "JainRefLibrary /" + strIndexWordName + " /";
+////                strPdfFile = PdfCreator.createTextPdf(mediaStorageKeyWordRefDir.getAbsolutePath(), strEdtRenamefile, mReferenceStringList);
+//                callDownloadMyShelfsApi(strUserId, strNewPDFile);
+//
+//            }
+//        });
         btnMyShelf.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 bottomSheetDialog.cancel();
-                Constantss.FILE_NAME = "JainRefLibrary" + "_" + strIndexWordName + "_" + mReferenceBookList.size() + " /";
-                Constantss.FILE_NAME_PDF = "JainRefLibrary" + " / " + strIndexWordName + "_" + mReferenceBookList.size() + " /";
                 String strEdtRenamefile = edtRenameFile.getText().toString();
-                String strNewPDFile = Utils.getMediaStorageDir(getApplicationContext()) + File.separator + strEdtRenamefile + ".pdf";
-                new File(strPdfFile).renameTo(new File(strNewPDFile));
-//                callBookIndexPdf(strIndexId, mReferenceStringList);
-                //strPdfFile = PdfCreator.createTextPdf(mediaStorageKeyWordDir.getAbsolutePath(), strEdtRenamefile, mReferenceStringList);
-                callAddMyShelfApi(strUID, new File(strNewPDFile),strEdtRenamefile,false);
-
-                String filename = "JainRefLibrary" + "_" + bookDetailsModels.get(0).getBook_name() + "_" + bookDetailsModels.get(0).getPage_no() + "_" + bookDetailsModels.size() + "_" + strIndexWordName;
-                //      callAddMyShelfApi(jsonArray, strUID,filename);//   Toast.makeText(KeywordSearchDetailsActivity.this, "work in process", Toast.LENGTH_SHORT).show();
+                if(Integer.valueOf(strTotalCount) > 0) {
+                    saveBookIndexFile(strIndexId, strUID, strEdtRenamefile, strTotalCount, false);
+                }
             }
         });
         ivClose.setOnClickListener(new View.OnClickListener() {
@@ -340,42 +330,70 @@ public class IndexSearchDetailsActivity extends AppCompatActivity
         });
     }
 
-    private void callBookIndexPdf(String strIndexId) {
+    private void saveBookIndexFile(String strIndexId, String strUId, String strEdtRenamefile, String totalKeywordCount, boolean isShare) {
         if (!ConnectionManager.checkInternetConnection(IndexSearchDetailsActivity.this)) {
             Utils.showInfoDialog(IndexSearchDetailsActivity.this, "Please check internet connection");
             return;
         }
-        Utils.showProgressDialog(IndexSearchDetailsActivity.this, "Please Wait...", false);
-        ApiClient.getBookIndexPdf(strIndexId, new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call, retrofit2.Response<ResponseBody> response) {
-                Utils.dismissProgressDialog();
-                if (response.isSuccessful()) {
-                    ResponseBody keywordSearchModel1 = response.body();
-                    Log.e("responseData Keyword :", new GsonBuilder().setPrettyPrinting().create().toJson(keywordSearchModel1));
-                    String strPdfFile = downloadFile(keywordSearchModel1);
-                    if (strPdfFile != null && strPdfFile.length() > 0) {
-                        getShareDialog(strPdfFile);
-                        // showExportDialog(view, strPdfFile);
-                        /*File mFile = new File(strPdfFile);
-                        Log.e("strUID", "strUID--- " + strUID);
-                        Log.e("mReferenceStringList", "mReferenceStringList--- " + mReferenceStringList);
-                        Log.e("mFile", "mFile--- " + mFile);
-                        Log.e("strEdtRenamefile", "strEdtRenamefile--- " + strEdtRenamefile);
-                        callAddMyShelfApi(strUID, mReferenceStringList, new File(strPdfFile),strEdtRenamefile);*/
-                    } else {
-                        Utils.showInfoDialog(IndexSearchDetailsActivity.this, "Pdf data not download");
-                    }
-                }
-            }
 
+        Utils.showProgressDialog(IndexSearchDetailsActivity.this, "Please Wait...", false);
+        ApiClient.checkMyShelfFileName(strUId, strEdtRenamefile, new Callback<CheckMyShelfFileNameResModel>() {
             @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
+            public void onResponse(Call<CheckMyShelfFileNameResModel> call, retrofit2.Response<CheckMyShelfFileNameResModel> response) {
+                if (!response.isSuccessful()  ) {
+                    Utils.dismissProgressDialog();
+                    Utils.showInfoDialog(IndexSearchDetailsActivity.this, "Please try again!");
+                    return;
+                }
+
+                if(!response.body().isStatus()) {
+                    Utils.dismissProgressDialog();
+                    Utils.showInfoDialog(IndexSearchDetailsActivity.this, "" + response.body().getMessage());
+                    return;
+                }
+
+
+                Log.e("responseData Req", strIndexId);
+                ApiClient.createBookIndexPdf(strIndexId, new Callback<CreatePdfFileUrlResModel>() {
+                    @Override
+                    public void onResponse(Call<CreatePdfFileUrlResModel> call, retrofit2.Response<CreatePdfFileUrlResModel> response) {
+                        Utils.dismissProgressDialog();
+                        Log.e("responseData :", new GsonBuilder().setPrettyPrinting().create().toJson(response.body()));
+
+                        if (response.isSuccessful()) {
+                            if (response.body().isStatus()) {
+                                String strTmpPdfUrl = response.body().getPdf_url();
+                                if (strTmpPdfUrl != null && strTmpPdfUrl.length() > 0) {
+                                    callAddMyShelfApi(strTmpPdfUrl, strUId, strEdtRenamefile, totalKeywordCount, isShare);
+                                } else {
+                                    Utils.showInfoDialog(IndexSearchDetailsActivity.this, "KeywordData not saved");
+                                }
+                            }else {
+                                Utils.showInfoDialog(IndexSearchDetailsActivity.this, "KeywordData not saved");
+                            }
+
+                        } else {
+                            Utils.showInfoDialog(IndexSearchDetailsActivity.this, "KeywordData not saved");
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<CreatePdfFileUrlResModel> call, Throwable t) {
+                        String message = t.getMessage();
+                        Log.e("error", "onFailure--- " + message);
+                        Utils.dismissProgressDialog();
+                    }
+                });
+
+            }
+            @Override
+            public void onFailure(Call<CheckMyShelfFileNameResModel> call, Throwable t) {
                 String message = t.getMessage();
-                Log.e("error", "theme---" + message);
+                Log.e("error", "onFailure--- " + message);
                 Utils.dismissProgressDialog();
             }
         });
+
     }
 
     public String downloadFile(ResponseBody body) {
@@ -735,7 +753,7 @@ public class IndexSearchDetailsActivity extends AppCompatActivity
         });
     }
 
-    private void callShareMyShelfsApi(String strUserId, String shareText, String strPdfFile) {
+    private void callShareMyShelfsApi(String strUserId, String shareText, String strPdfLink, String strPdfImage) {
         if (!ConnectionManager.checkInternetConnection(this)) {
             Utils.showInfoDialog(IndexSearchDetailsActivity.this, "Please check internet connection");
             return;
@@ -772,14 +790,16 @@ public class IndexSearchDetailsActivity extends AppCompatActivity
                             if (strPdfLink != null && strPdfLink.length() > 0) {
                                 String shareData = " Get Latest JainTatva Books here : https://play.google.com/store/apps/details?id=" + PackageName;
                                 String strMessage = strPdfLink; //" " + strBookName;
-                                Intent intent = new Intent();
-                                intent.setAction(Intent.ACTION_SEND);
-                                intent.setType("text/plain");
-                                intent.putExtra(Intent.EXTRA_SUBJECT, shareData);
-                                intent.putExtra(Intent.EXTRA_TEXT, strMessage);
-                                intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                                intent.setFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                                startActivity(Intent.createChooser(intent, shareData));
+                                Utils.shareContentWithImage(IndexSearchDetailsActivity.this, "JRL Book Index Data PDF", strMessage, strPdfImage);
+//
+//                                Intent intent = new Intent();
+//                                intent.setAction(Intent.ACTION_SEND);
+//                                intent.setType("text/plain");
+//                                intent.putExtra(Intent.EXTRA_SUBJECT, shareData);
+//                                intent.putExtra(Intent.EXTRA_TEXT, strMessage);
+//                                intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+//                                intent.setFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+//                                startActivity(Intent.createChooser(intent, shareData));
                             }
                         } catch (Exception e) {
                             Log.e("Exception Error", "Error---" + e.getMessage());
@@ -800,58 +820,43 @@ public class IndexSearchDetailsActivity extends AppCompatActivity
         });
     }
 
-    private void callAddMyShelfApi(String strUserId, File mFile, String strEdtRenamefile, boolean isShare) {
-        Constantss.FILE_NAME_PDF = "JainRefLibrary" + " / " + strIndexWordName + "_" + mReferenceBookList.size() + " /";
-        MultipartBody.Part filePart = null;
 
-
-        if (mFile.exists())
-            filePart = MultipartBody.Part.createFormData("pdf_file", mFile.getName(), RequestBody.create(MediaType.parse("*/*"), mFile));
-
-        RequestBody uid = RequestBody.create(MediaType.parse("text/*"), strUserId);
-        RequestBody bid = RequestBody.create(MediaType.parse("text/*"), strBookId);
-        RequestBody kid = RequestBody.create(MediaType.parse("text/*"), strIndexId);
-        RequestBody filename = RequestBody.create(MediaType.parse("text/*"), strEdtRenamefile);
-        RequestBody type = RequestBody.create(MediaType.parse("text/*"), "2");
-        RequestBody typeref = RequestBody.create(MediaType.parse("text/*"), "1");
-        RequestBody count = RequestBody.create(MediaType.parse("text/*"), strTotalCount);
-        RequestBody fileType = RequestBody.create(MediaType.parse("text/*"), "3");
-        Log.e("fileType :", " "+fileType);
+    private void callAddMyShelfApi(String fileUrl, String strUId, String strEdtRenamefile, String strTotalCount, boolean isShare) {
+        String type =  "2";
+        String typeref = REF_TYPE_REFERENCE_PAGE;
+        String fileType = "3";
         Utils.showProgressDialog(IndexSearchDetailsActivity.this, "Please Wait...", false);
-        ApiClient.addMyShelfs(uid, bid, kid, type, typeref, filename, null,count, fileType, filePart, new Callback<AddShelfResModel>() {
+        ApiClient.addMyShelfsWithUrl(strUId, strBookId, strIndexId, type, typeref, strEdtRenamefile, null, strTotalCount, fileType, fileUrl, new Callback<AddShelfResModel>() {
             @Override
             public void onResponse(Call<AddShelfResModel> call, Response<AddShelfResModel> response) {
+                /*Log.e("responseData :", new GsonBuilder().setPrettyPrinting().create().toJson(response));*/
                 if (response.isSuccessful()) {
-                     /*Log.e("responseData :", new GsonBuilder().setPrettyPrinting().create().toJson(response));*/
-
+                    /*Log.e("responseData :", new GsonBuilder().setPrettyPrinting().create().toJson(response));*/
                     Utils.dismissProgressDialog();
-                    if (response.isSuccessful()) {
-                        if (response.body().isStatus()) {
-                            strPdfLink = response.body().getPdf_url();
-                            if (isShare) {
-                                callShareMyShelfsApi(strUserId, shareText, "");
-                            }
-                            else {
-                                Utils.showInfoDialog(IndexSearchDetailsActivity.this, "Index added in My Reference.");
-                            }
-                        } else {
-                            //Toast.makeText(getApplicationContext(), "Some Error Occured..", Toast.LENGTH_LONG).show();
-                            Utils.showInfoDialog(IndexSearchDetailsActivity.this, response.body().getMessage());
+                    if (response.body().isStatus()) {
+                        String strPdfLink = response.body().getPdf_url();
+                        String strPdfImage = response.body().getPdf_image();
+                        if (isShare) {
+                            callShareMyShelfsApi(strUId, shareText, strPdfLink, strPdfImage);
+                        }
+                        else {
+                            Utils.showInfoDialog(IndexSearchDetailsActivity.this, "Index added in My Reference.");
                         }
                     } else {
-                        Log.e("error--", "ResultError--" + response.message());
+                        Utils.showInfoDialog(IndexSearchDetailsActivity.this, "" + response.body().getMessage());
                     }
                 }
             }
+
             @Override
             public void onFailure(Call<AddShelfResModel> call, Throwable t) {
                 String message = t.getMessage();
                 Log.e("error", message);
                 Utils.dismissProgressDialog();
                 Utils.showInfoDialog(IndexSearchDetailsActivity.this, "Something went wrong please try again later");
-
             }
         });
-
     }
+
+
 }

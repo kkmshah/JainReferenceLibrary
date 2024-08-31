@@ -5,17 +5,26 @@ import java.util.ArrayList;
 public class KeywordSearchModel {
     public boolean status;
     public String message;
-    public int total_data;
+    public int total_data_count;
     public ArrayList<KeywordModel> data = new ArrayList<>();
-    public ArrayList<KeywordModel> similar_data = new ArrayList<>();
+    public int total_similar_found_count;
+    public int total_similar_found_pages;
+    public int total_keyword_search_count;
+    public int total_keyword_search_pages;
 
-    public ArrayList<KeywordModel> getSimilarKeywords() {
-        return similar_data;
-    }
+    public int total_count;
 
-    public void setSimilarKeywords(ArrayList<KeywordModel> similar_keywords) {
-        this.similar_data = similar_keywords;
-    }
+    public int total_pages;
+
+//    public ArrayList<KeywordModel> similar_data = new ArrayList<>();
+
+//    public ArrayList<KeywordModel> getSimilarKeywords() {
+//        return similar_data;
+//    }
+//
+//    public void setSimilarKeywords(ArrayList<KeywordModel> similar_keywords) {
+//        this.similar_data = similar_keywords;
+//    }
 
     public static class KeywordModel{
         public String kid;
@@ -23,10 +32,14 @@ public class KeywordSearchModel {
         public String transliteration;
         public String updated_by;
         public String updated_date;
+
+        public Boolean is_similar;
         String keyword_cnt;
         boolean isExact;
         boolean isSimmilar;
         String strTotalSizeText;
+
+        boolean isLoader;
 
         public String getStrTotalSizeText() {
             return strTotalSizeText;
@@ -48,6 +61,14 @@ public class KeywordSearchModel {
             return isSimmilar;
         }
 
+        public boolean isLoader() {
+            return isLoader;
+        }
+
+        public void setLoader(boolean loader) {
+            isLoader = loader;
+        }
+
         public void setSimmilar(boolean simmilar) {
             isSimmilar = simmilar;
         }
@@ -60,6 +81,13 @@ public class KeywordSearchModel {
             this.keyword_cnt = keyword_cnt;
         }
 
+        public Boolean getIs_similar() {
+            return is_similar;
+        }
+
+        public void setIs_similar(Boolean is_similar) {
+            this.is_similar = is_similar;
+        }
         public String getId() {
             return kid;
         }
@@ -102,11 +130,11 @@ public class KeywordSearchModel {
     }
 
     public int getTotal_count() {
-        return total_data;
+        return total_count;
     }
 
     public void setTotal_count(int total_count) {
-        this.total_data = total_count;
+        this.total_count = total_count;
     }
 
     public boolean isStatus() {
@@ -132,4 +160,54 @@ public class KeywordSearchModel {
     public void setData(ArrayList<KeywordModel> data) {
         this.data = data;
     }
+
+    public int getTotal_data_count() {
+        return total_data_count;
+    }
+
+    public void setTotal_data_count(int total_data_count) {
+        this.total_data_count = total_data_count;
+    }
+
+    public int getTotal_similar_found_count() {
+        return total_similar_found_count;
+    }
+
+    public void setTotal_similar_found_count(int total_similar_found_count) {
+        this.total_similar_found_count = total_similar_found_count;
+    }
+
+    public int getTotal_similar_found_pages() {
+        return total_similar_found_pages;
+    }
+
+    public void setTotal_similar_found_pages(int total_similar_found_pages) {
+        this.total_similar_found_pages = total_similar_found_pages;
+    }
+
+    public int getTotal_keyword_search_count() {
+        return total_keyword_search_count;
+    }
+
+    public void setTotal_keyword_search_count(int total_keyword_search_count) {
+        this.total_keyword_search_count = total_keyword_search_count;
+    }
+
+    public int getTotal_keyword_search_pages() {
+        return total_keyword_search_pages;
+    }
+
+    public void setTotal_keyword_search_pages(int total_keyword_search_pages) {
+        this.total_keyword_search_pages = total_keyword_search_pages;
+    }
+
+    public int getTotal_pages() {
+        return total_pages;
+    }
+
+    public void setTotal_pages(int total_pages) {
+        this.total_pages = total_pages;
+    }
+
+
 }

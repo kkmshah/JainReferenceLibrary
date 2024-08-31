@@ -1,8 +1,6 @@
 package com.jainelibrary.activity;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.inputmethodservice.Keyboard;
@@ -14,14 +12,12 @@ import android.text.SpannableStringBuilder;
 import android.text.style.ImageSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -35,7 +31,6 @@ import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.jainelibrary.BuildConfig;
-import com.jainelibrary.Constantss;
 import com.jainelibrary.R;
 import com.jainelibrary.adapter.ShlokSutraDetailsListAdapter;
 import com.jainelibrary.keyboard.CustomKeyboardView;
@@ -45,6 +40,8 @@ import com.jainelibrary.model.AddShelfResModel;
 import com.jainelibrary.model.UserDetailsResModel;
 import com.jainelibrary.retrofit.ApiClient;
 import com.jainelibrary.retrofitResModel.BookListResModel;
+import com.jainelibrary.retrofitResModel.CheckMyShelfFileNameResModel;
+import com.jainelibrary.retrofitResModel.CreatePdfFileUrlResModel;
 import com.jainelibrary.retrofitResModel.ShareOrDownloadMyShelfResModel;
 import com.jainelibrary.utils.SharedPrefManager;
 import com.jainelibrary.utils.Utils;
@@ -58,15 +55,12 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
-import okhttp3.MediaType;
-import okhttp3.MultipartBody;
-import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-import static com.jainelibrary.utils.Utils.TYPE_SHLOK_PAGE;
+import static com.jainelibrary.utils.Utils.REF_TYPE_REFERENCE_PAGE;
 
 public class ShlokSutraDetailsActivity extends AppCompatActivity implements ShlokSutraDetailsListAdapter.SearchInterfaceListener {
     private RecyclerView rvList;
@@ -82,7 +76,7 @@ public class ShlokSutraDetailsActivity extends AppCompatActivity implements Shlo
     private LinearLayout llKeywordCount;
     private TextView tvHeaderCount, tvKeywordCount;
     private ImageView ivHeaderIcon;
-    private String strUsername, strUID, strPdfLink;
+    private String strUsername, strUID;
     CustomKeyboardView mKeyboardView;
     Keyboard mKeyboard;
     private BottomSheetDialog bottomSheetDialog;
@@ -147,7 +141,7 @@ public class ShlokSutraDetailsActivity extends AppCompatActivity implements Shlo
                     } else {
                         //InfoDialog("Please search any keywords");
                     }*/
-                    callShlokDetailsPdfApi(strGSID);
+                    getShareDialog();
                 } else {
                     askLogin();
                 }
@@ -156,40 +150,6 @@ public class ShlokSutraDetailsActivity extends AppCompatActivity implements Shlo
         });
     }
 
-    private void callShlokDetailsPdfApi(String strGSID) {
-        if (!ConnectionManager.checkInternetConnection(ShlokSutraDetailsActivity.this)) {
-            Utils.showInfoDialog(ShlokSutraDetailsActivity.this, "Please check internet connection");
-            return;
-        }
-
-        Utils.showProgressDialog(ShlokSutraDetailsActivity.this, "Please Wait...", false);
-
-        ApiClient.getShlokGranthDetailsPdf(strGSID, new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call, retrofit2.Response<ResponseBody> response) {
-                Utils.dismissProgressDialog();
-                if (response.isSuccessful()) {
-                    ResponseBody keywordSearchModel1 = response.body();
-                    Log.e("responseData Keyword :", new GsonBuilder().setPrettyPrinting().create().toJson(keywordSearchModel1));
-                    String strPdfFile = downloadFile(keywordSearchModel1);
-                    if (strPdfFile != null && strPdfFile.length() > 0) {
-                        // showExportDialog(view, strPdfFile);
-                        getShareDialog(strPdfFile);
-                    } else {
-                        Utils.showInfoDialog(ShlokSutraDetailsActivity.this, "Pdf data not download");
-                    }
-                }
-            }
-
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-                String message = t.getMessage();
-                Log.e("error", "onFailure--- " + message);
-                Utils.showInfoDialog(ShlokSutraDetailsActivity.this, "Pdf data not download");
-                Utils.dismissProgressDialog();
-            }
-        });
-    }
 
     public String downloadFile(ResponseBody body) {
         try {
@@ -228,7 +188,7 @@ public class ShlokSutraDetailsActivity extends AppCompatActivity implements Shlo
     }
 
 
-    public void getShareDialog(String strPdfFile) {
+    public void getShareDialog() {
         List<String> mReferenceStringList = new ArrayList<>();
         bottomSheetDialog = new BottomSheetDialog(ShlokSutraDetailsActivity.this, R.style.BottomSheetDialogTheme);
         View bottomSheetDialogView = LayoutInflater.from(getApplicationContext()).inflate(R.layout.dialog_share, (LinearLayout) findViewById(R.id.bottomSheetContainer));
@@ -286,52 +246,38 @@ public class ShlokSutraDetailsActivity extends AppCompatActivity implements Shlo
 //                new File(strPdfFile).renameTo(new File(strFilePath));
 //                callShareMyShelfsApi(strUserId, shareText, strFilePath);
                 bottomSheetDialog.cancel();
+                String strTotalCount = ""+mSlokSutraDetailsList.size();
                 String strEdtRenamefile = edtRenameFile.getText().toString();
-                Constantss.FILE_NAME = "JainRefLibrary" + "_" + strShlokGranthName + "_" + strSutraName + "_" + mReferenceBookList.size() + " /";
-                Constantss.FILE_NAME_PDF = strEdtRenamefile;
                 //String strPdfFile = PdfCreator.createTextPdf(mediaStorageKeyWordRefDir.getAbsolutePath(), strEdtRenamefile, mReferenceStringList);
-                if (strPdfFile != null && strPdfFile.length() > 0) {
-                    File mFile = new File(strPdfFile);
-                    Log.e("File--", "" + mFile);
-                    if (mFile.exists()) {
-                        callAddMyShelfApi(strUID,mReferenceStringList,mFile, true);
-                    } else {
-                        Log.e("download--", "file not exits" + strPdfFile);
-                    }
+                if ( mSlokSutraDetailsList.size() > 0) {
+                    saveDetailsFile(strGSID, strUID, strEdtRenamefile, strTotalCount, true);
                 }
             }
         });
 
-        btnDownload.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                bottomSheetDialog.cancel();
-                String strRenamefile = edtRenameFile.getText().toString();
-                Constantss.FILE_NAME = strRenamefile;
-                Constantss.FILE_NAME_PDF = "JainRefLibrary /" + strRenamefile + "_" + mReferenceBookList.size() + " /";
-                //String strPdfFile = PdfCreator.createTextPdf(mediaStorageKeyWordRefDir.getAbsolutePath(), strRenamefile, mReferenceStringList);
-                String strFilePath = Utils.getMediaStorageDir(getApplicationContext()) + File.separator + strRenamefile + ".pdf";
-                new File(strPdfFile).renameTo(new File(strFilePath));
-                callDownloadMyShelfsApi(strUserId, strFilePath);
-            }
-        });
+//        btnDownload.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                bottomSheetDialog.cancel();
+//                String strRenamefile = edtRenameFile.getText().toString();
+//                Constantss.FILE_NAME = strRenamefile;
+//                Constantss.FILE_NAME_PDF = "JainRefLibrary /" + strRenamefile + "_" + mReferenceBookList.size() + " /";
+//                //String strPdfFile = PdfCreator.createTextPdf(mediaStorageKeyWordRefDir.getAbsolutePath(), strRenamefile, mReferenceStringList);
+//                String strFilePath = Utils.getMediaStorageDir(getApplicationContext()) + File.separator + strRenamefile + ".pdf";
+//                new File(strPdfFile).renameTo(new File(strFilePath));
+//                callDownloadMyShelfsApi(strUserId, strFilePath);
+//            }
+//        });
 
         btnMyShelf.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 bottomSheetDialog.cancel();
                 String strEdtRenamefile = edtRenameFile.getText().toString();
-                Constantss.FILE_NAME = "JainRefLibrary" + "_" + strShlokGranthName + "_" + strSutraName + "_" + mReferenceBookList.size() + " /";
-                Constantss.FILE_NAME_PDF = strEdtRenamefile;
+                String strTotalCount = ""+mSlokSutraDetailsList.size();
                 //String strPdfFile = PdfCreator.createTextPdf(mediaStorageKeyWordRefDir.getAbsolutePath(), strEdtRenamefile, mReferenceStringList);
-                if (strPdfFile != null && strPdfFile.length() > 0) {
-                    File mFile = new File(strPdfFile);
-                    Log.e("File--", "" + mFile);
-                    if (mFile.exists()) {
-                        callAddMyShelfApi(strUID,mReferenceStringList,mFile, false);
-                    } else {
-                        Log.e("download--", "file not exits" + strPdfFile);
-                    }
+                if ( mSlokSutraDetailsList.size() > 0) {
+                    saveDetailsFile(strGSID, strUID, strEdtRenamefile, strTotalCount, false);
                 }
 
 //                Toast.makeText(ShlokSutraDetailsActivity.this, "work in process", Toast.LENGTH_SHORT).show();
@@ -375,60 +321,166 @@ public class ShlokSutraDetailsActivity extends AppCompatActivity implements Shlo
         });
 
     }
-    private void callDownloadMyShelfsApi(String strUserId, String strPdfFile) {
-        if (!ConnectionManager.checkInternetConnection(this)) {
+
+
+    private void saveDetailsFile( String strGSId,  String strUId, String strEdtRenamefile, String totalKeywordCount, boolean isShare) {
+        if (!ConnectionManager.checkInternetConnection(ShlokSutraDetailsActivity.this)) {
             Utils.showInfoDialog(ShlokSutraDetailsActivity.this, "Please check internet connection");
             return;
         }
 
-        strTypeRef = Utils.REF_TYPE_REFERENCE_PAGE;
-        Log.e("strUserId :", ""+strUserId);
-        Log.e("strTypeRef :", " "+strTypeRef);
         Utils.showProgressDialog(ShlokSutraDetailsActivity.this, "Please Wait...", false);
-
-        ApiClient.downloadMyShelfs(strUserId, strTypeRef, new Callback<ShareOrDownloadMyShelfResModel>() {
+        ApiClient.checkMyShelfFileName(strUId, strEdtRenamefile, new Callback<CheckMyShelfFileNameResModel>() {
             @Override
-            public void onResponse(Call<ShareOrDownloadMyShelfResModel> call, retrofit2.Response<ShareOrDownloadMyShelfResModel> response) {
-                if (response.isSuccessful()) {
+            public void onResponse(Call<CheckMyShelfFileNameResModel> call, retrofit2.Response<CheckMyShelfFileNameResModel> response) {
+                if (!response.isSuccessful()  ) {
                     Utils.dismissProgressDialog();
+                    Utils.showInfoDialog(ShlokSutraDetailsActivity.this, "Please try again!");
+                    return;
+                }
 
-                    //   Log.e("responseData :", new GsonBuilder().setPrettyPrinting().create().toJson(response));
+                if(!response.body().isStatus()) {
+                    Utils.dismissProgressDialog();
+                    Utils.showInfoDialog(ShlokSutraDetailsActivity.this, "" + response.body().getMessage());
+                    return;
+                }
 
-                    if (response.body().isStatus()) {
-                        /*strUserId = SharedPrefManager.getInstance(ReferencePageActivity.this).getStringPref(SharedPrefManager.KEY_USER_ID);
-                        if (strUserId != null && strUserId.length() > 0) {
-                            callListHoldSearchKeyword(strUserId);
-                        }*/
-                        /*if (strPdfFile != null && strPdfFile.length() > 0) {
-                            File mFile = new File(strPdfFile);
-                            if (mFile.exists()) {
-                                Toast.makeText(ShlokSutraDetailsActivity.this, "Download successfully " + strPdfFile, Toast.LENGTH_SHORT).show();
-                            } else {
-                                Log.e("download--", "file not exits" + strPdfFile);
+
+                Log.e("responseData Req", strGSId + "");
+                ApiClient.createShlokGranthDetailsPdf( strGSId,  new Callback<CreatePdfFileUrlResModel>() {
+                    @Override
+                    public void onResponse(Call<CreatePdfFileUrlResModel> call, retrofit2.Response<CreatePdfFileUrlResModel> response) {
+                        Utils.dismissProgressDialog();
+                        Log.e("responseData :", new GsonBuilder().setPrettyPrinting().create().toJson(response.body()));
+
+                        if (response.isSuccessful()) {
+                            if (response.body().isStatus()) {
+                                String strTmpPdfUrl = response.body().getPdf_url();
+                                if (strTmpPdfUrl != null && strTmpPdfUrl.length() > 0) {
+                                    callAddMyShelfApi(strTmpPdfUrl, strGSId, strUId, strEdtRenamefile, totalKeywordCount, isShare);
+                                } else {
+                                    Utils.showInfoDialog(ShlokSutraDetailsActivity.this, "KeywordData not saved");
+                                }
+                            }else {
+                                Utils.showInfoDialog(ShlokSutraDetailsActivity.this, "KeywordData not saved");
                             }
-                        }*/
-                        if (strPdfFile != null && strPdfFile.length() > 0) {
-                            Utils.downloadLocalPDF(strPdfFile, ShlokSutraDetailsActivity.this);
+
+                        } else {
+                            Utils.showInfoDialog(ShlokSutraDetailsActivity.this, "KeywordData not saved");
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<CreatePdfFileUrlResModel> call, Throwable t) {
+                        String message = t.getMessage();
+                        Log.e("error", "onFailure--- " + message);
+                        Utils.dismissProgressDialog();
+                    }
+                });
+
+            }
+            @Override
+            public void onFailure(Call<CheckMyShelfFileNameResModel> call, Throwable t) {
+                String message = t.getMessage();
+                Log.e("error", "onFailure--- " + message);
+                Utils.dismissProgressDialog();
+            }
+        });
+
+    }
+
+    private void callAddMyShelfApi(String fileUrl, String strGSId, String strUId, String strEdtRenamefile, String totalCount, boolean isShare) {
+        String type =  "1";
+        String typeref = REF_TYPE_REFERENCE_PAGE;
+
+        Utils.showProgressDialog(ShlokSutraDetailsActivity.this, "Please Wait...", false);
+        ApiClient.addMyShelfsWithUrl(strUId, null, strGSId, type, typeref, strEdtRenamefile, null, totalCount, "3", fileUrl, new Callback<AddShelfResModel>() {
+            @Override
+            public void onResponse(Call<AddShelfResModel> call, Response<AddShelfResModel> response) {
+                /*Log.e("responseData :", new GsonBuilder().setPrettyPrinting().create().toJson(response));*/
+                if (response.isSuccessful()) {
+                    /*Log.e("responseData :", new GsonBuilder().setPrettyPrinting().create().toJson(response));*/
+                    Utils.dismissProgressDialog();
+                    if (response.body().isStatus()) {
+                        String strPdfLink = response.body().getPdf_url();
+                        String strPdfImage = response.body().getPdf_image();
+                        if (isShare) {
+                            callShareMyShelfsApi(strUserId, shareText, strPdfLink, strPdfImage);
                         }
                         else {
-                            Utils.showInfoDialog(ShlokSutraDetailsActivity.this, "Pdf not found");
+                            Utils.showInfoDialog(ShlokSutraDetailsActivity.this, "Shlok Added In My Reference..");
                         }
-                        //Toast.makeText(ReferencePageActivity.this, "" + response.body().getMessage(), Toast.LENGTH_SHORT).show();
-                    }else{
-                        //Toast.makeText(ReferencePageActivity.this, "" + response.body().getMessage(), Toast.LENGTH_SHORT).show();
+                    } else {
+                        Utils.showInfoDialog(ShlokSutraDetailsActivity.this, "" + response.body().getMessage());
                     }
                 }
             }
 
             @Override
-            public void onFailure(Call<ShareOrDownloadMyShelfResModel> call, Throwable throwable) {
+            public void onFailure(Call<AddShelfResModel> call, Throwable t) {
+                String message = t.getMessage();
+                Log.e("error", message);
                 Utils.dismissProgressDialog();
-                Log.e("onFailure :", "Move All Api : "+throwable.getMessage());
+                Utils.showInfoDialog(ShlokSutraDetailsActivity.this, "Something went wrong please try again later");
             }
         });
     }
 
-    private void callShareMyShelfsApi(String strUserId, String shareText, String strPdfFile) {
+
+//    private void callDownloadMyShelfsApi(String strUserId, String strPdfFile) {
+//        if (!ConnectionManager.checkInternetConnection(this)) {
+//            Utils.showInfoDialog(ShlokSutraDetailsActivity.this, "Please check internet connection");
+//            return;
+//        }
+//
+//        strTypeRef = Utils.REF_TYPE_REFERENCE_PAGE;
+//        Log.e("strUserId :", ""+strUserId);
+//        Log.e("strTypeRef :", " "+strTypeRef);
+//        Utils.showProgressDialog(ShlokSutraDetailsActivity.this, "Please Wait...", false);
+//
+//        ApiClient.downloadMyShelfs(strUserId, strTypeRef, new Callback<ShareOrDownloadMyShelfResModel>() {
+//            @Override
+//            public void onResponse(Call<ShareOrDownloadMyShelfResModel> call, retrofit2.Response<ShareOrDownloadMyShelfResModel> response) {
+//                if (response.isSuccessful()) {
+//                    Utils.dismissProgressDialog();
+//
+//                    //   Log.e("responseData :", new GsonBuilder().setPrettyPrinting().create().toJson(response));
+//
+//                    if (response.body().isStatus()) {
+//                        /*strUserId = SharedPrefManager.getInstance(ReferencePageActivity.this).getStringPref(SharedPrefManager.KEY_USER_ID);
+//                        if (strUserId != null && strUserId.length() > 0) {
+//                            callListHoldSearchKeyword(strUserId);
+//                        }*/
+//                        /*if (strPdfFile != null && strPdfFile.length() > 0) {
+//                            File mFile = new File(strPdfFile);
+//                            if (mFile.exists()) {
+//                                Toast.makeText(ShlokSutraDetailsActivity.this, "Download successfully " + strPdfFile, Toast.LENGTH_SHORT).show();
+//                            } else {
+//                                Log.e("download--", "file not exits" + strPdfFile);
+//                            }
+//                        }*/
+//                        if (strPdfFile != null && strPdfFile.length() > 0) {
+//                            Utils.downloadLocalPDF(strPdfFile, ShlokSutraDetailsActivity.this);
+//                        }
+//                        else {
+//                            Utils.showInfoDialog(ShlokSutraDetailsActivity.this, "Pdf not found");
+//                        }
+//                        //Toast.makeText(ReferencePageActivity.this, "" + response.body().getMessage(), Toast.LENGTH_SHORT).show();
+//                    }else{
+//                        //Toast.makeText(ReferencePageActivity.this, "" + response.body().getMessage(), Toast.LENGTH_SHORT).show();
+//                    }
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(Call<ShareOrDownloadMyShelfResModel> call, Throwable throwable) {
+//                Utils.dismissProgressDialog();
+//                Log.e("onFailure :", "Move All Api : "+throwable.getMessage());
+//            }
+//        });
+//    }
+
+    private void callShareMyShelfsApi(String strUserId, String shareText, String strPdfLink, String strPdfImage) {
         if (!ConnectionManager.checkInternetConnection(this)) {
             Utils.showInfoDialog(ShlokSutraDetailsActivity.this, "Please check internet connection");
             return;
@@ -463,16 +515,18 @@ public class ShlokSutraDetailsActivity extends AppCompatActivity implements Shlo
 //                        }
                         try {
                             if (strPdfLink != null && strPdfLink.length() > 0) {
-                                String shareData = " Get Latest JainTatva Books here : https://play.google.com/store/apps/details?id=" + PackageName;
+                              //  String shareData = " Get Latest JainTatva Books here : https://play.google.com/store/apps/details?id=" + PackageName;
                                 String strMessage = strPdfLink; //" " + strBookName;
-                                Intent intent = new Intent();
-                                intent.setAction(Intent.ACTION_SEND);
-                                intent.setType("text/plain");
-                                intent.putExtra(Intent.EXTRA_SUBJECT, shareData);
-                                intent.putExtra(Intent.EXTRA_TEXT, strMessage);
-                                intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                                intent.setFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                                startActivity(Intent.createChooser(intent, shareData));
+                                Utils.shareContentWithImage(ShlokSutraDetailsActivity.this, "JRL Sutra Book(s) PDF", strMessage, strPdfImage);
+//
+//                                Intent intent = new Intent();
+//                                intent.setAction(Intent.ACTION_SEND);
+//                                intent.setType("text/plain");
+//                                intent.putExtra(Intent.EXTRA_SUBJECT, shareData);
+//                                intent.putExtra(Intent.EXTRA_TEXT, strMessage);
+//                                intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+//                                intent.setFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+//                                startActivity(Intent.createChooser(intent, shareData));
                             }
                         } catch (Exception e) {
                             Log.e("Exception Error", "Error---" + e.getMessage());
@@ -493,55 +547,6 @@ public class ShlokSutraDetailsActivity extends AppCompatActivity implements Shlo
         });
     }
 
-
-    private void callAddMyShelfApi(String strUId, List<String> mReferenceStringList, File mFile, boolean isShare)  {
-        Utils.showProgressDialog(ShlokSutraDetailsActivity.this, "Please Wait...", false);
-        MultipartBody.Part filePart = null;
-        if (mFile.exists())
-            filePart = MultipartBody.Part.createFormData("pdf_file", mFile.getName(), RequestBody.create(MediaType.parse("*/*"), mFile));
-
-        RequestBody bid = RequestBody.create(MediaType.parse("text/*"), "");
-        RequestBody count = RequestBody.create(MediaType.parse("text/*"), strCount);
-        RequestBody uid = RequestBody.create(MediaType.parse("text/*"), strUId);
-        RequestBody filename = RequestBody.create(MediaType.parse("text/*"), "pdf_" + Constantss.FILE_NAME_PDF);
-        RequestBody type = RequestBody.create(MediaType.parse("text/*"), "1");
-        RequestBody typeId = RequestBody.create(MediaType.parse("text/*"), strGSID);
-        RequestBody typeref = RequestBody.create(MediaType.parse("text/*"), TYPE_SHLOK_PAGE);
-        RequestBody fileType = RequestBody.create(MediaType.parse("text/*"), "3");
-        Log.e("fileType :", " "+fileType);
-        Utils.showProgressDialog(ShlokSutraDetailsActivity.this, "Please Wait...", false);
-        ApiClient.addMyShelfs(uid, null, typeId, type, typeref, filename, null, count, fileType, filePart, new Callback<AddShelfResModel>() {
-            @Override
-            public void onResponse(Call<AddShelfResModel> call, Response<AddShelfResModel> response) {
-                if (response.isSuccessful()) {
-                    /*Log.e("responseData :", new GsonBuilder().setPrettyPrinting().create().toJson(response));*/
-
-                    Utils.dismissProgressDialog();
-                    if (response.body().isStatus()) {
-                        strPdfLink = response.body().getPdf_url();
-                        if (isShare) {
-                            callShareMyShelfsApi(strUserId, shareText, strPdfFile);
-                        }
-                        else {
-                            Utils.showInfoDialog(ShlokSutraDetailsActivity.this, "Shlok Added In My Reference.");
-                        }
-                    } else {
-                        Utils.showInfoDialog(ShlokSutraDetailsActivity.this, " "+ response.body().getMessage());
-                    }
-                }
-            }
-
-
-            @Override
-            public void onFailure(Call<AddShelfResModel> call, Throwable t) {
-                String message = t.getMessage();
-                Log.e("error", message);
-                Utils.dismissProgressDialog();
-                Utils.showInfoDialog(ShlokSutraDetailsActivity.this,"Something went wrong please try again later");
-
-            }
-        });
-    }
 
 
     public void getInfoDialogs(String strNotes, String strType, String strTypeRef, String
@@ -583,7 +588,7 @@ public class ShlokSutraDetailsActivity extends AppCompatActivity implements Shlo
         {
             fileUri = FileProvider.getUriForFile(getApplicationContext(), BuildConfig.APPLICATION_ID + ".provider", new File(mFilePath));
         }
-        //  Uri fileUri = FileProvider.getUriForFile(KeywordSearchDetailsActivity.this, KeywordSearchDetailsActivity.this.getApplicationContext().getPackageName() + ".provider", mFile);
+        //  Uri fileUri = FileProvider.getUriForFile(ShlokSutraDetailsActivity.this, ShlokSutraDetailsActivity.this.getApplicationContext().getPackageName() + ".provider", mFile);
         Intent intentShareFile = new Intent(Intent.ACTION_SEND);
         intentShareFile.setType(URLConnection.guessContentTypeFromName(mFile.getName()));
         intentShareFile.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
@@ -803,4 +808,11 @@ public class ShlokSutraDetailsActivity extends AppCompatActivity implements Shlo
     }
 
 
+    public void onZoomClick(String strImageUrl, String fallbackImage) {
+        Intent i = new Intent(ShlokSutraDetailsActivity.this, ZoomImageActivity.class);
+        i.putExtra("image", strImageUrl);
+        i.putExtra("fallbackImage", fallbackImage);
+        i.putExtra("url", true);
+        startActivity(i);
+    }
 }

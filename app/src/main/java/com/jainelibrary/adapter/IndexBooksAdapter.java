@@ -26,12 +26,12 @@ public class IndexBooksAdapter extends RecyclerView.Adapter<IndexBooksAdapter.Vi
 
     private Context context;
     private ArrayList<BookListResModel.BookDetailsModel> indexBookList = new ArrayList<>();
-    private OnImageClickListener onImageClickListener;
+    private OnBookClickListeners clickListener;
 
-    public IndexBooksAdapter(Context context, ArrayList<BookListResModel.BookDetailsModel> filesModels, OnImageClickListener onImageClickListener) {
+    public IndexBooksAdapter(Context context, ArrayList<BookListResModel.BookDetailsModel> filesModels, OnBookClickListeners clickListener) {
         this.context = context;
         this.indexBookList = filesModels;
-        this.onImageClickListener = onImageClickListener;
+        this.clickListener = clickListener;
     }
 
     @NonNull
@@ -99,10 +99,16 @@ public class IndexBooksAdapter extends RecyclerView.Adapter<IndexBooksAdapter.Vi
             Picasso.get().load(R.drawable.noimage).into(holder.ivImage);
         }
 
-        holder.llIndexBook.setOnClickListener(new View.OnClickListener() {
+        holder.llIndexBookDetail.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                onImageClickListener.onBookClick(indexBookList, position, holder.ivMenu);
+                clickListener.onBookClick(indexBookList, position, holder.ivMenu);
+            }
+        });
+        holder.ivImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                clickListener.onImageClick(indexBookList, position, holder.ivMenu);
             }
         });
     }
@@ -120,7 +126,7 @@ public class IndexBooksAdapter extends RecyclerView.Adapter<IndexBooksAdapter.Vi
     public class ViewHolder extends RecyclerView.ViewHolder {
         ImageView ivImage, ivMenu;
         TextView tvIndexName, tvBookName, tvAuthor, tvEditor, tvPublisher;
-        LinearLayout llIndexBook;
+        LinearLayout llIndexBook, llIndexBookDetail;
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             ivImage = itemView.findViewById(R.id.ivImage);
@@ -129,11 +135,13 @@ public class IndexBooksAdapter extends RecyclerView.Adapter<IndexBooksAdapter.Vi
             tvIndexName = itemView.findViewById(R.id.tvIndexName);
             tvAuthor = itemView.findViewById(R.id.tvAuthor);
             llIndexBook = itemView.findViewById(R.id.llIndexBook);
+            llIndexBookDetail = itemView.findViewById(R.id.llIndexBookDetail);
             tvEditor = itemView.findViewById(R.id.tvEditor);
             tvPublisher = itemView.findViewById(R.id.tvPublisher);
         }
     }
-    public interface OnImageClickListener {
+    public interface OnBookClickListeners {
         void onBookClick(ArrayList<BookListResModel.BookDetailsModel> filesModelsList, int position, ImageView ivMenu);
+        void onImageClick(ArrayList<BookListResModel.BookDetailsModel> filesModelsList, int position, ImageView ivMenu);
     }
 }

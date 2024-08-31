@@ -11,7 +11,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.inputmethodservice.Keyboard;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.StrictMode;
@@ -33,17 +32,12 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.animation.GlideAnimation;
-import com.bumptech.glide.request.target.SimpleTarget;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.jainelibrary.BuildConfig;
 import com.jainelibrary.Constantss;
 import com.jainelibrary.JRL;
 import com.jainelibrary.R;
@@ -57,19 +51,12 @@ import com.jainelibrary.model.HoldAndSearchResModel;
 import com.jainelibrary.retrofit.ApiClient;
 import com.jainelibrary.retrofitResModel.BookListResModel;
 import com.jainelibrary.retrofitResModel.ShareOrDownloadMyShelfResModel;
-import com.jainelibrary.utils.FileUtils;
-import com.jainelibrary.utils.PdfCreator;
 import com.jainelibrary.utils.SharedPrefManager;
 import com.jainelibrary.utils.Utils;
-import com.jainelibrary.utils.ZipCompressor;
 import com.jcodecraeer.xrecyclerview.ProgressStyle;
 import com.jcodecraeer.xrecyclerview.XRecyclerView;
 import com.viven.imagezoom.ImageZoomHelper;
 import com.wc.widget.dialog.IosDialog;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -77,22 +64,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
-
-import okhttp3.MediaType;
-import okhttp3.MultipartBody;
-import okhttp3.RequestBody;
+import java.util.Calendar;;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
 public class ReferencePageActivity extends AppCompatActivity implements ReferencePageAdapter.PdfInterfaceListener {
 
-    private static final int SEND_HOLD_DATA = 0;
     private static final int REFERENCE_CODE = 1;
     private static final String TAG = ReferencePageActivity.class.getSimpleName();
 
@@ -106,25 +84,22 @@ public class ReferencePageActivity extends AppCompatActivity implements Referenc
     BookListResModel.BookDetailsModel mBookDataModels = new BookListResModel.BookDetailsModel();
     ArrayList<BooksDataModel.BookImageDetailsModel> mReferencePageBook = new ArrayList<>();
     ArrayList<BookListResModel.BookDetailsModel> mBookDetailsList = new ArrayList<>();
-    ArrayList<BookListResModel.BookDetailsModel> mSelectedBookDetailsList = new ArrayList<>();
-    ArrayList<HashMap<String, Uri>> imageFiles = new ArrayList<HashMap<String, Uri>>();
     View viewQuickLInk;
     Button btnMyShelf;
-    ArrayList<Uri> mImageUriList = new ArrayList<>();
     Keyboard mKeyboard;
     CustomKeyboardView mKeyboardView;
     ImageZoomHelper imageZoomHelper;
     ArrayList<AddMyShelfModel> addMyShlefList = new ArrayList<>();
     boolean isImageSelected = false;
     Handler handler;
-    int count = 0;
+    Runnable runnable;
     Activity activity;
     String strEdtRenamefile = null;
     Boolean isOKClick = false;
     private LinearLayout ll_buttons, llShare, llBookDetails, llQuickLink;
     private TextView buttonFilter;
     private String strAppendixId, strHeaderPageNo, strUserID, strWordName, strBookName, strBookId, strKeyWordId, strEditorName, strTranslatorName, strAuthorName, strHoldPageNo, strPageNo, strPdfPageNo, strSutraName,
-            strTypeName, strGSId, strYearId, strTypeValue, strRefrenceTypeId, strBookUrl, strFrom, strApiTypeId, strIndexName, strIndexId, strIndexIniId, strPdfLink;
+            strTypeName, strGSId, strYearId, strTypeValue, strRefrenceTypeId, strBookUrl, strFrom, strApiTypeId, strIndexName, strIndexId, strIndexIniId, strPdfLink, strSharePdfImageUrl;
     private String PackageName;
     private XRecyclerView rvPdf;
     private ReferencePageAdapter mReferencePageAdapter;
@@ -139,18 +114,8 @@ public class ReferencePageActivity extends AppCompatActivity implements Referenc
     private BottomSheetDialog bottomSheetDialog;
     private String strType, strNotes, strTypeRef;
     private boolean isHighlight = true;
-    private String strPdfFile;
     private String strTotalCount, strTypeId, strYearTypeId = "";
 
-    public static Bitmap getBitmapFromView(View view) {
-        view.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
-        Bitmap bitmap = Bitmap.createBitmap(view.getMeasuredWidth(), view.getMeasuredHeight(),
-                Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(bitmap);
-        view.layout(0, 0, view.getMeasuredWidth(), view.getMeasuredHeight());
-        view.draw(canvas);
-        return bitmap;
-    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -354,99 +319,35 @@ public class ReferencePageActivity extends AppCompatActivity implements Referenc
         });
     }
 
+
     private void showExportDialog(boolean isOk) {
-        Utils.showProgressDialog(ReferencePageActivity.this, "Please Wait...", false);
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                Utils.dismissProgressDialog();
-                boolean isLogin = SharedPrefManager.getInstance(activity).getBooleanPreference(SharedPrefManager.IS_LOGIN);
-                if (isLogin) {
-                    // getShareDialog();
-                    if (mImageUriList != null && mImageUriList.size() > 0) {
-                        mImageUriList.clear();
-                        mImageUriList = new ArrayList<>();
-                    }
 
-                    if (imageFiles != null && imageFiles.size() > 0) {
-                        if (imageFiles != null && imageFiles.size() > 0) {
-                            for (int i = 0; i < imageFiles.size(); i++) {
-                                HashMap<String, Uri> map = imageFiles.get(i);
-                                for (String key : map.keySet()) {
-                                    Log.e("(map.get(key)", (map.get(key).toString()));
-                                    if (!mImageUriList.contains(map.get(key)))
-                                        mImageUriList.add(map.get(key));
-                                    Log.e("contains", (map.get(key).toString()));
-                                }
-                            }
-                        }
-                        //showShareDialog(v);
-                        if (mImageUriList != null && mImageUriList.size() > 0) {
-                            //    getShareDialog();
-                            if (mImageUriList == null || mImageUriList.size() == 0) {
-                                InfoDialogs("Long Press on Image for Select\n" +
-                                        "You can select multiple images, please scroll.\n\nSelected Images :" +
-                                        mImageUriList.size());
-                            } else {
-                                getShareDialog();
-                            }
-                        }
-                    } else {
+        boolean isLogin = SharedPrefManager.getInstance(activity).getBooleanPreference(SharedPrefManager.IS_LOGIN);
+        if (isLogin) {
+            if (addMyShlefList != null && addMyShlefList.size() > 0) {
+                //showShareDialog(v);
+                getShareDialog();
+            } else {
 
-                        if (!isOk) {
-                            Log.e(TAG, "setSelectedOptionData exportDialogOk");
-                            setSelectedOptionData();
-                        }
-                        // InfoDialog("Long Press on Image for Select.\nYou can select multiple images, please scroll.");
-                    }
-                } else {
-                    askLogin();
+                if (!isOk) {
+                    Log.e(TAG, "setSelectedOptionData exportDialogOk");
+                    setSelectedOptionData("On Click Save");
                 }
+                // InfoDialog("Long Press on Image for Select.\nYou can select multiple images, please scroll.");
             }
-        }, 300);
-
-    }
-
-    private void InfoDialog(String strMessage) {
-        DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-                switch (which) {
-                    case DialogInterface.BUTTON_POSITIVE:
-                        break;
-                    case DialogInterface.BUTTON_NEGATIVE:
-                        break;
-                }
-            }
-        };
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-        builder.setMessage(strMessage)
-                .setPositiveButton("Ok", dialogClickListener)
-                .show();
-    }
-
-    private void InfoDialogs(String strMessage) {
-        DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-                switch (which) {
-                    case DialogInterface.BUTTON_POSITIVE:
-                        dialog.dismiss();
-                        break;
-                    case DialogInterface.BUTTON_NEGATIVE:
-                        dialog.dismiss();
-                        break;
-                }
-            }
-        };
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-        builder.setMessage(strMessage)
-                .setCancelable(true)
-                .setPositiveButton("Ok", dialogClickListener)
-                .setNegativeButton("Cancel", dialogClickListener)
-                .show();
+        } else {
+            askLogin();
+        }
+//        if (runnable != null) {
+//            handler.removeCallbacks(runnable);
+//        }
+//        runnable = new Runnable() {
+//            @Override
+//            public void run() {
+//
+//            }
+//        };
+//        handler.postDelayed(runnable, 1);
 
     }
 
@@ -475,9 +376,10 @@ public class ReferencePageActivity extends AppCompatActivity implements Referenc
 
     @Override
     public void onBackPressed() {
-        Log.e(TAG, "onBackPressed : " + mImageUriList.size());
-        if (mImageUriList != null && mImageUriList.size() > 0) {
-            mImageUriList.clear();
+        Log.e(TAG, "onBackPressed : " + addMyShlefList.size());
+
+        if (addMyShlefList != null && addMyShlefList.size() > 0) {
+            addMyShlefList.clear();
         }
 
         if (mKeyboardView != null && mKeyboardView.getVisibility() == View.VISIBLE) {
@@ -568,48 +470,6 @@ public class ReferencePageActivity extends AppCompatActivity implements Referenc
             }
         });
     }
-
-    private void setBaseClassData() {
-        mBookDetailsList = myApplication.getmBookDetailsList();
-        String strTempUniqueName = "";
-        if (mBookDataModels != null) {
-            //   strTempUniqueName = mBookDataModels.getStrUniqueName();
-        }
-        try {
-            if (mBookDetailsList != null && mBookDetailsList.size() > 0) {
-                Log.e("mBookDetailsList---", "mBookDetailsList" + mBookDetailsList.size());
-                boolean isMatch = false;
-                for (int k = 0; k < mBookDetailsList.size(); k++) {
-                    String strUniqueName = null; /*mBookDetailsList.get(k).getStrUniqueName()*/
-                    if (strUniqueName != null && strUniqueName.length() > 0) {
-                        if (strTempUniqueName.equalsIgnoreCase(strUniqueName)) {
-                            isMatch = true;
-                        }
-                    } else {
-                        Log.e("null=---", "strTempUniqueName--" + strUniqueName);
-                    }
-                }
-                if (!isMatch) {
-                    mBookDetailsList.add(mBookDataModels);
-                    myApplication.setmBookDetailsList(mBookDetailsList);
-                }
-                Intent i = new Intent(activity, HoldAndSearchActivity.class);
-                i.putExtra("model", mBookDataModels);
-                startActivity(i);
-            } else {
-                if (mBookDataModels != null) {
-                    myApplication.getmBookDetailsList().add(mBookDataModels);
-                    Intent i = new Intent(activity, HoldAndSearchActivity.class);
-                    i.putExtra("model", mBookDataModels);
-                    startActivity(i);
-                }
-                Log.e("mBookDetailsListElse---", "mBookDetailsListElse" + mBookDetailsList.size());
-            }
-        } catch (Exception e) {
-            Log.e("ExceptionMessage---", "Message--" + e.getMessage());
-        }
-    }
-
 
     private void declaration() {
         StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
@@ -977,22 +837,6 @@ public class ReferencePageActivity extends AppCompatActivity implements Referenc
         }
     }
 
-    private int getScrollPos1(ArrayList<BooksDataModel.BookImageDetailsModel> pdfList) {
-        int scrollPos = 0;
-        Log.e("PDF Size", "" + pdfList.size());
-        if (pdfList != null && pdfList.size() > 0) {
-            if (pdfList.size() <= total_pages && pageNo < (last_index_gap + 1)) {
-                scrollPos = (pageNo - 1);
-                pageNoFirstIndex = Integer.parseInt(pdfList.get(0).getPageno()) - 1;// (pageNo - scrollPos);
-                pageNoLastIndex = Integer.parseInt(pdfList.get(pdfList.size() - 1).getPageno()) + 1;
-            } else if (pdfList.size() == total_pages && pageNo >= (last_index_gap + 1)) {
-                scrollPos = (pdfList.size() / 2);
-                pageNoFirstIndex = (pageNo - scrollPos);
-                pageNoLastIndex = pageNo + first_index_gap;
-            }
-        }
-        return scrollPos;
-    }
 
     private int getScrollPos(ArrayList<BooksDataModel.BookImageDetailsModel> pdfList) {
         int scrollPos = 0;
@@ -1166,65 +1010,31 @@ public class ReferencePageActivity extends AppCompatActivity implements Referenc
                             break;
                         }
                     }
-                    for (int i = 0; i < imageFiles.size(); i++) {
-                        Set<String> strImages = imageFiles.get(i).keySet();
-                        for (String key : strImages) {
-                            if (key.equalsIgnoreCase(strImage)) {
-                                imageFiles.remove(i);
-                                Log.e("imageFiles", i + "removed");
-                                break;
-                            }
-                        }
-                    }
                     isImageSelected = true;
-
 //                    Utils.dismissProgressDialog();
-                    setSelectedOptionData();
+                    setSelectedOptionData("Remove Image");
                 } else {
+                    isDisabledSaveClick = true;
                     AddMyShelfModel mAddShelfModel = new AddMyShelfModel();
                     mAddShelfModel.setStrPageNo(strPageNo);
                     mAddShelfModel.setStrUrl(strImage);
                     addMyShlefList.add(mAddShelfModel);
-                    Glide.with(activity).load(strImage).asBitmap().into(new SimpleTarget<Bitmap>() {
-                        @Override
-                        public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
-                            resource.compress(Bitmap.CompressFormat.PNG, 100, new ByteArrayOutputStream());
-                            HashMap<String, Uri> map = new HashMap<>();
-                            map.put(strImage, Uri.parse(MediaStore.Images.Media.insertImage(activity.getContentResolver(), resource, "JRL_" + System.currentTimeMillis(), null)));
-                            imageFiles.add(map);
-                            if (!mImageUriList.contains(map.get(strImage)))
-                                mImageUriList.add(map.get(strImage));
-                            isImageSelected = true;
-                            Log.e("imageFiles", "pdflist Pos" + count++);
-
-//                            Utils.dismissProgressDialog();
-                            setSelectedOptionData();
-                        }
-                    });
+                    setSelectedOptionData("After add image");
+                    isDisabledSaveClick = false;
                 }
             }
-
-           /* String strImage =0 mPfdList.get(position).getPage_image();
-            if (strImage != null && strImage.length() > 0) {
-                Glide.with(activity).load(strImage).asBitmap().into(new SimpleTarget<Bitmap>() {
-                    @Override
-                    public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
-                        resource.compress(Bitmap.CompressFormat.PNG, 100, new ByteArrayOutputStream());
-                        imageFiles.add(Uri.parse(MediaStore.Images.Media.insertImage(activity.getContentResolver(), resource, "", null)));
-                    }
-                });
-            }*/
-
         }
     }
 
-    private void setSelectedOptionData() {
-        Log.e(TAG, "setSelectedOptionData");
+    private boolean isDisabledSaveClick = false;
+    private void setSelectedOptionData(String source) {
+        Log.e(TAG, "setSelectedOptionData from" + source);
 
         if (bottomSheetDialog != null) {
             return;
         }
 
+       // Toast.makeText(activity.getApplicationContext(), "Is Ok Visible from"+ source, Toast.LENGTH_SHORT).show();
         llPdfOption.setVisibility(View.GONE);
         llSelectOption.setVisibility(View.VISIBLE);
         if (addMyShlefList != null && addMyShlefList.size() > 0) {
@@ -1246,7 +1056,8 @@ public class ReferencePageActivity extends AppCompatActivity implements Referenc
 
     public void getShareDialog() {
 
-
+        // Close the old dialog before start new
+        dismissBottomSheetDialog();
         bottomSheetDialog = new BottomSheetDialog(activity, R.style.BottomSheetDialogTheme);
         View bottomSheetDialogView = LayoutInflater.from(getApplicationContext()).inflate(R.layout.dialog_share, (LinearLayout) findViewById(R.id.bottomSheetContainer));
         LinearLayout bottomSheetContainer = bottomSheetDialogView.findViewById(R.id.bottomSheetContainer);
@@ -1258,56 +1069,37 @@ public class ReferencePageActivity extends AppCompatActivity implements Referenc
         ImageView ivClose = bottomSheetDialogView.findViewById(R.id.ivClose);
         mKeyboardView = bottomSheetDialogView.findViewById(R.id.keyboardView);
         edtRenameFile.setFocusable(true);
-        strTotalCount = "" + mImageUriList.size();
+        strTotalCount = "" + addMyShlefList.size();
         if (strFrom != null && strFrom.equals("IndexSearchDetailsActivity")) {
-            edtRenameFile.setText("JainRefLibrary" + "_" + strIndexName + "_" + strBookName + " (" + strPageNo + ")_" + mImageUriList.size());
+            edtRenameFile.setText("JainRefLibrary" + "_" + strIndexName + "_" + strBookName + " (" + strPageNo + ")_" + strTotalCount);
         } else if (strFrom != null && strFrom.equals("YearBookActivity")) {
-            edtRenameFile.setText("JainRefLibrary" + "_" + strTypeName + "_" + strBookName + " (" + strPageNo + ")_" + mImageUriList.size());
+            edtRenameFile.setText("JainRefLibrary" + "_" + strTypeName + "_" + strBookName + " (" + strPageNo + ")_" + strTotalCount);
         } else if (strFrom != null && strFrom.equals("BiodataMemoryDetailsActivity")) {
-            edtRenameFile.setText("JainRefLibrary" + "_" + strTypeName + "_" + strBookName + " (" + strPageNo + ")_" + mImageUriList.size());
+            edtRenameFile.setText("JainRefLibrary" + "_" + strTypeName + "_" + strBookName + " (" + strPageNo + ")_" + strTotalCount);
         } else if (strFrom != null && strFrom.equals("RelationDetailsActivity")) {
-            edtRenameFile.setText("JainRefLibrary" + "_" + strTypeName + "_" + strBookName + " (" + strPageNo + ")_" + mImageUriList.size());
+            edtRenameFile.setText("JainRefLibrary" + "_" + strTypeName + "_" + strBookName + " (" + strPageNo + ")_" + strTotalCount);
         } else {
             if (strSutraName != null && strSutraName.length() > 0) {
-                edtRenameFile.setText("JainRefLibrary" + "_" + strSutraName + "_" + strBookName + " (" + strPageNo + ")_" + mImageUriList.size());
+                edtRenameFile.setText("JainRefLibrary" + "_" + strSutraName + "_" + strBookName + " (" + strPageNo + ")_" + strTotalCount);
             } else if (isAppendix == true) {
-                edtRenameFile.setText("JainRefLibrary" + "_" + strPageName + "_" + strBookName + " (" + strPageNo + ")_" + mImageUriList.size());
+                edtRenameFile.setText("JainRefLibrary" + "_" + strPageName + "_" + strBookName + " (" + strPageNo + ")_" + strTotalCount);
             } else {
                 String strKeyword = null;
                 if (mBookDataModels.getKeyword() != null && mBookDataModels.getKeyword().length() > 0) {
                     strKeyword = mBookDataModels.getKeyword();
                 }
-                edtRenameFile.setText("JainRefLibrary" + "_" + strKeyword + "_" + strBookName + " (" + strPageNo + ")_" + mImageUriList.size());
+                edtRenameFile.setText("JainRefLibrary" + "_" + strKeyword + "_" + strBookName + " (" + strPageNo + ")_" + strTotalCount);
             }
         }
-        //edtRenameFile.setText("JainRefLibrary" + "_" +strSutraName + "_" + strBookName + "_" + strPageNo + "_" + mImageUriList.size() + "_" + strWordName);
         String strLanguage = SharedPrefManager.getInstance(activity).getStringKeyword(SharedPrefManager.KEY_SELECT_LANGUAGE);
         Log.e(TAG, "strLanguage--" + strLanguage);
         edtRenameFile.requestFocus();
-/*
-        edtRenameFile.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                Util.hideKeyBoard(activity, edtRenameFile);
-                if (mKeyboardView.getVisibility() == View.VISIBLE) {
-                    mKeyboardView.setVisibility(View.GONE);
-                } else {
-                    mKeyboardView.setVisibility(View.VISIBLE);
-                }
-                Util.selectKeyboard(mKeyboardView, mKeyboard, edtRenameFile, activity, strLanguage, bottomSheetDialog);
-                return false;
-            }
-        });*/
 
-        tvSelectedImageCount.setText("" + mImageUriList.size());
-        strEdtRenamefile = edtRenameFile.getText().toString();
-        if (strEdtRenamefile == null || strEdtRenamefile.length() == 0) {
-            strEdtRenamefile = "JainRefLibrary" + "_" + strBookName + "_" + strPageNo + "_" + mImageUriList.size() + "_" + strWordName;
-        }
 
-        strEdtRenamefile = "JainRefLibrary" + "_" + strPageNo + "_" + mImageUriList.size();
+        tvSelectedImageCount.setText("" + strTotalCount);
 
-        strPdfFile = getPdfFile(strEdtRenamefile);
+        strEdtRenamefile = "JainRefLibrary" + "_" + strPageNo + "_" + strTotalCount;
+
 
         bottomSheetDialog.setOnCancelListener(dialogInterface -> {
             Log.e(TAG, "bottomSheetDialog cancel callback");
@@ -1321,92 +1113,35 @@ public class ReferencePageActivity extends AppCompatActivity implements Referenc
         btnShare.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
- /*
-                if (mImageUriList != null && mImageUriList.size() > 0) {
-                   String shareData = " Get Latest JainTatva Books here : https://play.google.com/store/apps/details?id=" + PackageName;
-                    String strMessage = " " + strBookName;
-                    Intent intent = new Intent();
-                    intent.setAction(Intent.ACTION_SEND_MULTIPLE);
-                    intent.putExtra(Intent.EXTRA_SUBJECT, shareData);
-                    intent.putExtra(Intent.EXTRA_TEXT, strMessage);
-                    intent.setType(""); //This example is sharing jpeg images.
-                    Log.e(TAG, "imageFilesss--" + mImageUriList.size());
-                    intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, mImageUriList);
-                    startActivity(Intent.createChooser(intent, shareData));
 
-                } else {
-                    Toast.makeText(activity, "Please select image", Toast.LENGTH_SHORT).show();
-               }
-*/
                 if (addMyShlefList != null && addMyShlefList.size() > 0) {
                     dismissBottomSheetDialog();
-                    JSONArray myShelfArray = new JSONArray();
-                    if ((addMyShlefList != null) && (addMyShlefList.size() > 0)) {
-                        for (int j = 0; j < addMyShlefList.size(); j++) {
-                            String strPageNo = addMyShlefList.get(j).getStrPageNo();
-                            String strUrl = addMyShlefList.get(j).getStrUrl();
-                            JSONObject jsonObject = new JSONObject();
-                            Log.e("CheckString-", "" + strUrl);
-                            try {
-                                if (strPageNo != null && strPageNo.length() > 0) {
-                                    jsonObject.put("page_no", strPageNo);
-                                }
-                                /*if (strUrl != null && strUrl.length() > 0) {
-                                    jsonObject.put("url", strUrl);
-                                }*/
-                                if (strPageNo != null && strUrl != null) {
-                                    myShelfArray.put(jsonObject);
-                                } else {
-                                    Log.e(TAG, "isProductFile");
-                                }
-                            } catch (JSONException e) {
-                                Log.e(TAG, e.getMessage());
-                            }
+                    ArrayList<String> imageUrlList = new ArrayList<>();
+                    for (int i = 0; i < addMyShlefList.size(); i++) {
+                        String strUrl = addMyShlefList.get(i).getStrUrl();
+                        if (strUrl != null) {
+                            imageUrlList.add(strUrl);
                         }
                     }
-                    if (myShelfArray != null && myShelfArray.length() > 0) {
 
-                        strEdtRenamefile = edtRenameFile.getText().toString();
-                        if (strEdtRenamefile == null || strEdtRenamefile.length() == 0) {
-                            strEdtRenamefile = "JainRefLibrary" + "_" + strBookName + "_" + strPageNo + "_" + mImageUriList.size() + "_" + strWordName;
-                        }
+                    strEdtRenamefile = edtRenameFile.getText().toString();
+                    if (strEdtRenamefile == null || strEdtRenamefile.length() == 0) {
 
-                        if (strUserID != null && strUserID.length() > 0) {
-                            Log.e("userid", strUserID);
-                            callAddMyShelfApi(myShelfArray, strUserID, strEdtRenamefile, false);
-                        }
+                        strEdtRenamefile = "JainRefLibrary" + "_" + strBookName + "_" + strPageNo + "_" + addMyShlefList.size() + "_" + strWordName;
                     }
-                }
 
-                /*
-                strEdtRenamefile = edtRenameFile.getText().toString();
-                if (strEdtRenamefile == null || strEdtRenamefile.length() == 0) {
-                    strEdtRenamefile = "JainRefLibrary" + "_" + strBookName + "_" + strPageNo + "_" + mImageUriList.size() + "_" + strWordName;
-                }
-
-                if (strEdtRenamefile != null && strEdtRenamefile.length() > 0) {
-                    bottomSheetDialog.cancel();
-                    callShareMyShelfsApi(strUserID);
+                    if (strUserID != null && strUserID.length() > 0 && imageUrlList.size() > 0) {
+                        Log.e("userid", strUserID);
+                        callAddMyShelfApi(imageUrlList, strUserID, strEdtRenamefile, false);
+                    }
 
                 } else {
-                    edtRenameFile.setError("Please enter file name");
-                    edtRenameFile.requestFocus();
-                }*/
+
+                }
+
             }
         });
-//        btnDownload.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                strEdtRenamefile = edtRenameFile.getText().toString();
-//                Log.e("mImageUriList", "size : " + mImageUriList.size());
-//
-//                if (mImageUriList != null && mImageUriList.size() > 0) {
-//                    bottomSheetDialog.cancel();
-//                    callDownloadMyShelfsApi(strUserID);
-//                    //downloadAndStoreImages(mImageUriList, "JainRefLibrary" + "_" + strBookName + "_" + strPageNo + "_" + mImageUriList.size() + "_" + strWordName);
-//                }
-//            }
-//        });
+
 
         String finalStrEdtRenamefile = strEdtRenamefile;
         btnMyShelf.setOnClickListener(new View.OnClickListener() {
@@ -1414,37 +1149,18 @@ public class ReferencePageActivity extends AppCompatActivity implements Referenc
             public void onClick(View view) {
                 if (addMyShlefList != null && addMyShlefList.size() > 0) {
                     dismissBottomSheetDialog();
-                    JSONArray myShelfArray = new JSONArray();
-                    if ((addMyShlefList != null) && (addMyShlefList.size() > 0)) {
-                        for (int j = 0; j < addMyShlefList.size(); j++) {
-                            String strPageNo = addMyShlefList.get(j).getStrPageNo();
-                            String strUrl = addMyShlefList.get(j).getStrUrl();
-                            JSONObject jsonObject = new JSONObject();
-                            Log.e("CheckString-", "" + strUrl);
-                            try {
-                                if (strPageNo != null && strPageNo.length() > 0) {
-                                    jsonObject.put("page_no", strPageNo);
-                                }
-                                /*if (strUrl != null && strUrl.length() > 0) {
-                                    jsonObject.put("url", strUrl);
-                                }*/
-                                if (strPageNo != null && strUrl != null) {
-                                    myShelfArray.put(jsonObject);
-                                } else {
-                                    Log.e(TAG, "isProductFile");
-                                }
-                            } catch (JSONException e) {
-                                Log.e(TAG, e.getMessage());
-                            }
+                    ArrayList<String> imageUrlList = new ArrayList<>();
+                    for (int i = 0; i < addMyShlefList.size(); i++) {
+                        String strUrl = addMyShlefList.get(i).getStrUrl();
+                        if (strUrl != null) {
+                            imageUrlList.add(strUrl);
                         }
                     }
-                    if (myShelfArray != null && myShelfArray.length() > 0) {
 
-                        strEdtRenamefile = edtRenameFile.getText().toString();
-                        if (strUserID != null && strUserID.length() > 0) {
-                            Log.e("userid", strUserID);
-                            callAddMyShelfApi(myShelfArray, strUserID, strEdtRenamefile, true);
-                        }
+                    strEdtRenamefile = edtRenameFile.getText().toString();
+                    if (strUserID != null && strUserID.length() > 0 && imageUrlList.size() > 0) {
+                        Log.e("userid", strUserID);
+                        callAddMyShelfApi(imageUrlList, strUserID, strEdtRenamefile, true);
                     }
                 }
             }
@@ -1478,51 +1194,6 @@ public class ReferencePageActivity extends AppCompatActivity implements Referenc
 
             @Override
             public void onSlide(@NonNull View bottomSheet, float slideOffset) {
-            }
-        });
-    }
-
-    private void callDownloadMyShelfsApi(String strUserID) {
-        if (!ConnectionManager.checkInternetConnection(this)) {
-            Utils.showInfoDialog(ReferencePageActivity.this, "Please check internet connection");
-            return;
-        }
-
-        strTypeRef = Utils.REF_TYPE_REFERENCE_PAGE;
-        Log.e("strUserId :", "" + strUserID);
-        Log.e("strTypeRef :", " " + strTypeRef);
-        Utils.showProgressDialog(ReferencePageActivity.this, "Please Wait...", false);
-
-        ApiClient.downloadMyShelfs(strUserID, strTypeRef, new Callback<ShareOrDownloadMyShelfResModel>() {
-            @Override
-            public void onResponse(Call<ShareOrDownloadMyShelfResModel> call, retrofit2.Response<ShareOrDownloadMyShelfResModel> response) {
-                if (response.isSuccessful()) {
-                    Utils.dismissProgressDialog();
-
-                    //   Log.e("responseData :", new GsonBuilder().setPrettyPrinting().create().toJson(response));
-
-                    if (response.body().isStatus()) {
-                        /*strUserId = SharedPrefManager.getInstance(ReferencePageActivity.this).getStringPref(SharedPrefManager.KEY_USER_ID);
-                        if (strUserId != null && strUserId.length() > 0) {
-                            callListHoldSearchKeyword(strUserId);
-                        }*/
-                        Utils.downloadLocalPDF(strPdfFile, ReferencePageActivity.this);
-//                        try {
-//                            downloadAndStoreImages(mImageUriList, strEdtRenamefile);
-//                        } catch (IOException e) {
-//                            e.printStackTrace();
-//                        }
-                        //Toast.makeText(ReferencePageActivity.this, "" + response.body().getMessage(), Toast.LENGTH_SHORT).show();
-                    } else {
-                        //Toast.makeText(ReferencePageActivity.this, "" + response.body().getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                }
-            }
-
-            @Override
-            public void onFailure(Call<ShareOrDownloadMyShelfResModel> call, Throwable throwable) {
-                Utils.dismissProgressDialog();
-                Log.e("onFailure :", "Move All Api : " + throwable.getMessage());
             }
         });
     }
@@ -1568,33 +1239,26 @@ public class ReferencePageActivity extends AppCompatActivity implements Referenc
         });
     }
 
-    private void callAddMyShelfApi(JSONArray myShelfArray, String strUserId, String strEdtRenamefile, boolean notesDialog) {
+    private void callAddMyShelfApi(ArrayList<String> imagesUrl, String strUserId, String strEdtRenamefile, boolean notesDialog) {
         Utils.showProgressDialog(activity, "Please Wait...", false);
         Constantss.FILE_NAME_PDF = "JainRefLibrary" + " / " + strBookName + "_" + strWordName + " /";
-        MultipartBody.Part filePart = null;
-        if (strPdfFile != null && strPdfFile.length() > 0) {
-            File mFile = new File(strPdfFile);
-            if (mFile.exists()) {
-                filePart = MultipartBody.Part.createFormData("pdf_file", mFile.getName(), RequestBody.create(MediaType.parse("pdf/*"), mFile));
-            }
-        }
-        RequestBody uid = RequestBody.create(MediaType.parse("text/*"), strUserId);
-        RequestBody bookid = RequestBody.create(MediaType.parse("text/*"), strBookId);
+        String uid = strUserId;
+        String bookid = strBookId;
 
-        RequestBody type = RequestBody.create(MediaType.parse("text/*"), "");
-        RequestBody typeid = RequestBody.create(MediaType.parse("text/*"), "");
+        String type = "";
+        String typeid = "";
         if (strFrom != null && strFrom.equals("IndexSearchDetailsActivity")) {
-            type = RequestBody.create(MediaType.parse("text/*"), "2" + strIndexIniId);
-            typeid = RequestBody.create(MediaType.parse("text/*"), strIndexId);
+            type = "2" + strIndexIniId;
+            typeid = strIndexId;
         } else if (strFrom != null && strFrom.equals("YearBookActivity")) {
-            type = RequestBody.create(MediaType.parse("text/*"), "3" + strYearTypeId);
-            typeid = RequestBody.create(MediaType.parse("text/*"), strYearId);
+            type = "3" + strYearTypeId;
+            typeid = strYearId;
         } else if (strFrom != null && strFrom.equals("BiodataMemoryDetailsActivity")) {
-            type = RequestBody.create(MediaType.parse("text/*"), strTypeId);
-            typeid = RequestBody.create(MediaType.parse("text/*"), strRefrenceTypeId);
+            type = strTypeId;
+            typeid = strRefrenceTypeId;
         } else if (strFrom != null && strFrom.equals("RelationDetailsActivity")) {
-            type = RequestBody.create(MediaType.parse("text/*"), strTypeId);
-            typeid = RequestBody.create(MediaType.parse("text/*"), strRefrenceTypeId);
+            type = strTypeId;
+            typeid = strRefrenceTypeId;
         } else {
             String strBookID = mBookDataModels.getBook_id();
             String strKeyword = null;
@@ -1603,25 +1267,28 @@ public class ReferencePageActivity extends AppCompatActivity implements Referenc
             }
 
             if (strSutraName != null) {
-                type = RequestBody.create(MediaType.parse("text/*"), "1");
-                typeid = RequestBody.create(MediaType.parse("text/*"), strGSId);
+                type = "1";
+                typeid =  strGSId;
             } else if (isAppendix) {
-                type = RequestBody.create(MediaType.parse("text/*"), "4");
-                typeid = RequestBody.create(MediaType.parse("text/*"), strAppendixId);
+                type = "4";
+                typeid =  strAppendixId;
             } else if (strKeyword != null) {
-                type = RequestBody.create(MediaType.parse("text/*"), "0");
-                typeid = RequestBody.create(MediaType.parse("text/*"), strKeyWordId);
+                type = "0";
+                typeid = strKeyWordId;
             }
         }
 
-        RequestBody filename = RequestBody.create(MediaType.parse("text/*"), strEdtRenamefile);
-        RequestBody typeref = RequestBody.create(MediaType.parse("text/*"), "1");
-        RequestBody count = RequestBody.create(MediaType.parse("text/*"), strTotalCount);
-        RequestBody fileType = RequestBody.create(MediaType.parse("text/*"), "4");
+        String filename = strEdtRenamefile;
+        String typeref = "1";
+        String count = strTotalCount;
+        String fileType = "4";
         Log.e("fileType :", " " + fileType);
         Log.e("strUserId " + strUserId, "strBookId" + strBookId + " strKeyWordId " + strKeyWordId + " file " + "pdf_" + "JainRefLibrary" + "_" + strBookName + " type " + strType + " typeref " + typeref);
         Utils.showProgressDialog(activity, "Please Wait...", false);
-        ApiClient.addMyShelfs(uid, bookid, typeid, type, typeref, filename, null, count, fileType, filePart, new Callback<AddShelfResModel>() {
+        Gson gson = new Gson();
+        String jsonImagesUrl = gson.toJson(imagesUrl);  // JSON representation of the list
+
+        ApiClient.addMyShelfWithImagesUrl(uid, bookid, typeid, type, typeref, filename, null, count, fileType, jsonImagesUrl, new Callback<AddShelfResModel>() {
             @Override
             public void onResponse(Call<AddShelfResModel> call, Response<AddShelfResModel> response) {
                 if (response.isSuccessful()) {
@@ -1633,6 +1300,7 @@ public class ReferencePageActivity extends AppCompatActivity implements Referenc
                         //   String strNotes = response.body().getNotes();
                         String strid = response.body().getId();
                         strPdfLink = response.body().getPdf_url();
+                        strSharePdfImageUrl = imagesUrl.get(0);
                         //      Log.e("id", strid);
 //                        Utils.showInfoDialog(activity, "" + response.body().getMessage());
                         if (notesDialog) {
@@ -1662,216 +1330,14 @@ public class ReferencePageActivity extends AppCompatActivity implements Referenc
 
     }
 
-    private void saveIntoMyShelf(ArrayList<Uri> mImageUriList) {
-        ArrayList<String> mOldImageBitmapList = new ArrayList<>();
-        ArrayList<String> tempBitmapList = new ArrayList<>();
-
-        for (int i = 0; i < mImageUriList.size(); i++) {
-            Uri mUri = mImageUriList.get(i);
-            String path = FileUtils.getPath(activity, mUri);
-            if (path != null) {
-                mOldImageBitmapList.add(path);
-            }
-        }
-        if (mOldImageBitmapList != null && mOldImageBitmapList.size() > 0) {
-            tempBitmapList = SharedPrefManager.getInstance(activity).getMyShelfList(SharedPrefManager.KEY_MY_SHELF);
-            if (tempBitmapList != null && tempBitmapList.size() > 0) {
-                mOldImageBitmapList.addAll(tempBitmapList);
-            }
-            SharedPrefManager.getInstance(activity).saveMyShelfList(SharedPrefManager.KEY_MY_SHELF, mOldImageBitmapList);
-            Utils.showInfoDialog(activity, "Downloaded Successfully");
-            if (this.mImageUriList != null && this.mImageUriList.size() > 0) {
-                this.mImageUriList.clear();
-            }
-        } else {
-            return;
-        }
-        Log.e("mImageUriList---", "Shelf---" + mOldImageBitmapList.size());
-    }
-
-    private void downloadAndStoreImages(ArrayList<Uri> mImageUriList, String strFileName) throws
-            IOException {
-        String strFileFinalPath = new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime());
-        if (!Utils.mediaStoreDownloadsDir.exists()) {
-            Utils.mediaStoreDownloadsDir.mkdirs();
-        }
-        for (int i = 0; i < mImageUriList.size(); i++) {
-            Uri uri = mImageUriList.get(i);
-            strFileFinalPath = strFileName + strFileFinalPath + ".jpg";
-            File file = new File(Utils.mediaStoreDownloadsDir.getAbsolutePath(), "JainRefLibrary" + "_" + strBookName + "_" + strPageNo + "_" + mImageUriList.size() + "_" + strWordName);
-            Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), uri);
-            Log.d("bitmap--", "bitmap---" + bitmap);
-            View view = rvPdf.getChildAt(i);
-            Date today = new Date();
-            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss a");
-            String dateToStr = format.format(today);
-            TextView tvFooterRight = view.findViewById(R.id.tvFooterRight);
-            TextView tvHeaderRight = view.findViewById(R.id.tvHeaderRight);
-            TextView tvHeaderLeft = view.findViewById(R.id.tvHeaderLeft);
-            Constantss.FILE_NAME = "JainRefLibrary" + "_" + strBookName + "_" + strPageNo + "_" + mImageUriList.size() + "_" + strWordName;
-            Constantss.FILE_NAME_PDF = "JainRefLibrary" + "/" + strBookName + "_" + strPageNo + "_" + mImageUriList.size() + "_" + strWordName;
-            Log.e("ConstantFime", Constantss.FILE_NAME);
-            Constantss.PAGE_COUNT = String.valueOf(mImageUriList.size());
-            tvFooterRight.setText(Constantss.FILE_NAME);
-            tvHeaderLeft.setText(dateToStr);
-            tvHeaderRight.setText(Constantss.PAGE_COUNT);
-            try {
-                getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
-            } catch (Exception ex) {
-                Log.d(TAG, "Non Navigation button");
-            }// getBitmapFromView(view);
-            downloadAndStoreImages(strFileName, getBitmapFromView(view));/*
-          if (!file.exists()) {
-                Log.d("path", file.toString());
-                FileOutputStream fos = null;
-                try {
-                    fos = new FileOutputStream(file);
-                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
-                    fos.flush();
-                    fos.close();
-                } catch (java.io.IOException e) {
-                    e.printStackTrace();
-                }
-            }*/
-        }
-        Utils.showInfoDialog(activity, "Downloaded Successfully "
-                + "\n" + Utils.mediaStoreDownloadsDir.getAbsolutePath() + "/" + strFileName);
-        if (this.mImageUriList != null && this.mImageUriList.size() > 0) {
-            this.mImageUriList.clear();
-        }
-    }
-
-    private void downloadAndStoreImages(String strFileName, Bitmap imageBitmap) throws
-            IOException {
-        Log.e("sucess", "success");
-        String strFileFinalPath = new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime());
-        if (!Utils.mediaStoreDownloadsDir.exists()) {
-            Utils.mediaStoreDownloadsDir.mkdirs();
-        }
-
-        if (imageBitmap != null) {
-            Uri uri = Utils.getImageUri(activity, imageBitmap);
-            strFileFinalPath = strFileName + strFileFinalPath + ".jpg";
-            File file = new File(Utils.mediaStoreDownloadsDir.getAbsolutePath(), strFileFinalPath);
-            Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), uri);
-            Log.d("bitmap--", "bitmap---" + bitmap);
-            if (!file.exists()) {
-                Log.d("path", file.toString());
-                FileOutputStream fos = null;
-                try {
-                    fos = new FileOutputStream(file);
-                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
-                    fos.flush();
-                    fos.close();
-                } catch (java.io.IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            Utils.showInfoDialog(activity, "Downloaded Successfully " + "\n" + Utils.mediaStoreDownloadsDir.getAbsolutePath() + "/" + strFileName);
-        } else {
-            Utils.showInfoDialog(this, "Image not found");
-        }
-    }
-
-    private void shareZipFiles(String strEdtRenamefile) {
-        try {
-            if (mImageUriList != null && mImageUriList.size() > 0) {
-                String strZipperFileName = ZipCompressor.zip(activity, mImageUriList, strEdtRenamefile);
-                if (strZipperFileName != null && strZipperFileName.length() > 0) {
-                    Log.e(TAG, "strZipperFileName--" + strZipperFileName);
-                    Uri fileUri = Uri.fromFile(new File(strZipperFileName));
-                    Log.e(TAG, "fileUri--" + fileUri);
-                    String shareData = " Get Latest JainTatva Books here : https://play.google.com/store/apps/details?id=" + PackageName;
-                    String strMessage = " " + strBookName;
-                    Intent intent = new Intent();
-                    intent.setAction(Intent.ACTION_SEND);
-                    intent.putExtra(Intent.EXTRA_SUBJECT, shareData);
-                    intent.putExtra(Intent.EXTRA_TEXT, strMessage);
-                    intent.putExtra(Intent.EXTRA_STREAM, fileUri);
-                    intent.setType("application/zip");
-                    intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                    Log.e(TAG, "imageFilesss--" + mImageUriList.size());
-                    startActivity(Intent.createChooser(intent, shareData));
-                }
-                if (this.mImageUriList != null && this.mImageUriList.size() > 0) {
-                    this.mImageUriList.clear();
-                }
-            } else {
-                Utils.showInfoDialog(activity, "Please select image");
-            }
-        } catch (Exception e) {
-            Log.e("Exception Error", "Error---" + e.getMessage());
-        }
-    }
-
-    private void sharePDFFiles(String strEdtRenamefile) {
-        try {
-            if (mImageUriList != null && mImageUriList.size() > 0) {
-                List<String> mImagePath = new ArrayList<>();
-                for (int i = 0; i < mImageUriList.size(); i++) {
-                    String strImagePath = FileUtils.getPath(activity, mImageUriList.get(i));
-                    if (strImagePath != null && strImagePath.length() > 0) {
-                        mImagePath.add(strImagePath);
-                        strPdfFile = null;
-                        if (mImagePath != null && mImagePath.size() > 0) {
-                            Constantss.PAGE_COUNT = String.valueOf(mImageUriList.size());
-                            Constantss.FILE_NAME = "JainRefLibrary" + "_" + strBookName + "_" + strPageNo + "_" + mImageUriList.size() + "_" + strWordName;
-                            Constantss.FILE_NAME_PDF = "JainRefLibrary /" + strWordName + "_" + strBookName + "_" + strPageNo + "_" + mImageUriList.size();
-                            Log.e("ConstantFime", Constantss.FILE_NAME);
-                            strPdfFile = PdfCreator.creatPdf(Utils.getMediaStorageDir(getApplicationContext()).getAbsolutePath(), strEdtRenamefile, mImagePath);
-                        }
-
-                    }
-                }
-
-                if (strPdfFile != null && strPdfFile.length() > 0) {
-                    Log.e(TAG, "strZipperFileName--" + strPdfFile);
-
-                    Uri fileUri = Uri.fromFile(new File(strPdfFile));
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                        fileUri = FileProvider.getUriForFile(getApplicationContext(), BuildConfig.APPLICATION_ID + ".provider", new File(strPdfFile));
-                    }
-
-                    Log.e(TAG, "fileUri--" + fileUri);
-                    String shareData = " Get Latest JainTatva Books here : https://play.google.com/store/apps/details?id=" + PackageName;
-                    String strMessage = " " + strBookName;
-                    Intent intent = new Intent();
-                    intent.setAction(Intent.ACTION_SEND);
-                    intent.setType("text/plain");
-                    intent.putExtra(Intent.EXTRA_SUBJECT, shareData);
-                    intent.putExtra(Intent.EXTRA_TEXT, strMessage);
-                    intent.putExtra(Intent.EXTRA_STREAM, fileUri);
-                    intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                    intent.setFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                    Log.e(TAG, "imageFiles" + mImageUriList.size());
-                    startActivity(Intent.createChooser(intent, shareData));
-                }
-
-                if (this.mImageUriList != null && this.mImageUriList.size() > 0) {
-                    this.mImageUriList.clear();
-                }
-
-            } else {
-                Utils.showInfoDialog(activity, "Please select image");
-            }
-        } catch (Exception e) {
-            Log.e("Exception Error", "Error---" + e.getMessage());
-        }
-    }
 
     private void sharePDFLink() {
         try {
             if (strPdfLink != null && strPdfLink.length() > 0) {
                 String shareData = " Get Latest JainTatva Books here : https://play.google.com/store/apps/details?id=" + PackageName;
                 String strMessage = strPdfLink; //" " + strBookName;
-                Intent intent = new Intent();
-                intent.setAction(Intent.ACTION_SEND);
-                intent.setType("text/plain");
-                intent.putExtra(Intent.EXTRA_SUBJECT, shareData);
-                intent.putExtra(Intent.EXTRA_TEXT, strMessage);
-                intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                intent.setFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                startActivity(Intent.createChooser(intent, shareData));
+
+                Utils.shareContentWithImage(ReferencePageActivity.this,"Share JRL Reference Page(s)", strMessage, strSharePdfImageUrl);
             }
         } catch (Exception e) {
             Log.e("Exception Error", "Error---" + e.getMessage());
@@ -1965,34 +1431,5 @@ public class ReferencePageActivity extends AppCompatActivity implements Referenc
                 }).build();
         dialog.show();
     }
-
-    public String getPdfFile(String strEdtRenamefile) {
-        try {
-            if (mImageUriList != null && mImageUriList.size() > 0) {
-                List<String> mImagePath = new ArrayList<>();
-                for (int i = 0; i < mImageUriList.size(); i++) {
-                    String strImagePath = FileUtils.getPath(activity, mImageUriList.get(i));
-                    if (strImagePath != null && strImagePath.length() > 0) {
-                        mImagePath.add(strImagePath);
-                        strPdfFile = null;
-                        if (mImagePath != null && mImagePath.size() > 0) {
-                            Constantss.PAGE_COUNT = String.valueOf(mImageUriList.size());
-                            Constantss.FILE_NAME = "JainRefLibrary" + "_" + strBookName + "_" + strPageNo + "_" + mImageUriList.size() + "_" + strWordName;
-                            Constantss.FILE_NAME_PDF = "JainRefLibrary /" + strWordName + "_" + strBookName + "_" + strPageNo + "_" + mImageUriList.size();
-                            Log.e("ConstantFime", Constantss.FILE_NAME);
-                            strPdfFile = PdfCreator.creatPdf(Utils.getMediaStorageDir(getApplicationContext()).getAbsolutePath(), strEdtRenamefile, mImagePath);
-                        }
-                    }
-                }
-
-            } else {
-                Utils.showInfoDialog(activity, "Please select image");
-            }
-        } catch (Exception e) {
-            Log.e("Exception Error", "Error---" + e.getMessage());
-        }
-        return strPdfFile;
-    }
-
 
 }

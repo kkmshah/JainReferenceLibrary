@@ -25,7 +25,6 @@ import com.jainelibrary.model.UploadPDFModel;
 import com.jainelibrary.model.UserDetailsResModel;
 import com.jainelibrary.model.UserGuideResModel;
 import com.jainelibrary.model.UserNameExistsResModel;
-import com.jainelibrary.model.YearBookResModel;
 import com.jainelibrary.model.YearResModel;
 import com.jainelibrary.model.YearResponseModel;
 import com.jainelibrary.model.YearTypeResModel;
@@ -34,11 +33,12 @@ import com.jainelibrary.retrofitResModel.AppDataAndUsersResModel;
 import com.jainelibrary.retrofitResModel.BiodataMemoryDetailsResModel;
 import com.jainelibrary.retrofitResModel.BookListResModel;
 import com.jainelibrary.retrofitResModel.BookReferenceDetailsResModel;
+import com.jainelibrary.retrofitResModel.CheckMyShelfFileNameResModel;
 import com.jainelibrary.retrofitResModel.CheckResModel;
 import com.jainelibrary.retrofitResModel.ClearHoldReferenceModel;
 import com.jainelibrary.retrofitResModel.CountResModel;
+import com.jainelibrary.retrofitResModel.CreatePdfFileUrlResModel;
 import com.jainelibrary.retrofitResModel.FilterBookResModel;
-import com.jainelibrary.retrofitResModel.IndexSearchResModel;
 import com.jainelibrary.retrofitResModel.KeywordSearchModel;
 import com.jainelibrary.retrofitResModel.ReferencePageDetailsResModel;
 import com.jainelibrary.retrofitResModel.ReferenceResModel;
@@ -69,7 +69,6 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
-import retrofit2.http.GET;
 
 public class ApiClient {
     public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
@@ -151,20 +150,32 @@ public class ApiClient {
         getApiClient().getShlokBooks(strUID, strGSID).enqueue(listener);
     }
 
-    public static void getKeyword(String pageNo, String strKeyword, String strUid, String strBookId, String lang_code, String types, Callback<KeywordSearchModel> listener) {
-        getApiClient().getKeyword(pageNo, strKeyword, strUid, strBookId, lang_code, types).enqueue(listener);
+    public static void getKeyword(String searchFor, String pageNo, String strKeyword, String strUid, String strBookId, String lang_code, String types,String bookInfo, Callback<KeywordSearchModel> listener) {
+        getApiClient().getKeyword(searchFor, pageNo, strKeyword, strUid, strBookId, lang_code, types, bookInfo).enqueue(listener);
     }
 
     public static void getKeywordsPdf(String pageNo, String strKeyword, String strUid, String strBookId, String lang_code,String pdfType, String types, Callback<ResponseBody> listener) {
         getApiClient().getKeywordsPdf(pageNo, strKeyword, strUid, strBookId, lang_code,pdfType, types).enqueue(listener);
     }
 
+    public static void createKeywordsPdf(String strKeyword, String strUid, String strBookId, String lang_code,String pdfType, Callback<CreatePdfFileUrlResModel> listener) {
+        getApiClient().createKeywordsPdf( strKeyword, strUid, strBookId, lang_code,pdfType).enqueue(listener);
+    }
+
     public static void getKeywordBookDetailsPdf(String strBookDetails, String strBids, Callback<ResponseBody> listener) {
         getApiClient().getKeywordBookDetailsPdf(strBookDetails, strBids).enqueue(listener);
     }
 
+    public static void createKeywordBookDetailsPdf(String strKid, String strBookIds, Callback<CreatePdfFileUrlResModel> listener) {
+        getApiClient().createKeywordBookDetailsPdf(strKid, strBookIds).enqueue(listener);
+    }
+
     public static void getShlokGranthDetailsPdf(String strGSId, Callback<ResponseBody> listener) {
         getApiClient().getShlokGranthDetailsPdf(strGSId).enqueue(listener);
+    }
+
+    public static void createShlokGranthDetailsPdf(String strGSId, Callback<CreatePdfFileUrlResModel> listener) {
+        getApiClient().createShlokGranthDetailsPdf(strGSId).enqueue(listener);
     }
 
     public static void getKeywordBookDetails(String strUId, String strBookDetails, String strBids, Callback<BookListResModel> listener) {
@@ -409,6 +420,14 @@ public class ApiClient {
         getApiClient().addMyShelfsWithUrl(uid, bid, kid, type, type_ref, filename, strTypeName,count, file_type, file_url).enqueue(listener);
     }
 
+    public static void addMyShelfWithImagesUrl(String uid, String bid, String  kid, String  type, String  type_ref,
+                                               String  filename, String strTypeName, String count, String file_type, String json_images_url, Callback<AddShelfResModel> listener) {
+        getApiClient().addMyShelfWithImagesUrl(uid, bid, kid, type, type_ref, filename, strTypeName,count, file_type, json_images_url).enqueue(listener);
+    }
+    public static void checkMyShelfFileName(String uid, String  filename, Callback<CheckMyShelfFileNameResModel> listener) {
+        getApiClient().checkMyShelfFileName(uid, filename).enqueue(listener);
+    }
+
     public static void shareMyShelfs(String strUserId, String type_ref, Callback<ShareOrDownloadMyShelfResModel> listener) {
         getApiClient().shareMyShelfs(strUserId, type_ref).enqueue(listener);
     }
@@ -442,6 +461,10 @@ public class ApiClient {
         getApiClient().getYearBookPdf(strTypeId, type, strBookIds).enqueue(listener);
     }
 
+    public static void createYearBookPdf(String strTypeId, String type, String strBookIds, Callback<CreatePdfFileUrlResModel> listener) {
+        getApiClient().createYearBookPdf(strTypeId, type, strBookIds).enqueue(listener);
+    }
+
     public static void getYear(String strUserId, String strYearType, String strBookIds, Callback<YearResponseModel> listener) {
         getApiClient().getYear(strUserId, strYearType, strBookIds).enqueue(listener);
     }
@@ -449,6 +472,11 @@ public class ApiClient {
     public static void getBookIndexPdf(String strBookId, Callback<ResponseBody> listener) {
         getApiClient().getBookIndexPdf(strBookId).enqueue(listener);
     }
+
+    public static void createBookIndexPdf(String strIndexBookId, Callback<CreatePdfFileUrlResModel> listener) {
+        getApiClient().createBookIndexPdf(strIndexBookId).enqueue(listener);
+    }
+
 
     public static void getYearCategory(String allBooks, String yearType, String strUserId, Callback<CategoryResModel> listener) {
         getApiClient().getYearCategory(allBooks, yearType, strUserId).enqueue(listener);

@@ -42,6 +42,8 @@ import com.jainelibrary.activity.HidingScrollListener;
 import com.jainelibrary.activity.KeywordHighlightActivity;
 import com.jainelibrary.activity.LoginWithPasswordActivity;
 import com.jainelibrary.activity.PdfViewActivity;
+import com.jainelibrary.activity.YearBookListActivity;
+import com.jainelibrary.activity.ZoomImageActivity;
 import com.jainelibrary.adapter.MyReferenceBooksGalleryAdapter;
 import com.jainelibrary.adapter.MyReferenceBooksListAdapter;
 import com.jainelibrary.keyboard.CustomKeyboardView;
@@ -51,10 +53,12 @@ import com.jainelibrary.model.BookImageModel;
 import com.jainelibrary.model.DeleteMyShelfResModel;
 import com.jainelibrary.model.FilesImageModel;
 import com.jainelibrary.model.MyShelfResModel;
+import com.jainelibrary.model.PdfStoreListResModel;
 import com.jainelibrary.model.UserDetailsResModel;
 import com.jainelibrary.retrofit.ApiClient;
 import com.jainelibrary.retrofitResModel.BookListResModel;
 import com.jainelibrary.utils.SharedPrefManager;
+import com.jainelibrary.utils.StorageManager;
 import com.jainelibrary.utils.Utils;
 
 import java.util.ArrayList;
@@ -187,7 +191,7 @@ public class BooksFragment extends Fragment implements
             strUId = SharedPrefManager.getInstance(getActivity()).getStringPref(SharedPrefManager.KEY_USER_ID);
             Log.e("UserId---", "UserId---" + strUId);
             if (strUId != null && strUId.length() > 0) {
-                callMyShelfListApi(strUId, strFlag, isGallery);
+                callMyShelfListApi(strUId, strFlag, isGallery, false);
             }
         } else {
             askLogin();
@@ -217,7 +221,7 @@ public class BooksFragment extends Fragment implements
                         if (strValue != null && strValue.length() > 0) {
                             callSearchMyShelfApi(strValue);
                         } else {
-                            callMyShelfListApi(strUId, strFlag, isGallery);
+                            callMyShelfListApi(strUId, strFlag, isGallery, false);
                         }
                     }
                 }
@@ -227,7 +231,7 @@ public class BooksFragment extends Fragment implements
                         if (strValue != null && strValue.length() > 0) {
                             callSearchMyShelfApi(strValue);
                         } else {
-                            callMyShelfListApi(strUId, strFlag, isGallery);
+                            callMyShelfListApi(strUId, strFlag, isGallery, false);
                         }
                     }
                 }
@@ -249,14 +253,14 @@ public class BooksFragment extends Fragment implements
                             callSearchMyShelfApi(strValue);
                         } else {
                             isGallery = false;
-                            callMyShelfListApi(strUId, strFlag, isGallery);
+                            callMyShelfListApi(strUId, strFlag, isGallery, false);
                         }
                     }
                 }
 
                 if (strSpinnerB != null && strSpinnerB.equalsIgnoreCase("Gallery")) {
                     isGallery = true;
-                    callMyShelfListApi(strUId, strFlag, isGallery);
+                    callMyShelfListApi(strUId, strFlag, isGallery, false);
                 }
             }
 
@@ -403,14 +407,17 @@ public class BooksFragment extends Fragment implements
                         mBookDataModels.setFlag("6");
                         mBookDataModels.setBook_url(notesDetailList.get(position).getBook_image());
 
+                        mBookDataModels.setBook_image(notesDetailList.get(position).getBook_image());
+                        mBookDataModels.setBook_large_image(notesDetailList.get(position).getBook_large_image());
                         Intent i = new Intent(getActivity(), BookDetailsActivity.class);
                         i.putExtra("model", mBookDataModels);
                         startActivity(i);
                         return true;
                     case R.id.share:
                         if (strOptionPdfUrl != null && strOptionPdfUrl.length() > 0) {
-                            String shareText = strBookNames + "shared with you by " + strUsername + "\n" + "Download app from here :" + "\n" + "https://play.google.com/store/apps/details?id=" + PackageName;
-                            share(shareText, strOptionPdfUrl);
+                            String bookImage = notesDetailList.get(position).getBook_image();
+                            String shareText = strBookNames + "shared with you by " + strUsername;
+                            share(shareText, strBookNames + "\n" +strOptionPdfUrl, bookImage);
                         } else {
                             if (isSelectedButNotPdf) {
                                 Utils.showInfoDialog(getActivity(), "This reference does not have pdf");
@@ -466,7 +473,7 @@ public class BooksFragment extends Fragment implements
 
                     if (response.body().isStatus()) {
                         Utils.showInfoDialog(getActivity(), "" + response.body().getMessage());
-                        callMyShelfListApi(strUId, strFlag, isGallery);
+                        callMyShelfListApi(strUId, strFlag, isGallery, true);
                     } else {
                         Log.e("error--", "statusFalse--" + response.body().getMessage());
                     }
@@ -493,12 +500,13 @@ public class BooksFragment extends Fragment implements
         Utils.downloadPdf(strBookName, strUrl, getActivity());
     }
 
-    public void share(String shareData, String strMessage) {
-        Intent sharingIntent = new Intent(Intent.ACTION_SEND);
-        sharingIntent.setType("text/plain");
-        sharingIntent.putExtra(Intent.EXTRA_SUBJECT, shareData);
-        sharingIntent.putExtra(Intent.EXTRA_TEXT, strMessage);
-        startActivity(Intent.createChooser(sharingIntent, shareData));
+    public void share(String shareData, String strMessage, String imageUrl) {
+//        Intent sharingIntent = new Intent(Intent.ACTION_SEND);
+//        sharingIntent.setType("text/plain");
+//        sharingIntent.putExtra(Intent.EXTRA_SUBJECT, shareData);
+//        sharingIntent.putExtra(Intent.EXTRA_TEXT, strMessage);
+//        startActivity(Intent.createChooser(sharingIntent, shareData));
+        Utils.shareContentWithImage(getActivity(), shareData, strMessage, imageUrl);
     }
 
     private void setMyShelfList(ArrayList<MyShelfResModel.MyShelfModel> myShelfList) {
@@ -539,13 +547,40 @@ public class BooksFragment extends Fragment implements
         });
     }
 
-    public void callMyShelfListApi(String strUId, String strFlag, boolean isGallery) {
+    public void setMyShelfListApiRes(ArrayList<MyShelfResModel.MyShelfModel> myShelfResModels) {
+        if (myShelfResModels != null && myShelfResModels.size() > 0) {
+            if (isGallery) {
+                rvMyShelf.setVisibility(View.GONE);
+                rvImage.setVisibility(View.VISIBLE);
+                tvDisclaimer.setVisibility(View.VISIBLE);
+                tvDisclaimer.setText(myShelfResModels.size() + " Books Found");
+                setGalleryListData(myShelfResModels);
+            } else {
+                rvMyShelf.setVisibility(View.VISIBLE);
+                rvImage.setVisibility(View.GONE);
+                tvDisclaimer.setVisibility(View.VISIBLE);
+                tvDisclaimer.setText(myShelfResModels.size() + " Books Found");
+                setMyShelfList(myShelfResModels);
+            }
+        }
+    }
 
+    public void callMyShelfListApi(String strUId, String strFlag, boolean isGallery, boolean skipCache) {
+
+        String cacheKey =  Utils.REF_TYPE_BOOK_PAGE+ "_"+strUId+"_"+strFlag+"_"+ (isGallery ? "1": "0");
+        boolean notCacheData = true;
+        ArrayList<MyShelfResModel.MyShelfModel> myShelfCacheResModels = StorageManager.getMyShelfListResponse(cacheKey, skipCache);
+        if (myShelfCacheResModels != null && myShelfCacheResModels.size() > 0) {
+            notCacheData = false;
+            setMyShelfListApiRes(myShelfCacheResModels);
+        }
         if (!ConnectionManager.checkInternetConnection(getActivity())) {
-            Utils.showInfoDialog(getActivity(), "Please check internet connection");
+            if(notCacheData)
+                Utils.showInfoDialog(getActivity(), "Please check internet connection");
             return;
         }
-        Utils.showProgressDialog(getActivity(), "Please Wait...", false);
+        if(notCacheData)
+            Utils.showProgressDialog(getActivity(), "Please Wait...", false);
         ApiClient.getMyShelfList(strUId, strFlag, Utils.REF_TYPE_BOOK_PAGE, new Callback<MyShelfResModel>() {
             @Override
             public void onResponse(Call<MyShelfResModel> call, retrofit2.Response<MyShelfResModel> response) {
@@ -557,19 +592,8 @@ public class BooksFragment extends Fragment implements
                         ArrayList<MyShelfResModel.MyShelfModel> myShelfResModels = new ArrayList<>();
                         myShelfResModels = response.body().getData();
                         if (myShelfResModels != null && myShelfResModels.size() > 0) {
-                            if (isGallery) {
-                                rvMyShelf.setVisibility(View.GONE);
-                                rvImage.setVisibility(View.VISIBLE);
-                                tvDisclaimer.setVisibility(View.VISIBLE);
-                                tvDisclaimer.setText(myShelfResModels.size() + " Books Found");
-                                setGalleryListData(myShelfResModels);
-                            } else {
-                                rvMyShelf.setVisibility(View.VISIBLE);
-                                rvImage.setVisibility(View.GONE);
-                                tvDisclaimer.setVisibility(View.VISIBLE);
-                                tvDisclaimer.setText(myShelfResModels.size() + " Books Found");
-                                setMyShelfList(myShelfResModels);
-                            }
+                            setMyShelfListApiRes(myShelfResModels);
+                            StorageManager.setMyShelfListResponse(myShelfResModels, cacheKey);
                         } else {
                             rvMyShelf.setVisibility(View.GONE);
                             rvImage.setVisibility(View.GONE);
@@ -689,6 +713,16 @@ public class BooksFragment extends Fragment implements
                 //selectOption(searchList.get(position));
             }
         }*/
+    }
+
+    public void onZoomClick(MyShelfResModel.MyShelfModel book) {
+        Intent i = new Intent(getActivity(), ZoomImageActivity.class);
+        String strImageUrl = book.getBook_large_image();
+        String fallbackImage = book.getBook_image();
+        i.putExtra("image", strImageUrl);
+        i.putExtra("fallbackImage", fallbackImage);
+        i.putExtra("url", true);
+        startActivity(i);
     }
 
     @Override

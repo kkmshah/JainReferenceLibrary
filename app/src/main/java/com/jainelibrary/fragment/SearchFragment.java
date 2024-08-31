@@ -234,12 +234,13 @@ public class SearchFragment extends Fragment implements GalleryAdapter.OnImageCl
 
             mGalleryListAdapter = new GalleryAdapter(getActivity(), viewListResModels, this, new GalleryAdapter.OnImageZoomListener() {
                 @Override
-                public void onImageClick(int position, String s) {
+                public void onImageClick(int position, String s, String fallbackImage) {
                     SharedPrefManager.getInstance(getActivity()).saveStringPref(SharedPrefManager.IMG_URL, s);
                     s = SharedPrefManager.getInstance(getContext()).getStringPref(SharedPrefManager.IMG_URL);
                     if ((s != null) && (s.length() != 0)) {
                         Intent i = new Intent(getActivity(), ZoomImageActivity.class);
                         i.putExtra("image", s);
+                        i.putExtra("fallbackImage", fallbackImage);
                         i.putExtra("url", true);
                         startActivity(i);
                     }
@@ -298,6 +299,8 @@ public class SearchFragment extends Fragment implements GalleryAdapter.OnImageCl
                 String strPublisherName = filesModel.getPublisher_name();
                 String strTranslator = filesModel.getTranslator();
                 String strBookUrl = filesModel.getBook_url();
+                String strBookImageUrl = filesModel.getBook_image();
+                String strBookLargeImageUrl = filesModel.getBook_large_image();
                 strPDfUrl = filesModel.getPdf_url();
 
                 strUserId = SharedPrefManager.getInstance(getActivity()).getStringPref(SharedPrefManager.KEY_USER_ID);
@@ -320,6 +323,8 @@ public class SearchFragment extends Fragment implements GalleryAdapter.OnImageCl
                 mBookDataModels.setPublisher_name(strPublisherName);
                 mBookDataModels.setTranslator(strTranslator);
                 mBookDataModels.setBook_url(strBookUrl);
+                mBookDataModels.setBook_image(strBookImageUrl);
+                mBookDataModels.setBook_large_image(strBookLargeImageUrl);
                 mBookDataModels.setFlag(strFlag);
 
                 switch (item.getItemId()) {
@@ -335,10 +340,10 @@ public class SearchFragment extends Fragment implements GalleryAdapter.OnImageCl
                         return true;
                     case R.id.share:
                         if (strPDfUrl != null && strPDfUrl.length() > 0) {
-                            shareData = " Get Latest JRl Books here : https://play.google.com/store/apps/details?id=" + PackageName;
-                            strMessage = " " + strPDfUrl;
+                            shareData = "JRL Book: "+ strBookName;
+                            strMessage = "Book Name: "+ strBookName + "\nBook Link:" + strPDfUrl;
 
-                            callShareMyShelfsApi(strUserId, shareData, strMessage);
+                            callShareMyShelfsApi(strUserId, shareData, strMessage, strBookImageUrl);
                         } else {
                             Utils.showInfoDialog(getActivity(), "Pdf not found");
                             Log.e("strPdfLinkShare---", "pdfLink--" + strPDfUrl);
@@ -411,7 +416,7 @@ public class SearchFragment extends Fragment implements GalleryAdapter.OnImageCl
         });
     }
 
-    private void callShareMyShelfsApi(String strUserId, String shareData, String strMessage) {
+    private void callShareMyShelfsApi(String strUserId, String shareData, String strMessage, String strImageUrl) {
         if (!ConnectionManager.checkInternetConnection(getActivity())) {
             Utils.showInfoDialog(getActivity(), "Please check internet connection");
             return;
@@ -425,29 +430,13 @@ public class SearchFragment extends Fragment implements GalleryAdapter.OnImageCl
         ApiClient.shareMyShelfs(strUserId, strTypeRef, new Callback<ShareOrDownloadMyShelfResModel>() {
             @Override
             public void onResponse(Call<ShareOrDownloadMyShelfResModel> call, retrofit2.Response<ShareOrDownloadMyShelfResModel> response) {
-                if (response.isSuccessful()) {
-                    Utils.dismissProgressDialog();
-
-                    //   Log.e("responseData :", new GsonBuilder().setPrettyPrinting().create().toJson(response));
-
-                    if (response.body().isStatus()) {
-                        /*strUserId = SharedPrefManager.getInstance(ReferencePageActivity.this).getStringPref(SharedPrefManager.KEY_USER_ID);
-                        if (strUserId != null && strUserId.length() > 0) {
-                            callListHoldSearchKeyword(strUserId);
-                        }*/
-
-                        Intent intent = new Intent();
-                        intent.setAction(Intent.ACTION_SEND);
-                        intent.putExtra(Intent.EXTRA_SUBJECT, shareData);
-                        intent.putExtra(Intent.EXTRA_TEXT, strMessage);
-                        intent.setType("text/plain");
-                        startActivity(Intent.createChooser(intent, shareData));
-
-                        //Toast.makeText(ReferencePageActivity.this, "" + response.body().getMessage(), Toast.LENGTH_SHORT).show();
-                    }else{
-                        //Toast.makeText(ReferencePageActivity.this, "" + response.body().getMessage(), Toast.LENGTH_SHORT).show();
-                    }
+                Utils.dismissProgressDialog();
+                if (!response.isSuccessful() || !response.body().isStatus()) {
+                    return;
                 }
+
+                Utils.shareContentWithImage(getActivity(), shareData, strMessage, strImageUrl);
+
             }
 
             @Override

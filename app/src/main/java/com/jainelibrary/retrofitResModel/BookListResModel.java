@@ -67,6 +67,7 @@ public class BookListResModel implements Serializable {
         String index_name;
         String prakashak_name;
         String book_image;
+        String book_large_image;
         String book_id;
         String book_name;
         String pdf_page_no;
@@ -142,13 +143,6 @@ public class BookListResModel implements Serializable {
         }
         public void setPrakashak_name(String prakashak_name) {
             this.prakashak_name = prakashak_name;
-        }
-
-        public String getBook_Url() {
-            return book_url;
-        }
-        public void setBook_Url(String book_url) {
-            this.book_image = book_url;
         }
 
         public String getBook_url() {
@@ -379,6 +373,14 @@ public class BookListResModel implements Serializable {
             this.book_image = book_image;
         }
 
+        public String getBook_large_image() {
+            return book_large_image;
+        }
+
+        public void setBook_large_image(String book_large_image) {
+            this.book_large_image = book_large_image;
+        }
+
         public ArrayList<BookAppendixModel> getApendix() {
             return apendix;
         }
@@ -477,6 +479,8 @@ public class BookListResModel implements Serializable {
             String type_name;
             String type_value;
             String book_image;
+
+            String book_large_image;
             public ArrayList<Book> page_nos = new ArrayList<>();
 
             public String getPage_no() {
@@ -583,7 +587,13 @@ public class BookListResModel implements Serializable {
                 this.book_image = book_image;
             }
 
+            public String getBook_large_image() {
+                return book_large_image;
+            }
 
+            public void setBook_large_image(String book_large_image) {
+                this.book_large_image = book_large_image;
+            }
 
             public ArrayList<Book> getPage_nos() {
                 return page_nos;

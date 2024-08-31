@@ -509,6 +509,7 @@
                                         android:layout_gravity="center_vertical"
                                         android:background="#00F00000"
                                         android:orientation="horizontal"
+                                        android:visibility="gone"
                                         android:weightSum="2"
                                         android:padding="5dp">
 

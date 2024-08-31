@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.jainelibrary.R;
+import com.jainelibrary.activity.ZoomImageActivity;
 import com.jainelibrary.fragment.KeywordsMainFragment;
 import com.jainelibrary.manager.ConnectionManager;
 import com.jainelibrary.model.CategoryResModel;
@@ -178,17 +179,13 @@ public class MultiCheckActivity extends AppCompatActivity {
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         adapter = new MultiCheckGenreAdapter(true,GenreDataFactory.makeMultiCheckGenres(mCatList), bookIdList, count,MultiCheckActivity.this, new MultiCheckGenreAdapter.OnZoomListener() {
-            @Override
-            public void OnZoomClick(View view, int position, String s) {
-                /*SharedPrefManager.getInstance(getApplicationContext()).saveStringPref(SharedPrefManager.IMG_URL, s);
-                s = SharedPrefManager.getInstance(getApplicationContext()).getStringPref(SharedPrefManager.IMG_URL);*/
-              /*  Log.e("String", s);
-                if ((s != null) && (s.length() != 0)) {
-                    Intent i = new Intent(getApplicationContext(), ZoomImageActivity.class);
-                    i.putExtra("image", s);
-                    i.putExtra("url", true);
-                    startActivity(i);
-                }*/
+            public void OnZoomClick(String strImageUrl, String fallbackImage) {
+                Intent i = new Intent(MultiCheckActivity.this, ZoomImageActivity.class);
+                i.putExtra("image", strImageUrl);
+                i.putExtra("fallbackImage", fallbackImage);
+
+                i.putExtra("url", true);
+                startActivity(i);
             }
         });
         Log.e("gen" + GenreDataFactory.makeMultiCheckGenres(mCatList).size() + "", bookIdList.size() + "");

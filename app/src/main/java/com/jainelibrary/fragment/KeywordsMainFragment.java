@@ -19,16 +19,15 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
+
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -52,8 +51,6 @@ import com.jainelibrary.activity.FilterCategoriesActivity;
 import com.jainelibrary.activity.FilterMenuActivity;
 import com.jainelibrary.activity.HidingScrollListener;
 import com.jainelibrary.activity.KeywordSearchDetailsActivity;
-import com.jainelibrary.activity.LoginWithPasswordActivity;
-import com.jainelibrary.activity.MainActivity;
 import com.jainelibrary.activity.SearchReferenceActivity;
 import com.jainelibrary.adapter.KeywordSearchViewAdapter;
 import com.jainelibrary.adapter.SearchHistoryAdapter;
@@ -66,7 +63,8 @@ import com.jainelibrary.model.CategoryResModel;
 import com.jainelibrary.model.KeywordModel;
 import com.jainelibrary.model.UserDetailsResModel;
 import com.jainelibrary.retrofit.ApiClient;
-import com.jainelibrary.retrofitResModel.BookListResModel;
+import com.jainelibrary.retrofitResModel.CheckMyShelfFileNameResModel;
+import com.jainelibrary.retrofitResModel.CreatePdfFileUrlResModel;
 import com.jainelibrary.retrofitResModel.KeywordSearchModel;
 import com.jainelibrary.retrofitResModel.SearchOptionResModel;
 import com.jainelibrary.retrofitResModel.ShareOrDownloadMyShelfResModel;
@@ -81,9 +79,6 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
-import okhttp3.MediaType;
-import okhttp3.MultipartBody;
-import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -113,7 +108,7 @@ public class KeywordsMainFragment extends Fragment implements IOnBackPressed, Ke
     boolean isLogin = false;
     View headerView, header2;
     AppBarLayout appBarLayout;
-    int page = 1, totalPages = 20;
+    int page = 1, totalPages = 1, totalAllResults = 0;
     LinearLayout llLensSearch,llFocusSearch,llShowCount, llNewFilter;
     LinearLayout llLens,llFocus;
     TextView tvFocusCounts, tvLensCounts, tvFiltersCounts,tvFocusCountsSearch,tvLensCountsSearch;
@@ -133,18 +128,32 @@ public class KeywordsMainFragment extends Fragment implements IOnBackPressed, Ke
     private int totalCount = 0;
     private String selectedString = "";
     private LinearLayout llAddItem;
+
+    private LinearLayout btnExactMatchTab;
+
+    private LinearLayout btnSimilarMatchTab;
+
+    private LinearLayout btnAllMatchTab;
+
+    private TextView tvExactMatchTab;
+
+    private TextView tvSimilarMatchTab;
+
+    private TextView tvAllMatchTab;
     private TextView tvHeaderCount;
     private ImageView ivHeaderIcon;
     private ArrayList<KeywordSearchModel.KeywordModel> mKeywordList = new ArrayList<>();
     private BottomSheetDialog bottomSheetDialog;
     private String strUsername;
     private String strUId;
+
+    private String searchFor = "1";
     private NestedScrollView nestedScroll;
-    private boolean isLastPage = false;
     private boolean isLoading = false;
+    private String reqSearchVale;
     private boolean isFirstPage = true;
     private ArrayList<KeywordSearchModel.KeywordModel> tempKeywordList = new ArrayList<>();
-    private String tempSearchValue;
+    private String lastSearchValue;
     private ArrayList<KeywordSearchModel.KeywordModel> keywordSearchModel = new ArrayList<>();
     private ArrayList<KeywordSearchModel.KeywordModel> allKeywordDataList = new ArrayList<>();
     String strEdtRenamefile = null, strUserId, shareText, strPdfFile, strTypeRef;
@@ -170,23 +179,6 @@ public class KeywordsMainFragment extends Fragment implements IOnBackPressed, Ke
     @Override
     public void onResume() {
         super.onResume();
-        /*getFocusLensDialogData();
-
-        rvList.setVisibility(View.GONE);
-
-        tempKeyword = SharedPrefManager.getInstance(getActivity()).getStringPref(SharedPrefManager.KEY_LAST_SEARCH_KEYWORD);
-        if(tempKeyword != null && tempKeyword.length() > 0){
-            etSearchView.setText(tempKeyword);
-
-            page = 1;
-            isFirstPage = true;
-
-            if ((strUId != null) && (strUId.length() != 0)) {
-                callKeywordDataApi(String.valueOf(page), tempKeyword, strUId, false);
-            } else {
-                callKeywordDataApi(String.valueOf(page), tempKeyword, "0", false);
-            }
-        }*/
     }
 
     private void onEventClickListener() {
@@ -198,11 +190,35 @@ public class KeywordsMainFragment extends Fragment implements IOnBackPressed, Ke
             }
         });
 
-
-        ivSimillarKeyword.setOnClickListener(new View.OnClickListener() {
+        btnExactMatchTab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                getSearch(true);
+                if(searchFor.equals("1")) {
+                    return;
+                }
+                searchFor="1";
+                getSearch(1);
+            }
+        });
+        btnSimilarMatchTab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(searchFor.equals("2")) {
+                    return;
+                }
+                searchFor="2";
+                getSearch(1);
+            }
+        });
+        btnAllMatchTab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(searchFor.equals("0")) {
+                    return;
+                }
+                searchFor="0";
+
+                getSearch(1);
             }
         });
 
@@ -427,25 +443,18 @@ public class KeywordsMainFragment extends Fragment implements IOnBackPressed, Ke
                 strOptionTypeID = data.getStringExtra("strOptionTypeId");
                 Log.e("strBookIds", "onActivity---" + strBookIds);
 
+                getFocusLensDialogData();
                 String strValue = etSearchView.getText().toString();
                 if (strValue != null && strValue.length() > 0) {
-
-                    page = 1;
-                    isFirstPage = true;
-                    if ((strUId != null) && (strUId.length() != 0)) {
-                        callKeywordDataApi(String.valueOf(page), strValue, strUId, false);
-                    } else {
-                        callKeywordDataApi(String.valueOf(page), strValue, "0", false);
-                    }
-                    getFocusLensDialogData();
                     showFilterOption();
+                    totalCount = 0;
+                    getSearch(1);
                 } else {
-                    getFocusLensDialogData();
                     Utils.showInfoDialog(getActivity(), "Please enter value in search box");
+                    ll_buttons.setVisibility(View.GONE);
+                    llShowCount.setVisibility(View.VISIBLE);
                 }
 
-                ll_buttons.setVisibility(View.VISIBLE);
-                llShowCount.setVisibility(View.GONE);
             }
         }
     }
@@ -528,16 +537,10 @@ public class KeywordsMainFragment extends Fragment implements IOnBackPressed, Ke
         tempKeyword = SharedPrefManager.getInstance(getActivity()).getStringPref(SharedPrefManager.KEY_LAST_SEARCH_KEYWORD);
         if(tempKeyword != null && tempKeyword.length() > 0){
             etSearchView.setText(tempKeyword);
-
-            page = 1;
-            isFirstPage = true;
-
-            /*if ((strUId != null) && (strUId.length() != 0)) {
-                callKeywordDataApi(String.valueOf(page), tempKeyword, strUId, false);
-            } else {
-                callKeywordDataApi(String.valueOf(page), tempKeyword, "0", false);
-            }*/
+            checkLastKeywordSameAsCurrentKeyword();
             etSearchView.setShowSoftInputOnFocus(false);
+        } else {
+            llShowCount.setVisibility(View.VISIBLE);
         }
 
         strOptionTypeID = SharedPrefManager.getInstance(getActivity()).getStringPref(SharedPrefManager.KEY_FILTER_LENS_IDS);
@@ -549,7 +552,7 @@ public class KeywordsMainFragment extends Fragment implements IOnBackPressed, Ke
     }
 
     private void getFocusLensDialogData() {
-        llShowCount.setVisibility(View.VISIBLE);
+        //llShowCount.setVisibility(View.VISIBLE);
         String strFocusCounts = SharedPrefManager.getInstance(getActivity()).getStringPref(SharedPrefManager.KEY_FOCUS_DATA);
         String strLensCounts = SharedPrefManager.getInstance(getActivity()).getStringPref(SharedPrefManager.KEY_LENS_DATA);
 
@@ -592,14 +595,19 @@ public class KeywordsMainFragment extends Fragment implements IOnBackPressed, Ke
         SharedPrefManager.getInstance(getActivity()).saveFilterBookIdList(SharedPrefManager.KEY_FILTER_BOOK_IDS, new ArrayList<>());
         strBookIds = "";
         totalCount = 0;
-
-        getSearch(false);
+        getSearch(1); // false
         callCategoryFilterApi(strKeyword);
     }
 
-    void getSearch(boolean isSimilarData) {
+    void getSearch(int page) {
         Util.hideKeyBoard(getActivity(), etSearchView);
         final String strValue = etSearchView.getText().toString();
+        int activeTabColor = getResources().getColor(R.color.button_color);
+        int tabColor = getResources().getColor(R.color.gray);
+        btnAllMatchTab.setBackgroundColor(searchFor.equals("0") ? activeTabColor : tabColor);
+        btnExactMatchTab.setBackgroundColor(searchFor.equals("1") ? activeTabColor : tabColor);
+        btnSimilarMatchTab.setBackgroundColor(searchFor.equals("2") ? activeTabColor : tabColor);
+
         if (strValue != null && strValue.length() > 0) {
             rvSearchHistoryList.setVisibility(View.GONE);
             mSearchHistoryModelList = new ArrayList<>();
@@ -625,19 +633,19 @@ public class KeywordsMainFragment extends Fragment implements IOnBackPressed, Ke
                 mKeyboard = null;
             }
 
-            if (tempSearchValue != null && !tempSearchValue.equalsIgnoreCase(strValue)) {
-                page = 1;
-                isFirstPage = true;
+            if (lastSearchValue == null  || !lastSearchValue.equalsIgnoreCase(strValue)) {
+                tvExactMatchTab.setText("Exact" );
+                tvSimilarMatchTab.setText("Similar");
+                tvAllMatchTab.setText("All" );
+                totalPages = 1;
             }
 
             buttonFilter.setVisibility(View.VISIBLE);
             ll_buttons.setVisibility(View.VISIBLE);
             llShowCount.setVisibility(View.GONE);
-            if ((strUId != null) && (strUId.length() != 0)) {
-                callKeywordDataApi(String.valueOf(page), strValue, strUId, isSimilarData);
-            } else {
-                callKeywordDataApi(String.valueOf(page), strValue, "0", isSimilarData);
-            }
+
+            String userUid = (strUId != null) && (strUId.length() != 0) ? strUId : "0";
+            callKeywordDataApi(searchFor, strValue, String.valueOf(page), userUid);
         } else {
             Utils.showInfoDialog(getActivity(), "Please enter value in search box");
         }
@@ -652,18 +660,27 @@ public class KeywordsMainFragment extends Fragment implements IOnBackPressed, Ke
         return false;
     }
 
-    private void callKeywordDataApi(String strPageNo, String strValue, String strUId, boolean isSimilarData) {
+    private void callKeywordDataApi(String searchForParam, String strValue, String strPageNo, String strUId) {
         if (!ConnectionManager.checkInternetConnection(getActivity())) {
             Utils.showInfoDialog(getActivity(), "Please check internet connection");
             return;
         }
 
+        if(isLoading && reqSearchVale.equals(strValue + searchForParam)) {
+            return;
+        }
+        isFirstPage = strPageNo.equals("1");
+        reqSearchVale = strValue + searchForParam;
 
+        isLoading = true;
         if (isFirstPage) {
             Utils.showProgressDialog(getActivity(), "Please Wait...", false);
             JRL.isKeywordLoading = true;
         }
 
+        page = Integer.parseInt(strPageNo);
+
+        boolean isSimilarData = searchForParam.equals("2");
 
         Log.e("strBookIds", "keywords---" + strBookIds);
         String langType = Util.lang_code;
@@ -671,75 +688,110 @@ public class KeywordsMainFragment extends Fragment implements IOnBackPressed, Ke
             langType = "0";
         }
 
-        strPageNo = "";
+        String bookInfo = "0";
+        //strPageNo = "";
         Log.e("langType", "langType---" + langType);
         Log.e(TAG,"Lens Ids :"+strOptionTypeID);
-
-        ApiClient.getKeyword(strPageNo, strValue, strUId, strBookIds, "0", strOptionTypeID, new Callback<KeywordSearchModel>() {
+        String reqKeyword = strValue;
+        ApiClient.getKeyword(searchForParam, strPageNo, reqKeyword, strUId, strBookIds, "0", strOptionTypeID, bookInfo, new Callback<KeywordSearchModel>() {
             @Override
             public void onResponse(Call<KeywordSearchModel> call, retrofit2.Response<KeywordSearchModel> response) {
+                if(!reqSearchVale.equals(strValue + searchForParam)) {
+                    return;
+                }
                 JRL.isKeywordLoading = false;
+                isLoading = false;
                 Utils.dismissProgressDialog();
                 if (response.isSuccessful()) {
 
                     KeywordSearchModel keywordSearchModel1 = response.body();
                     Log.e("responseData Keyword :", new GsonBuilder().setPrettyPrinting().create().toJson(keywordSearchModel1));
 
-                    tempSearchValue = strValue;
-                    SharedPrefManager.getInstance(getActivity()).saveStringPref(SharedPrefManager.KEY_LAST_SEARCH_KEYWORD, tempSearchValue);
+                    lastSearchValue = strValue;
+                    SharedPrefManager.getInstance(getActivity()).saveStringPref(SharedPrefManager.KEY_LAST_SEARCH_KEYWORD, lastSearchValue);
 
 //                    ll_buttons.setVisibility(View.VISIBLE);
 //
-                    if (isSimilarData) {
-                        ArrayList<KeywordSearchModel.KeywordModel> similarKeywordData = new ArrayList<>();
-                        similarKeywordData = response.body().getSimilarKeywords();
-                        if (similarKeywordData != null && similarKeywordData.size() > 0) {
-                            tvKeywordCount.setVisibility(View.GONE);
-                            llKeywordCount.setVisibility(View.GONE);
-                            setSimilarData(similarKeywordData);
-                        } else {
-                            Utils.showInfoDialog(getActivity(), "Similar keyword not found");
-                        }
+                    if (isSimilarData && searchForParam.equals("1")) {
+//                        ArrayList<KeywordSearchModel.KeywordModel> similarKeywordData = new ArrayList<>();
+//                        similarKeywordData = response.body().getSimilarKeywords();
+//                        if (similarKeywordData != null && similarKeywordData.size() > 0) {
+//                            tvKeywordCount.setVisibility(View.GONE);
+//                            llKeywordCount.setVisibility(View.GONE);
+//                            setSimilarData(similarKeywordData);
+//                        } else {
+//                            Utils.showInfoDialog(getActivity(), "Similar keyword not found");
+//                        }
                     } else {
                         if (response.body().isStatus()) {
-                             allKeywordDataList = new ArrayList<>();
+                            allKeywordDataList = new ArrayList<>();
                             keywordSearchModel = new ArrayList<>();
                             keywordSearchModel = response.body().getData();
                             if (keywordSearchModel != null && keywordSearchModel.size() > 0) {
-                                keywordSearchModel.get(0).setExact(true);
-                                keywordSearchModel.get(0).setStrTotalSizeText("" + keywordSearchModel.size() + " Exact Result");
+                               // keywordSearchModel.get(0).setExact(true);
+                                //keywordSearchModel.get(0).setStrTotalSizeText("" + keywordSearchModel.size() + " Exact Result");
                                 allKeywordDataList.addAll(keywordSearchModel);
                             }
 
-                            ArrayList<KeywordSearchModel.KeywordModel> similarKeywordData = new ArrayList<>();
-                            similarKeywordData = response.body().getSimilarKeywords();
-                            if (similarKeywordData != null && similarKeywordData.size() > 0) {
-                                if (allKeywordDataList != null && allKeywordDataList.size() > 0) {
-                                    int size = allKeywordDataList.size();
-                                    allKeywordDataList.addAll(similarKeywordData);
-                                    allKeywordDataList.get(size).setStrTotalSizeText("" + similarKeywordData.size() + " Similar Result");
-                                    allKeywordDataList.get(size).setSimmilar(true);
+//                            ArrayList<KeywordSearchModel.KeywordModel> similarKeywordData = new ArrayList<>();
+//                            similarKeywordData = response.body().getSimilarKeywords();
+//                            if (similarKeywordData != null && similarKeywordData.size() > 0) {
+//                                if (allKeywordDataList != null && allKeywordDataList.size() > 0) {
+//                                    int size = allKeywordDataList.size();
+//                                    allKeywordDataList.addAll(similarKeywordData);
+//                                    allKeywordDataList.get(size).setStrTotalSizeText("" + similarKeywordData.size() + " Similar Result");
+//                                    allKeywordDataList.get(size).setSimmilar(true);
+//                                }
+//                            }
+
+
+
+
+                            if (isFirstPage) {
+                                if (allKeywordDataList.size() != 0 && allKeywordDataList.size() > 0) {
+                                    Log.e("Keyword ", "total count --- " + allKeywordDataList.size());
+                                    tvExactMatchTab.setText("Exact (" + response.body().getTotal_keyword_search_count() +")" );
+                                    tvSimilarMatchTab.setText("Similar (" + response.body().getTotal_similar_found_count() +")");
+                                    tvAllMatchTab.setText("All (" + response.body().getTotal_count() +")" );
+                                    totalAllResults = response.body().getTotal_count();
+                                    if(searchForParam.equals("0")) {
+                                        totalPages = response.body().getTotal_pages();
+                                    } else if(searchForParam.equals("1")) {
+                                        totalPages = response.body().getTotal_keyword_search_pages();
+                                    } else if(searchForParam.equals("2")) {
+                                        totalPages = response.body().getTotal_similar_found_pages();
+                                    }
                                 }
                             }
 
                             if (allKeywordDataList != null && allKeywordDataList.size() > 0) {
                                 setPaginateData(allKeywordDataList);
                             }
-
                             if (isFirstPage) {
                                 if (allKeywordDataList.size() != 0 && allKeywordDataList.size() > 0) {
                                     Log.e("Keyword ", "total count --- " + allKeywordDataList.size());
-                                    tvKeywordCount.setVisibility(View.VISIBLE);
-                                    llKeywordCount.setVisibility(View.VISIBLE);
+                                    tvKeywordCount.setVisibility(View.GONE);
+                                    llKeywordCount.setVisibility(View.GONE);
                                     tvKeywordCount.setText("" + allKeywordDataList.size() + " Keywords found");
+
+                                    tvExactMatchTab.setText("Exact (" + response.body().getTotal_keyword_search_count() +")" );
+                                    tvSimilarMatchTab.setText("Similar (" + response.body().getTotal_similar_found_count() +")");
+                                    tvAllMatchTab.setText("All (" + response.body().getTotal_count() +")" );
+                                    if(searchForParam.equals("0")) {
+                                        totalPages = response.body().getTotal_pages();
+                                    } else if(searchForParam.equals("1")) {
+                                        totalPages = response.body().getTotal_keyword_search_pages();
+                                    } else if(searchForParam.equals("2")) {
+                                        totalPages = response.body().getTotal_similar_found_pages();
+                                    }
                                 } else {
                                     rvList.setVisibility(View.GONE);
-
                                     tvKeywordCount.setVisibility(View.VISIBLE);
                                     llKeywordCount.setVisibility(View.VISIBLE);
                                     tvKeywordCount.setText("0 Keywords found");
                                 }
                             }
+
                         } else {
                             mKeyboardView.setVisibility(View.GONE);
                             if (isFirstPage) {
@@ -748,16 +800,17 @@ public class KeywordsMainFragment extends Fragment implements IOnBackPressed, Ke
                                 llKeywordCount.setVisibility(View.VISIBLE);
                                 tvKeywordCount.setText("Keyword not found");
                                 Utils.showInfoDialog(getActivity(), response.body().getMessage());
+                                setPaginateData(new ArrayList<>());
                             }
 
-                            setPaginateData(new ArrayList<>());
                         }
-                        isLoading = false;
                     }
                 }
                 else
                 {
-                    setPaginateData(new ArrayList<>());
+                    if (isFirstPage) {
+                        setPaginateData(new ArrayList<>());
+                    }
                 }
             }
 
@@ -766,62 +819,34 @@ public class KeywordsMainFragment extends Fragment implements IOnBackPressed, Ke
                 String message = t.getMessage();
                 Log.e("error", "onFailure--- " + message);
                 JRL.isKeywordLoading = false;
+                isLoading = false;
                 Utils.dismissProgressDialog();
             }
         });
     }
 
-    private void callKeywordsPdfApi(String strPageNo, String strValue, String strUId, boolean isSimilarData, View view, String strType) {
-        if (!ConnectionManager.checkInternetConnection(getActivity())) {
-            Utils.showInfoDialog(getActivity(), "Please check internet connection");
-            return;
-        }
-
-        Utils.showProgressDialog(getActivity(), "Please Wait...", false);
-        String langType = Util.lang_code;
-        if (langType == null || langType.length() == 0) {
-            langType = "0";
-        }
-
-        ApiClient.getKeywordsPdf("", strValue, strUId, strBookIds, "0", strType, strOptionTypeID,new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call, retrofit2.Response<ResponseBody> response) {
-                //Utils.dismissProgressDialog();
-                if (response.isSuccessful()) {
-                    ResponseBody keywordSearchModel1 = response.body();
-                    //Log.e("responseData Keyword :", new GsonBuilder().setPrettyPrinting().create().toJson(keywordSearchModel1));
-
-                    String strPdfFile = downloadFile(keywordSearchModel1);
-                    //Utils.showProgressDialog(getActivity(), "Please Wait...", false);
-                    if (strPdfFile != null && strPdfFile.length() > 0) {
-                        List<String> mKeywordStringList = new ArrayList<>();
-                        Utils.dismissProgressDialog();
-                        getShareDialog(mKeywordStringList, view, strPdfFile, strType);
-                        //showExportDialog(view, strPdfFile, strType);
-
-                    } else {
-                        Utils.showInfoDialog(getActivity(), "KeywordData not download");
-                    }
-                }
-            }
-
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-                String message = t.getMessage();
-                Log.e("error", "onFailure--- " + message);
-                Utils.dismissProgressDialog();
-            }
-        });
-    }
 
     private void setPaginateData(ArrayList<KeywordSearchModel.KeywordModel> keywordModels) {
-        Log.e("setPaginateData", "---" + keywordModels.size());
+        Log.d("setPaginateData", "---" + keywordModels.size());
         if (isFirstPage) {
             tempKeywordList = new ArrayList<>();
         }
 
         if (keywordModels != null && keywordModels.size() > 0) {
+            int lastChild = tempKeywordList.size() - 1;
+            if(lastChild >= 0 && page > 0) {
+                KeywordSearchModel.KeywordModel loader = tempKeywordList.get(lastChild);
+                if (loader.isLoader()) {
+                    tempKeywordList.remove(lastChild);
+                }
+            }
             tempKeywordList.addAll(keywordModels);
+            if(page < totalPages) {
+                KeywordSearchModel.KeywordModel loader = new KeywordSearchModel.KeywordModel();
+                loader.setLoader(true);
+                loader.setStrTotalSizeText("Loading...");
+                tempKeywordList.add(loader);
+            }
         }
         else {
             tempKeywordList = new ArrayList<>();
@@ -831,7 +856,7 @@ public class KeywordsMainFragment extends Fragment implements IOnBackPressed, Ke
         if (tempKeywordList != null && tempKeywordList.size() > 0) {
             rvList.setVisibility(View.VISIBLE);
             setkeywordData(tempKeywordList);
-        } else {
+        } else if(isFirstPage) {
             rvList.setVisibility(View.GONE);
             tvKeywordCount.setVisibility(View.VISIBLE);
             llKeywordCount.setVisibility(View.VISIBLE);
@@ -878,6 +903,23 @@ public class KeywordsMainFragment extends Fragment implements IOnBackPressed, Ke
                     header2.setVisibility(View.VISIBLE);
                     appBarLayout.setVisibility(View.VISIBLE);
                 }
+            });
+
+            LinearLayoutManager layoutManager = (LinearLayoutManager) rvList.getLayoutManager();
+            rvList.addOnScrollListener(new RecyclerView.OnScrollListener() {
+                @Override
+                public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                    super.onScrolled(recyclerView, dx, dy);
+                    int lastVisibleItemPosition = layoutManager.findLastVisibleItemPosition();
+                    int totalItemCount = mSearchListAdapter.getItemCount();
+                    int pendingItemsToVisible = Math.max(totalItemCount - lastVisibleItemPosition - 1, 0);
+                    if (page < totalPages && pendingItemsToVisible <= 20) {
+                        getSearch(page+1);
+                    }
+
+                    // Handle scroll events
+                   // Log.d("ScrollListener", "Scrolled horizontally by " + dx + " and vertically by " + dy);
+                };
             });
         } else {
             // tvKeywordCount.setText("" + mKeywordList.size() + " Keywords found");
@@ -964,6 +1006,15 @@ public class KeywordsMainFragment extends Fragment implements IOnBackPressed, Ke
         ivSimillarKeyword = view.findViewById(R.id.ivSimillarKeyword);
         llNewFilter = view.findViewById(R.id.llNewFilter);
 
+        btnExactMatchTab = view.findViewById(R.id.llExactMatch);
+        btnSimilarMatchTab = view.findViewById(R.id.llSimilarMatch);
+        btnAllMatchTab = view.findViewById(R.id.llMatch);
+        tvExactMatchTab = view.findViewById(R.id.tvExactMatchTab);
+        tvSimilarMatchTab = view.findViewById(R.id.tvSimilarMatchTab);
+        tvAllMatchTab = view.findViewById(R.id.tvMatchTab);
+
+
+
         llShowCount = view.findViewById(R.id.llShowCount);
         tvFocusCounts = view.findViewById(R.id.tvFocusCounts);
         tvLensCounts = view.findViewById(R.id.tvLensCounts);
@@ -988,7 +1039,12 @@ public class KeywordsMainFragment extends Fragment implements IOnBackPressed, Ke
                 llFilter.setVisibility(View.VISIBLE);
                 llClose.setVisibility(View.GONE);
                 llShowCount.setVisibility(View.VISIBLE);
+                ll_buttons.setVisibility(View.GONE);
+                tvExactMatchTab.setText("Exact" );
+                tvSimilarMatchTab.setText("Similar");
+                tvAllMatchTab.setText("All" );
                 getFocusLensDialogData();
+                SharedPrefManager.getInstance(getActivity()).saveStringPref(SharedPrefManager.KEY_LAST_SEARCH_KEYWORD, "");
                            /* ivHeaderIcon.setVisibility(View.INVISIBLE);
                             tvHeaderCount.setVisibility(View.INVISIBLE);*/
             }
@@ -1081,7 +1137,7 @@ public class KeywordsMainFragment extends Fragment implements IOnBackPressed, Ke
     }
 
     @SuppressLint("ResourceAsColor")
-    public void getShareDialog(List<String> mKeywordStringList, View view, String strPdfFile, String strFileType) {
+    public void getShareDialog(View view, String strFileType) {
 
         bottomSheetDialog = new BottomSheetDialog(getActivity(), R.style.BottomSheetDialogTheme);
         View bottomSheetDialogView = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_share, (LinearLayout) view.findViewById(R.id.bottomSheetContainer));
@@ -1105,9 +1161,9 @@ public class KeywordsMainFragment extends Fragment implements IOnBackPressed, Ke
         TextView tvRename = bottomSheetDialogView.findViewById(R.id.tvRename);
         //tvRename.setTextColor(getResources().getColor(R.color.color_keyword_search));
         strKeyword = etSearchView.getText().toString();
-        String fileName = allKeywordDataList.size() + "_Search Results For_" + strKeyword;
+        String fileName = totalAllResults + "_Search Results For_" + strKeyword;
         if (strFileType == "2") {
-            fileName = allKeywordDataList.size() + "_Search Results With References For_" + strKeyword;
+            fileName = totalAllResults + "_Search Results With References For_" + strKeyword;
         }
         String strEdtRenamefile = fileName;
         edtRenameFile.setText(strEdtRenamefile);
@@ -1130,29 +1186,13 @@ public class KeywordsMainFragment extends Fragment implements IOnBackPressed, Ke
         btnShare.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                bottomSheetDialog.cancel();
-//                String shareText = strEdtRenamefile + " shared with you by " + strUsername + "\n" + "Download app from here :" + "\n" + "https://play.google.com/store/apps/details?id=" + PackageName;
-//                Constantss.FILE_NAME = strEdtRenamefile + " " + STR_KEYWORD;
-//                Constantss.FILE_NAME_PDF = "JainRefLibrary /" + strEdtRenamefile + " " + STR_KEYWORD + " /";
-//                Log.e("strKeyword", strKeyword);
-//                // String strPdfFile = PdfCreator.createTextPdf(mediaStorageKeyWordDir.getAbsolutePath(), strEdtRenamefile, mKeywordStringList);
-//                callShareMyShelfsApi(strUserId, shareText, strPdfFile);
                 bottomSheetDialog.cancel();
                 Log.e("strKeyword", strKeyword);
-                STR_KEYWORD = strKeyword;
-                Constantss.FILE_NAME = strEdtRenamefile + " " + STR_KEYWORD;
-                Constantss.FILE_NAME_PDF = "JainRefLibrary /" + strEdtRenamefile + " " + STR_KEYWORD + " /";
                 String strEdtRenamefile = edtRenameFile.getText().toString();
-                String strTypeName  = "" + strKeyword;
-                String strCount  = "" + allKeywordDataList.size();
-                // String strPdfFile = PdfCreator.createFile(mediaStorageKeyWordDir.getAbsolutePath(), strEdtRenamefile, mKeywordStringList);
-                if (strPdfFile != null && strPdfFile.length() > 0) {
-                    File mFile = new File(strPdfFile);
-                    if (mFile.exists()) {
-                        UploadFile(strUId, strEdtRenamefile, mFile,strTypeName,strCount, strFileType, true);
-                    } else {
-                        Log.e("download--", "file not exits" + strPdfFile);
-                    }
+                String strCount  = "" + totalAllResults;               // String strPdfFile = PdfCreator.createFile(mediaStorageKeyWordDir.getAbsolutePath(), strEdtRenamefile, mKeywordStringList);
+                if (totalAllResults > 0) {
+                    saveKeywordFile(strKeyword, strUId, strEdtRenamefile, strCount, strFileType, true);
+
                 }
             }
         });
@@ -1184,19 +1224,17 @@ public class KeywordsMainFragment extends Fragment implements IOnBackPressed, Ke
                 bottomSheetDialog.cancel();
                 Log.e("strKeyword", strKeyword);
                 STR_KEYWORD = strKeyword;
-                Constantss.FILE_NAME = strEdtRenamefile + " " + STR_KEYWORD;
-                Constantss.FILE_NAME_PDF = "JainRefLibrary /" + strEdtRenamefile + " " + STR_KEYWORD + " /";
+                if(strKeyword == null || strKeyword.isEmpty()) {
+                    return;
+                }
+                Constantss.FILE_NAME = strEdtRenamefile + "_" + strKeyword;
+                Constantss.FILE_NAME_PDF = "JainRefLibrary /" + strEdtRenamefile + "_" + strKeyword + " /";
                 String strEdtRenamefile = edtRenameFile.getText().toString();
                 String strTypeName  = "" + strKeyword;
-                String strCount  = "" + allKeywordDataList.size();
-                // String strPdfFile = PdfCreator.createFile(mediaStorageKeyWordDir.getAbsolutePath(), strEdtRenamefile, mKeywordStringList);
-                if (strPdfFile != null && strPdfFile.length() > 0) {
-                    File mFile = new File(strPdfFile);
-                    if (mFile.exists()) {
-                        UploadFile(strUId, strEdtRenamefile, mFile,strTypeName,strCount, strFileType, false);
-                    } else {
-                        Log.e("download--", "file not exits" + strPdfFile);
-                    }
+                String strCount  = "" + totalAllResults;               // String strPdfFile = PdfCreator.createFile(mediaStorageKeyWordDir.getAbsolutePath(), strEdtRenamefile, mKeywordStringList);
+                if (totalAllResults > 0) {
+                    saveKeywordFile(strKeyword, strUId, strEdtRenamefile,strCount, strFileType, false);
+
                 }
             }
         });
@@ -1288,7 +1326,7 @@ public class KeywordsMainFragment extends Fragment implements IOnBackPressed, Ke
         });
     }
 
-    private void callShareMyShelfsApi(String strUserId, String shareText, String strPdfFile) {
+    private void callShareMyShelfsApi(String strUserId, String shareText, String strPdfLink, String strPdfImage) {
         if (!ConnectionManager.checkInternetConnection(getActivity())) {
             Utils.showInfoDialog(getActivity(), "Please check internet connection");
             return;
@@ -1317,14 +1355,15 @@ public class KeywordsMainFragment extends Fragment implements IOnBackPressed, Ke
                             if (strPdfLink != null && strPdfLink.length() > 0) {
                                 String shareData = " Get Latest JainTatva Books here : https://play.google.com/store/apps/details?id=" + PackageName;
                                 String strMessage = strPdfLink; //" " + strBookName;
-                                Intent intent = new Intent();
-                                intent.setAction(Intent.ACTION_SEND);
-                                intent.setType("text/plain");
-                                intent.putExtra(Intent.EXTRA_SUBJECT, shareData);
-                                intent.putExtra(Intent.EXTRA_TEXT, strMessage);
-                                intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                                intent.setFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                                startActivity(Intent.createChooser(intent, shareData));
+                                Utils.shareContentWithImage(getActivity(), "JRL Keyword(s) PDF", strMessage, strPdfImage);
+//                                Intent intent = new Intent();
+//                                intent.setAction(Intent.ACTION_SEND);
+//                                intent.setType("text/plain");
+//                                intent.putExtra(Intent.EXTRA_SUBJECT, shareData);
+//                                intent.putExtra(Intent.EXTRA_TEXT, strMessage);
+//                                intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+//                                intent.setFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+//                                startActivity(Intent.createChooser(intent, shareData));
                             }
                         } catch (Exception e) {
                             Log.e("Exception Error", "Error---" + e.getMessage());
@@ -1355,27 +1394,89 @@ public class KeywordsMainFragment extends Fragment implements IOnBackPressed, Ke
         });
     }
 
-    private void UploadFile(String strUId, String strEdtRenamefile, File mFile, String strTypeName, String totalKeywordCount, String strFileType, boolean isShare) {
-        RequestBody uid = RequestBody.create(MediaType.parse("text/*"), strUId);
-        RequestBody filename = RequestBody.create(MediaType.parse("text/*"), strEdtRenamefile);
-        RequestBody type = RequestBody.create(MediaType.parse("text/*"), "0");
-        RequestBody typeref = RequestBody.create(MediaType.parse("text/*"), REF_TYPE_REFERENCE_PAGE);
-        RequestBody typeName = RequestBody.create(MediaType.parse("text/*"), strTypeName);
-        RequestBody count = RequestBody.create(MediaType.parse("text/*"), totalKeywordCount);
-        RequestBody fileType = RequestBody.create(MediaType.parse("text/*"), strFileType);
-        Log.e("fileType :", " "+strFileType);
-        MultipartBody.Part filePart = MultipartBody.Part.createFormData("pdf_file", mFile.getName(), RequestBody.create(MediaType.parse("*/*"), mFile));
+    private void saveKeywordFile(String strKeyword, String strUId, String strEdtRenamefile, String totalKeywordCount, String strFileType, boolean isShare) {
+        if (!ConnectionManager.checkInternetConnection(getActivity())) {
+            Utils.showInfoDialog(getActivity(), "Please check internet connection");
+            return;
+        }
+
         Utils.showProgressDialog(getActivity(), "Please Wait...", false);
-        ApiClient.addMyShelfs(uid, null, null, type, typeref, filename,typeName,count, fileType, filePart,new Callback<AddShelfResModel>() {
+        ApiClient.checkMyShelfFileName(strUId, strEdtRenamefile, new Callback<CheckMyShelfFileNameResModel>() {
+            @Override
+            public void onResponse(Call<CheckMyShelfFileNameResModel> call, retrofit2.Response<CheckMyShelfFileNameResModel> response) {
+                if (!response.isSuccessful()  ) {
+                    Utils.dismissProgressDialog();
+                    Utils.showInfoDialog(getActivity(), "Please try again!");
+                    return;
+                }
+
+                if(!response.body().isStatus()) {
+                    Utils.dismissProgressDialog();
+                    Utils.showInfoDialog(getActivity(), "" + response.body().getMessage());
+                    return;
+                }
+
+
+                ApiClient.createKeywordsPdf( strKeyword, strUId, strBookIds, "0", strFileType, new Callback<CreatePdfFileUrlResModel>() {
+                    @Override
+                    public void onResponse(Call<CreatePdfFileUrlResModel> call, retrofit2.Response<CreatePdfFileUrlResModel> response) {
+                        Utils.dismissProgressDialog();
+//                    Log.e("responseData :", new GsonBuilder().setPrettyPrinting().create().toJson(response.body()));
+
+                        if (response.isSuccessful()) {
+                            if (response.body().isStatus()) {
+                                String strTmpPdfUrl = response.body().getPdf_url();
+                                if (strTmpPdfUrl != null && strTmpPdfUrl.length() > 0) {
+                                    callAddMyShelfApi(strTmpPdfUrl, strKeyword, strUId, strEdtRenamefile, totalKeywordCount, strFileType, isShare);
+                                } else {
+                                    Utils.showInfoDialog(getActivity(), "KeywordData not saved");
+                                }
+                            }else {
+                                Utils.showInfoDialog(getActivity(), "KeywordData not saved");
+                            }
+
+                        } else {
+                            Utils.showInfoDialog(getActivity(), "KeywordData not saved");
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<CreatePdfFileUrlResModel> call, Throwable t) {
+                        String message = t.getMessage();
+                        Log.e("error", "onFailure--- " + message);
+                        Utils.dismissProgressDialog();
+                    }
+                });
+
+            }
+            @Override
+            public void onFailure(Call<CheckMyShelfFileNameResModel> call, Throwable t) {
+                String message = t.getMessage();
+                Log.e("error", "onFailure--- " + message);
+                Utils.dismissProgressDialog();
+            }
+        });
+
+    }
+
+    private void callAddMyShelfApi(String fileUrl, String strKeyword, String strUId, String strEdtRenamefile, String totalKeywordCount, String strFileType, boolean isShare) {
+        String type =  "0";
+        String typeref = REF_TYPE_REFERENCE_PAGE;
+        String typeName = strKeyword;
+        Log.e("fileType :", " "+strFileType);
+        Utils.showProgressDialog(getActivity(), "Please Wait...", false);
+        ApiClient.addMyShelfsWithUrl(strUId, null, null, type, typeref, strEdtRenamefile, typeName, totalKeywordCount, strFileType, fileUrl, new Callback<AddShelfResModel>() {
             @Override
             public void onResponse(Call<AddShelfResModel> call, Response<AddShelfResModel> response) {
+                /*Log.e("responseData :", new GsonBuilder().setPrettyPrinting().create().toJson(response));*/
                 if (response.isSuccessful()) {
                     /*Log.e("responseData :", new GsonBuilder().setPrettyPrinting().create().toJson(response));*/
                     Utils.dismissProgressDialog();
                     if (response.body().isStatus()) {
-                        strPdfLink = response.body().getPdf_url();
+                        String strPdfLink = response.body().getPdf_url();
+                        String strPdfImage = response.body().getPdf_image();
                         if (isShare) {
-                            callShareMyShelfsApi(strUserId, "", "");
+                            callShareMyShelfsApi(strUserId, "", strPdfLink, strPdfImage);
                         }
                         else {
                             Utils.showInfoDialog(getActivity(), "Keywords Added In My Reference.");
@@ -1437,15 +1538,16 @@ public class KeywordsMainFragment extends Fragment implements IOnBackPressed, Ke
             @Override
             public void onClick(View v) {
                 dialog.cancel();
-                callKeywordsPdfApi("", strSearch, strUId, false, view,"1");
+               // callCreateKeywordsPdfApi(strSearch, strUId, view,"1");
+                getShareDialog(view, "1");
 
             }
         }); tvReferenceKeyword.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 dialog.cancel();
-                callKeywordsPdfApi("", strSearch, strUId, false, view, "2");
-
+               // callCreateKeywordsPdfApi( strSearch, strUId, view, "2");
+                getShareDialog(view, "2");
             }
         }); btnCancel.setOnClickListener(new View.OnClickListener() {
             @Override

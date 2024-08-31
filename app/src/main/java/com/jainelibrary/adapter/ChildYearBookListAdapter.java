@@ -56,6 +56,7 @@ public class ChildYearBookListAdapter extends RecyclerView.Adapter<ChildYearBook
         //void onBookClick(ArrayList<BookListResModel.BookDetailsModel.BookPageModel> mBookModel, int position);
 
         void onBookClick(View view, BookListResModel.BookDetailsModel.BookPageModel bookPageModel, int position);
+        void onBookImageClick(View view, BookListResModel.BookDetailsModel.BookPageModel bookPageModel, int position);
     }
 
     @NonNull
@@ -84,10 +85,15 @@ public class ChildYearBookListAdapter extends RecyclerView.Adapter<ChildYearBook
 
         if (strBookImage != null && strBookImage.length() > 0) {
             Picasso.get().load(strBookImage).into(holder.ivBook);
+            holder.ivBook.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    listener.onBookImageClick(view, bookList.get(position), position);
+                }
+            });
         } else {
             holder.ivBook.setImageTintList(ColorStateList.valueOf(mContext.getResources().getColor(R.color.light_background)));
         }
-
 
         if (bookPageModels != null && bookPageModels.size()>0){
             holder.llReferenceLayout.setVisibility(View.VISIBLE);

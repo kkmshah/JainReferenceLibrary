@@ -1,7 +1,5 @@
 package com.jainelibrary.retrofit;
 
-import android.util.Log;
-
 import androidx.annotation.NonNull;
 
 import com.jainelibrary.model.AddDataFeedbackResModel;
@@ -17,9 +15,10 @@ import com.jainelibrary.model.ParamparaFilterDataResModel;
 import com.jainelibrary.model.PdfStoreListResModel;
 import com.jainelibrary.model.ApiResponseModel;
 import com.jainelibrary.model.ReferenceTypeResModel;
-import com.jainelibrary.model.RelationDetailsModel;
 import com.jainelibrary.model.SearchUnitListResModel;
 import com.jainelibrary.retrofitResModel.BiodataMemoryDetailsResModel;
+import com.jainelibrary.retrofitResModel.CheckMyShelfFileNameResModel;
+import com.jainelibrary.retrofitResModel.CreatePdfFileUrlResModel;
 import com.jainelibrary.retrofitResModel.RelationDetailsResModel;
 import com.jainelibrary.retrofitResModel.RelationTypeListResModel;
 import com.jainelibrary.retrofitResModel.SamvatsBaseOnSamvatTypeDataResModel;
@@ -30,7 +29,6 @@ import com.jainelibrary.model.UploadPDFModel;
 import com.jainelibrary.model.UserDetailsResModel;
 import com.jainelibrary.model.UserGuideResModel;
 import com.jainelibrary.model.UserNameExistsResModel;
-import com.jainelibrary.model.YearBookResModel;
 import com.jainelibrary.model.YearResModel;
 import com.jainelibrary.model.YearResponseModel;
 import com.jainelibrary.model.YearTypeResModel;
@@ -42,7 +40,6 @@ import com.jainelibrary.retrofitResModel.CheckResModel;
 import com.jainelibrary.retrofitResModel.ClearHoldReferenceModel;
 import com.jainelibrary.retrofitResModel.CountResModel;
 import com.jainelibrary.retrofitResModel.FilterBookResModel;
-import com.jainelibrary.retrofitResModel.IndexSearchResModel;
 import com.jainelibrary.retrofitResModel.KeywordSearchModel;
 import com.jainelibrary.retrofitResModel.ReferencePageDetailsResModel;
 import com.jainelibrary.retrofitResModel.ReferenceResModel;
@@ -54,8 +51,6 @@ import com.jainelibrary.retrofitResModel.ShlokGranthSutraResModel;
 import com.jainelibrary.retrofitResModel.ShlokSearchResModel;
 import com.jainelibrary.retrofitResModel.UnitRelationChartDataResModel;
 import com.jainelibrary.retrofitResModel.VersionResModel;
-
-import org.json.JSONObject;
 
 import java.util.List;
 
@@ -108,14 +103,16 @@ public interface ApiInterface {
 
     @NonNull
     @FormUrlEncoded
-    @POST("jrl/get_keywords")
+    @POST("jrl/get_improve_keywords")
     public Call<KeywordSearchModel> getKeyword(
+            @Field("search_for") String search_for,
             @Field("page_no") String page_no,
             @Field("keyword") String strKeyword,
             @Field("uid") String struid,
             @Field("bids") String strBookId,
             @Field("lang_type") String lang_code,
-            @Field("types") String types);
+            @Field("types") String types,
+            @Field("book_info") String book_info);
 
     @GET("jrl/get_keywords_pdf")
     public Call<ResponseBody> getKeywordsPdf(
@@ -127,11 +124,35 @@ public interface ApiInterface {
             @Query("pdf_type") String pdf_type,
             @Query("types") String types);
 
+    @FormUrlEncoded
+    @POST("jrl/create_keywords_pdf")
+    public Call<CreatePdfFileUrlResModel> createKeywordsPdf(
+            @Field("keyword") String strKeyword,
+            @Field("uid") String struid,
+            @Field("bids") String strBookId,
+            @Field("lang_type") String lang_code,
+            @Field("pdf_type") String pdf_type);
+
+
     @GET("jrl/get_book_lists_pdf")
     public Call<ResponseBody> getKeywordBookDetailsPdf(@Query("kid") String strKid, @Query("bids") String strBids);
 
+
+    @FormUrlEncoded
+    @POST("jrl/create_book_lists_pdf")
+    public Call<CreatePdfFileUrlResModel> createKeywordBookDetailsPdf(
+            @Field("kid") String strKid,
+            @Field("bids") String strBids);
+
     @GET("jrl/get_books_pdf")
     public Call<ResponseBody> getShlokGranthDetailsPdf(@Query("gsid") String strGSId);
+
+
+
+    @FormUrlEncoded
+    @POST("jrl/create_books_pdf")
+    public Call<CreatePdfFileUrlResModel> createShlokGranthDetailsPdf(
+            @Field("gsid") String gsid);
 
     @FormUrlEncoded
     @POST("jrl/get_granth")
@@ -454,6 +475,27 @@ public interface ApiInterface {
                                               @Field("count") String strCount,
                                               @Field("file_type") String strFileType,
                                               @Field("file_url") String strFileUrl);
+
+
+    @FormUrlEncoded
+    @POST("jrl/add_my_shelf")
+    public Call<AddShelfResModel> addMyShelfWithImagesUrl(@Field("uid") String UserId,
+                                                     @Field("book_id") String bookID,
+                                                     @Field("type_id") String Kid,
+                                                     @Field("type") String strtype,
+                                                     @Field("type_ref") String strtyperef,
+                                                     @Field("file_name") String strtitle,
+                                                     @Field("type_name") String strTypeName,
+                                                     @Field("count") String strCount,
+                                                     @Field("file_type") String strFileType,
+                                                     @Field("images_url") String jsonImagesUrl);
+
+
+    @FormUrlEncoded
+    @POST("jrl/check_my_shelf_file_name")
+    public Call<CheckMyShelfFileNameResModel> checkMyShelfFileName(@Field("uid") String userId,
+                                                                   @Field("file_name") String strFileName);
+
     /*@POST("jrl/api/Register")
     public Call<SignResModel> sign(@Body RequestBody data);
 
@@ -506,6 +548,14 @@ public interface ApiInterface {
                                              @Query("bids") String bookIds);
 
     @FormUrlEncoded
+    @POST("jrl/create_year_books_pdf")
+    public Call<CreatePdfFileUrlResModel> createYearBookPdf(
+            @Field("year_type") String yearType,
+            @Field("year") String year,
+            @Field("bids") String strBookId);
+
+
+    @FormUrlEncoded
     @POST("jrl/get_years")
     public Call<YearResponseModel> getYear(@Field("uid") String userId,
                                            @Field("year_type") String yearType,
@@ -521,6 +571,11 @@ public interface ApiInterface {
 
     @GET("jrl/get_index_book_ini_pdf")
     public Call<ResponseBody> getBookIndexPdf(@Query("index_book_id") String bookId);
+
+    @FormUrlEncoded
+    @POST("jrl/create_index_book_ini_pdf")
+    public Call<CreatePdfFileUrlResModel> createBookIndexPdf(
+            @Field("index_book_id") String indexBookId);
 
     @FormUrlEncoded
     @POST("jrl/get_year_category")

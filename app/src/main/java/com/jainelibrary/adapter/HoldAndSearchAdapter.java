@@ -39,6 +39,8 @@ public class HoldAndSearchAdapter extends RecyclerView.Adapter<HoldAndSearchAdap
     public interface SearchInterfaceListener {
         void onDetailsClick(BookListResModel.BookDetailsModel mBookDataModel, ArrayList<BookListResModel.BookDetailsModel> mBookList, int position);
 
+        void onZoomClick(BookListResModel.BookDetailsModel mBookDataModel);
+
         void onMenuClick(BookListResModel.BookDetailsModel bookDetailsModel, int position, ImageView ivMenu);
 
         void onCancelClick(ArrayList<BookListResModel.BookDetailsModel> mBookList, int position);
@@ -53,7 +55,7 @@ public class HoldAndSearchAdapter extends RecyclerView.Adapter<HoldAndSearchAdap
         String strTranslator = mBookList.get(position).getTranslator();
         String strEditorName = mBookList.get(position).getEditor_name();
         String strPublishername = mBookList.get(position).getPublisher_name();
-        String strBookURl = mBookList.get(position).getBook_Url();
+        String strBookImageURL = mBookList.get(position).getBook_image();
         String strTypeName = mBookList.get(position).getType_name();
         String strFinalWord = null;
 
@@ -153,8 +155,15 @@ public class HoldAndSearchAdapter extends RecyclerView.Adapter<HoldAndSearchAdap
         });
 
 
-        if (strBookURl != null && strBookURl.length() > 0) {
-            Picasso.get().load(strBookURl).placeholder(R.drawable.book).into(holder.ivImage);
+        if (strBookImageURL != null && strBookImageURL.length() > 0) {
+            Picasso.get().load(strBookImageURL).placeholder(R.drawable.book).into(holder.ivImage);
+            holder.ivImage.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    searchInterfaceListener.onZoomClick(mBookList.get(position));
+
+                }
+            });
         }
 
         /*holder.ivClose.setOnClickListener(new View.OnClickListener() {

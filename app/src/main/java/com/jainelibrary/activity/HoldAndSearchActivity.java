@@ -28,10 +28,12 @@ import com.jainelibrary.fragment.KeywordsMainFragment;
 import com.jainelibrary.manager.ConnectionManager;
 import com.jainelibrary.model.AddShelfResModel;
 import com.jainelibrary.model.HoldAndSearchResModel;
+import com.jainelibrary.model.MyShelfResModel;
 import com.jainelibrary.retrofit.ApiClient;
 import com.jainelibrary.retrofitResModel.AddAllMyShelfResModel;
 import com.jainelibrary.retrofitResModel.BookListResModel;
 import com.jainelibrary.utils.SharedPrefManager;
+import com.jainelibrary.utils.StorageManager;
 import com.jainelibrary.utils.Utils;
 import com.wc.widget.dialog.IosDialog;
 
@@ -274,7 +276,7 @@ public class HoldAndSearchActivity extends AppCompatActivity implements HoldAndS
         }
         strUserId = SharedPrefManager.getInstance(HoldAndSearchActivity.this).getStringPref(SharedPrefManager.KEY_USER_ID);
         if (strUserId != null && strUserId.length() > 0) {
-            callListHoldSearchKeyword(strUserId);
+            callListHoldSearchKeyword(strUserId, false);
         }
     }
 
@@ -325,6 +327,17 @@ public class HoldAndSearchActivity extends AppCompatActivity implements HoldAndS
             i.putExtra("model", mBookDataModel);
             startActivity(i);
         }
+    }
+
+    public void onZoomClick(BookListResModel.BookDetailsModel mBookDataModel) {
+        Intent i = new Intent(HoldAndSearchActivity.this, ZoomImageActivity.class);
+        String strImageUrl = mBookDataModel.getBook_large_image();
+        String fallbackImage = mBookDataModel.getBook_image();
+
+        i.putExtra("image", strImageUrl);
+        i.putExtra("fallbackImage", fallbackImage);
+        i.putExtra("url", true);
+        startActivity(i);
     }
 
     @Override
@@ -477,11 +490,44 @@ public class HoldAndSearchActivity extends AppCompatActivity implements HoldAndS
         dialog.show();
     }
 
-    public void callListHoldSearchKeyword(String strUId) {
+    private void setCallListHoldSearchKeywordRef(ArrayList<BookListResModel.BookDetailsModel> mDataList) {
+        for (int i = 0; i < mDataList.size(); i++) {
+            String strBookId = mDataList.get(i).getBook_id();
+            if (strSelectedBookIds == null || strSelectedBookIds.length() == 0) {
+                strSelectedBookIds = strBookId;
+            } else {
+                strSelectedBookIds = strSelectedBookIds + "," + strBookId;
+            }
+        }
+
+        if (mDataList != null && mDataList.size() > 0) {
+            tvNoDataFound.setVisibility(View.GONE);
+            rvHoldReference.setVisibility(View.VISIBLE);
+            tvHoldRef.setText(mDataList.size() + " HOLD REFERENCE");
+            setBookData(mDataList);
+        } else {
+            tvNoDataFound.setVisibility(View.VISIBLE);
+            rvHoldReference.setVisibility(View.GONE);
+        }
+    }
+    public void callListHoldSearchKeyword(String strUId, boolean skipCache) {
+        String cacheKey ="_"+ strUId;
+        boolean notCacheData = true;
+        ArrayList<BookListResModel.BookDetailsModel>  mBookDetailsCacheModelList = StorageManager.getHoldSearchKeywordList(cacheKey, skipCache);
+        if (mBookDetailsCacheModelList != null && mBookDetailsCacheModelList.size() > 0) {
+            notCacheData = false;
+            setCallListHoldSearchKeywordRef(mBookDetailsCacheModelList);
+        }
         if (!ConnectionManager.checkInternetConnection(HoldAndSearchActivity.this)) {
-            Utils.showInfoDialog(HoldAndSearchActivity.this, "Please check your internet connection");
+            if(notCacheData) {
+                Utils.showInfoDialog(HoldAndSearchActivity.this, "Please check internet connection");
+            }
             return;
         }
+        if(notCacheData) {
+            Utils.showProgressDialog(HoldAndSearchActivity.this, "Please Wait...", false);
+        }
+
         ApiClient.getHolderSearchList(strUId, new Callback<BookListResModel>() {
             @Override
             public void onResponse(Call<BookListResModel> call, retrofit2.Response<BookListResModel> response) {
@@ -493,23 +539,9 @@ public class HoldAndSearchActivity extends AppCompatActivity implements HoldAndS
                         ArrayList<BookListResModel.BookDetailsModel> mDataList = new ArrayList<>();
                         mDataList = response.body().getData();
 
-                        for (int i = 0; i < mDataList.size(); i++) {
-                            String strBookId = mDataList.get(i).getBook_id();
-                            if (strSelectedBookIds == null || strSelectedBookIds.length() == 0) {
-                                strSelectedBookIds = strBookId;
-                            } else {
-                                strSelectedBookIds = strSelectedBookIds + "," + strBookId;
-                            }
-                        }
-
+                        setCallListHoldSearchKeywordRef(mDataList);
                         if (mDataList != null && mDataList.size() > 0) {
-                            tvNoDataFound.setVisibility(View.GONE);
-                            rvHoldReference.setVisibility(View.VISIBLE);
-                            tvHoldRef.setText(mDataList.size() + " HOLD REFERENCE");
-                            setBookData(mDataList);
-                        } else {
-                            tvNoDataFound.setVisibility(View.VISIBLE);
-                            rvHoldReference.setVisibility(View.GONE);
+                            StorageManager.setHoldSearchKeywordList(mDataList, cacheKey);
                         }
                     } else {
                         tvNoDataFound.setVisibility(View.VISIBLE);
@@ -543,7 +575,7 @@ public class HoldAndSearchActivity extends AppCompatActivity implements HoldAndS
                     if (response.body().isStatus()) {
                         Utils.showInfoDialog(HoldAndSearchActivity.this, "" + response.body().getMessage());
                         Log.e("Message", response.body().getMessage());
-                        callListHoldSearchKeyword(strUserId);
+                        callListHoldSearchKeyword(strUserId, true);
                     } else {
                         Utils.dismissProgressDialog();
                         Log.e("Message", response.body().getMessage());
@@ -614,7 +646,7 @@ public class HoldAndSearchActivity extends AppCompatActivity implements HoldAndS
                     //Log.e("responseData :", new GsonBuilder().setPrettyPrinting().create().toJson(response));
                     if (response.body().isStatus()) {
                         strUserId = SharedPrefManager.getInstance(HoldAndSearchActivity.this).getStringPref(SharedPrefManager.KEY_USER_ID);
-                        callListHoldSearchKeyword(strUid);
+                        callListHoldSearchKeyword(strUid, true);
                         Utils.showInfoDialog(HoldAndSearchActivity.this, "" + response.body().getMessage());
                     }else{
                         Utils.showInfoDialog(HoldAndSearchActivity.this, "" + response.body().getMessage());

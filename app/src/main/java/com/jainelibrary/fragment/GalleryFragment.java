@@ -1,12 +1,24 @@
 package com.jainelibrary.fragment;
 
 import static com.jainelibrary.utils.Utils.REF_TYPE_BOOK_PAGE;
+import static com.jainelibrary.utils.Utils.convertUrlToBitmap;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.ClipData;
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.Handler;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -18,15 +30,21 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.widget.PopupMenu;
+import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Lifecycle;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.transition.Transition;
+import com.bumptech.glide.request.target.CustomTarget;
 import com.google.gson.GsonBuilder;
 import com.jainelibrary.R;
+import com.jainelibrary.BuildConfig;
 import com.jainelibrary.activity.BookDetailsActivity;
 import com.jainelibrary.activity.BookReferenceDetailsActivity;
 import com.jainelibrary.activity.NotesActivity;
@@ -45,9 +63,15 @@ import com.jainelibrary.retrofit.ApiClient;
 import com.jainelibrary.retrofitResModel.BookListResModel;
 import com.jainelibrary.retrofitResModel.ShareOrDownloadMyShelfResModel;
 import com.jainelibrary.utils.SharedPrefManager;
+import com.jainelibrary.utils.StorageManager;
 import com.jainelibrary.utils.Utils;
 import com.wc.widget.dialog.IosDialog;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 
 import okhttp3.MediaType;
@@ -84,6 +108,7 @@ public class GalleryFragment extends Fragment implements GalleryAdapter.OnImageC
     private GalleryAdapter mGalleryListAdapter;
     private boolean isLoading = false;
     private boolean isFirstTimeCall = false;
+    private boolean isDataLoaded = false;
     private String strSearch;
     private String strType = "0", strCatId = "0",strPrevCatId = "";
     private String PackageName, strBookName, shareData, strMessage;
@@ -264,8 +289,18 @@ public class GalleryFragment extends Fragment implements GalleryAdapter.OnImageC
 
 
     public void callCategoryApi(String strKeyword) {
+        boolean isCategoryDataLoaded = false;
+        ArrayList<CategoryResModel.CategoryModel> mDataListCache = StorageManager.getCategoryListResponse(strUserId);
+        if(mDataListCache != null && mDataListCache.size() > 0) {
+            setSpinnerBData(mDataListCache);
+            isCategoryDataLoaded = true;
+            //Toast.makeText(getContext(), "Category list loaded from cache", Toast.LENGTH_SHORT).show();
+        }
+
         if (!ConnectionManager.checkInternetConnection(getActivity())) {
-            Utils.showInfoDialog(getActivity(), "Please check internet connection");
+            if(!isCategoryDataLoaded) {
+                Utils.showInfoDialog(getActivity(), "Please check internet connection");
+            }
             return;
         }
 
@@ -283,7 +318,7 @@ public class GalleryFragment extends Fragment implements GalleryAdapter.OnImageC
 
                         ArrayList<CategoryResModel.CategoryModel> mDataList = new ArrayList<CategoryResModel.CategoryModel>();
                         mDataList = response.body().getData();
-
+                        StorageManager.saveCategoryListResponse(mDataList, strUserId);
                         setSpinnerBData(mDataList);
 
                     } else {
@@ -346,8 +381,27 @@ public class GalleryFragment extends Fragment implements GalleryAdapter.OnImageC
     }
 
     public void getPdfList(String strSearch, String strCatId, String strType) {
+        String cacheKey = ""+strSearch+"_"+strCatId+"_"+strType;
+        ArrayList<PdfStoreListResModel.PdfListModel> data = StorageManager.getBookListResponse(cacheKey);
+        if (data != null && data.size() > 0) {
+            Log.e(TAG, "PdfData Size : " + data.size());
+
+            for (int i = 0 ; i < data.size(); i++){
+                Log.e(TAG, "PdfData BookName : " + data.get(i).getBook_name());
+            }
+
+            tvNoRecord.setVisibility(View.GONE);
+            rvImage.setVisibility(View.VISIBLE);
+           // Toast.makeText(getContext(), "Book list loaded from cache", Toast.LENGTH_SHORT).show();
+            setGalleryListData(data);
+            isDataLoaded = true;
+        }else {
+            isDataLoaded = false;
+        }
         if (!ConnectionManager.checkInternetConnection(getActivity())) {
-            Utils.showInfoDialog(getActivity(), "Please check internet connection");
+            if(!isDataLoaded) {
+                Utils.showInfoDialog(getActivity(), "Please check internet connection");
+            }
             return;
         }
 
@@ -355,13 +409,13 @@ public class GalleryFragment extends Fragment implements GalleryAdapter.OnImageC
 
         isLoading = true;
 
-        if (isFirstTimeCall)
+        if (isFirstTimeCall && !isDataLoaded)
             Utils.showProgressDialog(getActivity(), "Please Wait...", false);
 
         pdfApiCallback = ApiClient.getPdfList(strUserId, strSearch, strCatId, strType, String.valueOf(page_no), new Callback<PdfStoreListResModel>() {
             @Override
             public void onResponse(Call<PdfStoreListResModel> call, retrofit2.Response<PdfStoreListResModel> response) {
-                if (isFirstTimeCall)
+                if (isFirstTimeCall && !isDataLoaded)
                     Utils.dismissProgressDialog();
 
                 if (response.isSuccessful()) {
@@ -382,6 +436,7 @@ public class GalleryFragment extends Fragment implements GalleryAdapter.OnImageC
                             tvNoRecord.setVisibility(View.GONE);
                             rvImage.setVisibility(View.VISIBLE);
                             setGalleryListData(data);
+                            StorageManager.saveBookListResponse(data, cacheKey);
                         } else {
                             tvNoRecord.setVisibility(View.VISIBLE);
                             rvImage.setVisibility(View.GONE);
@@ -427,12 +482,13 @@ public class GalleryFragment extends Fragment implements GalleryAdapter.OnImageC
             rvImage.setLayoutManager(new GridLayoutManager(getActivity(), 1));
             mGalleryListAdapter = new GalleryAdapter(getActivity(), myShelfResModels, this, new GalleryAdapter.OnImageZoomListener() {
                 @Override
-                public void onImageClick(int position, String s) {
-                    SharedPrefManager.getInstance(getActivity()).saveStringPref(SharedPrefManager.IMG_URL, s);
-                    s = SharedPrefManager.getInstance(getContext()).getStringPref(SharedPrefManager.IMG_URL);
-                    if ((s != null) && (s.length() != 0)) {
+                public void onImageClick(int position, String strImage, String fallbackImage) {
+                    SharedPrefManager.getInstance(getActivity()).saveStringPref(SharedPrefManager.IMG_URL, strImage);
+                    strImage = SharedPrefManager.getInstance(getContext()).getStringPref(SharedPrefManager.IMG_URL);
+                    if ((strImage != null) && (strImage.length() != 0)) {
                         Intent i = new Intent(getActivity(), ZoomImageActivity.class);
-                        i.putExtra("image", s);
+                        i.putExtra("image", strImage);
+                        i.putExtra("fallbackImage", fallbackImage);
                         i.putExtra("url", true);
                         startActivity(i);
                     }
@@ -517,6 +573,8 @@ public class GalleryFragment extends Fragment implements GalleryAdapter.OnImageC
                 String strPublisherName = filesModel.getPublisher_name();
                 String strTranslator = filesModel.getTranslator();
                 String strBookUrl = filesModel.getBook_url();
+                String strBookImageUrl = filesModel.getBook_image();
+                String strBookLargeImageUrl = filesModel.getBook_large_image();
                 Log.e("strBookUrl :", strBookUrl);
                 strPDfUrl = filesModel.getPdf_url();
                 Log.e("strPdfLink :", strPDfUrl);
@@ -541,6 +599,8 @@ public class GalleryFragment extends Fragment implements GalleryAdapter.OnImageC
                 mBookDataModels.setPublisher_name(strPublisherName);
                 mBookDataModels.setTranslator(strTranslator);
                 mBookDataModels.setBook_url(strBookUrl);
+                mBookDataModels.setBook_image(strBookImageUrl);
+                mBookDataModels.setBook_large_image(strBookLargeImageUrl);
                 mBookDataModels.setFlag(strFlag);
 
                 switch (item.getItemId()) {
@@ -566,9 +626,10 @@ public class GalleryFragment extends Fragment implements GalleryAdapter.OnImageC
                         return true;
                     case R.id.share:
                         if (strPDfUrl != null && strPDfUrl.length() > 0) {
-                            shareData = " Get Latest JRl Books here : https://play.google.com/store/apps/details?id=" + PackageName;
-                            strMessage = " " + strPDfUrl;
-                            callShareMyShelfsApi(strUserId, shareData, strMessage);
+                            shareData = "JRL Book: "+ strBookName;
+                            strMessage = "Book Name: "+ strBookName + "\nBook Link:" + strPDfUrl;
+
+                            callShareMyShelfsApi(strUserId, shareData, strMessage, strBookImageUrl);
                         } else {
                             Utils.showInfoDialog(getActivity(), "Pdf not found");
                             Log.e("strPdfLinkShare---", "pdfLink--" + strPDfUrl);
@@ -635,7 +696,7 @@ public class GalleryFragment extends Fragment implements GalleryAdapter.OnImageC
         });
     }
 
-    private void callShareMyShelfsApi(String strUserId, String shareData, String strMessage) {
+    private void callShareMyShelfsApi(String strUserId, String shareData, String strMessage, String strImageUrl) {
         if (!ConnectionManager.checkInternetConnection(getActivity())) {
             Utils.showInfoDialog(getActivity(), "Please check internet connection");
             return;
@@ -649,30 +710,15 @@ public class GalleryFragment extends Fragment implements GalleryAdapter.OnImageC
         ApiClient.shareMyShelfs(strUserId, strTypeRef, new Callback<ShareOrDownloadMyShelfResModel>() {
             @Override
             public void onResponse(Call<ShareOrDownloadMyShelfResModel> call, retrofit2.Response<ShareOrDownloadMyShelfResModel> response) {
-                if (response.isSuccessful()) {
-                    Utils.dismissProgressDialog();
-
-                    //   Log.e("responseData :", new GsonBuilder().setPrettyPrinting().create().toJson(response));
-
-                    if (response.body().isStatus()) {
-                        /*strUserId = SharedPrefManager.getInstance(ReferencePageActivity.this).getStringPref(SharedPrefManager.KEY_USER_ID);
-                        if (strUserId != null && strUserId.length() > 0) {
-                            callListHoldSearchKeyword(strUserId);
-                        }*/
-
-                        Intent intent = new Intent();
-                        intent.setAction(Intent.ACTION_SEND);
-                        intent.putExtra(Intent.EXTRA_SUBJECT, shareData);
-                        intent.putExtra(Intent.EXTRA_TEXT, strMessage);
-                        intent.setType("text/plain");
-                        startActivity(Intent.createChooser(intent, shareData));
-
-                        //Toast.makeText(ReferencePageActivity.this, "" + response.body().getMessage(), Toast.LENGTH_SHORT).show();
-                    } else {
-                        //Toast.makeText(ReferencePageActivity.this, "" + response.body().getMessage(), Toast.LENGTH_SHORT).show();
-                    }
+                Utils.dismissProgressDialog();
+                if (!response.isSuccessful() || !response.body().isStatus()) {
+                    return;
                 }
+
+                Utils.shareContentWithImage(getActivity(), shareData, strMessage, strImageUrl);
+
             }
+
 
             @Override
             public void onFailure(Call<ShareOrDownloadMyShelfResModel> call, Throwable throwable) {
