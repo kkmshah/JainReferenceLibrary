@@ -45,6 +45,7 @@ import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.jainelibrary.Constantss;
 import com.jainelibrary.IOnBackPressed;
 import com.jainelibrary.JRL;
@@ -57,6 +58,7 @@ import com.jainelibrary.keyboard.CustomKeyboardView;
 import com.jainelibrary.keyboard.Util;
 import com.jainelibrary.manager.ConnectionManager;
 import com.jainelibrary.model.AddShelfResModel;
+import com.jainelibrary.model.CategoryResModel;
 import com.jainelibrary.model.KeywordModel;
 import com.jainelibrary.model.UserDetailsResModel;
 import com.jainelibrary.model.YearResModel;
@@ -208,20 +210,20 @@ public class YearFragment extends Fragment implements IOnBackPressed, YearWiseLi
     }
 
     private void showFilterOption() {
+        String totalBooks = SharedPrefManager.getInstance(getActivity()).getStringPref(SharedPrefManager.KEY_YEAR_FILTER_CAT_IDS);
 
         if (totalCount == 0) {
-            strBookIds = SharedPrefManager.getInstance(getActivity()).getStringPref(SharedPrefManager.KEY_YEAR_FILTER_CAT_IDS);
             ArrayList<String> bookList = SharedPrefManager.getInstance(getActivity()).getFilteredBookIdList(SharedPrefManager.KEY_YEAR_FILTER_BOOK_IDS);
             if (bookList != null && bookList.size() > 0) {
                 totalCount = bookList.size();
-                tvFilterCounts.setText(totalCount + " Books");
+                tvFilterCounts.setText(totalCount + "/" + totalBooks);
             }
         }
 
         if (totalCount != 0 && totalCount > 0) {
-            tvFilterCounts.setText(totalCount + " Books");
+            tvFilterCounts.setText(totalCount + "/" + totalBooks);
         }else {
-            tvFilterCounts.setText("Select");
+            tvFilterCounts.setText(totalBooks + "/" + totalBooks);
         }
     }
 
@@ -463,6 +465,7 @@ public class YearFragment extends Fragment implements IOnBackPressed, YearWiseLi
                     spnYearTypeId = typeList.get(position).getId();
                     strYearTypeName = typeList.get(position).getName();
                     callGetYearApi(String.valueOf(spnYearTypeId), strBookIds);
+                    callYearCategoryApi(String.valueOf(spnYearTypeId));
                     strLastSpiItem = spnYearType.getSelectedItem().toString();
 
                     //spnYearTypeId = typeList.get(position).getId();
@@ -964,7 +967,7 @@ public class YearFragment extends Fragment implements IOnBackPressed, YearWiseLi
         }
     }
 
-    public void callGetYearApi(String strKeyId, String strBookIds) {
+    public void callGetYearApi(String strYearType, String strBookIds) {
 
         if (!ConnectionManager.checkInternetConnection(getActivity())) {
             Utils.showInfoDialog(getActivity(), "Please check internet connection");
@@ -974,7 +977,7 @@ public class YearFragment extends Fragment implements IOnBackPressed, YearWiseLi
         Log.e("strBookIds", "strBookIds---" + strBookIds);
 
         Utils.showProgressDialog(getActivity(), "Please Wait...", false);
-        ApiClient.getYear(strUId, strKeyId, strBookIds, new Callback<YearResponseModel>() {
+        ApiClient.getYear(strUId, strYearType, strBookIds, new Callback<YearResponseModel>() {
             @Override
             public void onResponse(Call<YearResponseModel> call, retrofit2.Response<YearResponseModel> response) {
                 Utils.dismissProgressDialog();
@@ -998,6 +1001,50 @@ public class YearFragment extends Fragment implements IOnBackPressed, YearWiseLi
 
             @Override
             public void onFailure(Call<YearResponseModel> call, Throwable t) {
+                String message = t.getMessage();
+                Log.e("error", "theme---" + message);
+                Utils.dismissProgressDialog();
+            }
+        });
+    }
+
+    private void callYearCategoryApi(String strYearType) {
+        if (!ConnectionManager.checkInternetConnection(getActivity())) {
+            Utils.showInfoDialog(getActivity(), "Please check internet connection");
+            return;
+        }
+
+        Utils.showProgressDialog(getActivity(), "Please Wait...", false);
+        ApiClient.getYearCategory("0", strYearType, strUId, new Callback<CategoryResModel>() {
+            @Override
+            public void onResponse(Call<CategoryResModel> call, retrofit2.Response<CategoryResModel> response) {
+                Utils.dismissProgressDialog();
+                if (response.isSuccessful()) {
+                    CategoryResModel categoryResModel = response.body();
+                    Log.e("responseData :", new GsonBuilder().setPrettyPrinting().create().toJson(categoryResModel));
+                    if (response.body().isStatus()) {
+                        String strYearTotalFilter = response.body().getTotalBooks();
+                        SharedPrefManager.getInstance(getActivity()).saveStringPref(SharedPrefManager.KEY_YEAR_FILTER_CAT_IDS, strYearTotalFilter);
+
+                        ArrayList<String> bookList = SharedPrefManager.getInstance(getActivity()).getFilteredBookIdList(SharedPrefManager.KEY_YEAR_FILTER_BOOK_IDS);
+                        if (bookList != null && bookList.size() > 0) {
+                            totalCount = bookList.size();
+                            tvFilterCounts.setText(totalCount + "/" + strYearTotalFilter);
+                        }
+                        else
+                        {
+                            tvFilterCounts.setText(strYearTotalFilter + "/" + strYearTotalFilter);
+                        }
+
+//                        SharedPrefManager.getInstance(getActivity()).saveFilterBookIdList(SharedPrefManager.KEY_YEAR_FILTER_BOOK_IDS, selectedFocusList);
+                    } else {
+                        Utils.showInfoDialog(getActivity(), response.body().getMessage());
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<CategoryResModel> call, Throwable t) {
                 String message = t.getMessage();
                 Log.e("error", "theme---" + message);
                 Utils.dismissProgressDialog();

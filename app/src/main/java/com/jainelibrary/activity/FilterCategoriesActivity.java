@@ -217,7 +217,7 @@ public class FilterCategoriesActivity extends AppCompatActivity {
         strUid = SharedPrefManager.getInstance(FilterCategoriesActivity.this).getStringPref(SharedPrefManager.KEY_USER_ID);
 
         Utils.showProgressDialog(FilterCategoriesActivity.this, "Please Wait...", false);
-        ApiClient.getYearCategory("1", strYearType, strUid, new Callback<CategoryResModel>() {
+        ApiClient.getYearCategory("0", strYearType, strUid, new Callback<CategoryResModel>() {
             @Override
             public void onResponse(Call<CategoryResModel> call, retrofit2.Response<CategoryResModel> response) {
                 Utils.dismissProgressDialog();
@@ -227,8 +227,9 @@ public class FilterCategoriesActivity extends AppCompatActivity {
                     if (response.body().isStatus()) {
                         mDataList = new ArrayList<>();
                         mDataList = response.body().getData();
-                        String strYearTotalFilter = response.body().getTotalBooks();
-                        SharedPrefManager.getInstance(FilterCategoriesActivity.this).saveStringPref(SharedPrefManager.KEY_YEAR_FILTER_CAT_IDS, strYearTotalFilter);
+                        strTotalFilter = response.body().getTotalBooks();
+                        strDescription = response.body().getDescription();
+                        SharedPrefManager.getInstance(FilterCategoriesActivity.this).saveStringPref(SharedPrefManager.KEY_YEAR_FILTER_CAT_IDS, strTotalFilter);
                         if (mDataList != null && mDataList.size() > 0) {
                             setCatBooksAdapter(mDataList);
                         }
@@ -323,10 +324,10 @@ public class FilterCategoriesActivity extends AppCompatActivity {
                             }
                             SharedPrefManager.getInstance(FilterCategoriesActivity.this).saveFilterBookIdList(SharedPrefManager.KEY_YEAR_FILTER_BOOK_IDS, bookIdList);
                             if (strBookIds != null && strBookIds.length() > 0) {
-                                SharedPrefManager.getInstance(FilterCategoriesActivity.this).saveStringPref(SharedPrefManager.KEY_YEAR_FILTER_CAT_IDS, strBookIds);
+//                                SharedPrefManager.getInstance(FilterCategoriesActivity.this).saveStringPref(SharedPrefManager.KEY_YEAR_FILTER_CAT_IDS, strBookIds);
                             }
                         } else {
-                            SharedPrefManager.getInstance(FilterCategoriesActivity.this).saveStringPref(SharedPrefManager.KEY_YEAR_FILTER_CAT_IDS, "");
+//                            SharedPrefManager.getInstance(FilterCategoriesActivity.this).saveStringPref(SharedPrefManager.KEY_YEAR_FILTER_CAT_IDS, "");
                             SharedPrefManager.getInstance(FilterCategoriesActivity.this).saveFilterBookIdList(SharedPrefManager.KEY_YEAR_FILTER_BOOK_IDS, new ArrayList<>());
                         }
                     } else {
