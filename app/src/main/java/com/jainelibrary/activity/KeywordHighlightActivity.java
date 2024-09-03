@@ -392,7 +392,7 @@ public class KeywordHighlightActivity extends AppCompatActivity {
         btnShare.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (imageBitmap != null) {
+                if (imageBitmap != null)  {
                     CardView z = (CardView) findViewById(R.id.cardImage);
                     try {
                         getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
@@ -410,6 +410,7 @@ public class KeywordHighlightActivity extends AppCompatActivity {
                     String strMessage = "JainRefLibrary" + "_" + strBookName + "_" + strPageNo + "_" + strWordName;
                     Intent intent = new Intent();
                     intent.setAction(Intent.ACTION_SEND);
+
                     intent.putExtra(Intent.EXTRA_SUBJECT, shareData);
                     intent.putExtra(Intent.EXTRA_TEXT, strMessage);
                     intent.setType("image/jpeg");
@@ -417,7 +418,7 @@ public class KeywordHighlightActivity extends AppCompatActivity {
                     startActivity(Intent.createChooser(intent, shareData));
                     bottomSheetDialog.cancel();
                 } else {
-                    edtRenameFile.setError("Please enter file name");
+                    edtRenameFile.setError("Please enter 9 name");
                     edtRenameFile.requestFocus();
                 }
             }

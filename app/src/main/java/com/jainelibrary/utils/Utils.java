@@ -67,6 +67,7 @@ import com.jainelibrary.model.UserDetailsResModel;
 import com.jainelibrary.retrofit.ApiClient;
 import com.jainelibrary.retrofitResModel.BookListResModel;
 import com.jainelibrary.retrofitResModel.ClearHoldReferenceModel;
+import com.jainelibrary.retrofitResModel.CreatePdfFileUrlResModel;
 import com.jainelibrary.utils.DownloadImage.DownloadImage;
 import com.wc.widget.dialog.IosDialog;
 

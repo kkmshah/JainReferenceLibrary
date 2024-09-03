@@ -7,6 +7,7 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.inputmethodservice.Keyboard;
 import android.inputmethodservice.KeyboardView;
 import android.net.Uri;
@@ -70,6 +71,7 @@ import com.jainelibrary.retrofitResModel.SearchOptionResModel;
 import com.jainelibrary.retrofitResModel.ShareOrDownloadMyShelfResModel;
 import com.jainelibrary.utils.SharedPrefManager;
 import com.jainelibrary.utils.Utils;
+import com.wc.widget.dialog.IosDialog;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -1412,42 +1414,34 @@ public class KeywordsMainFragment extends Fragment implements IOnBackPressed, Ke
 
                 if(!response.body().isStatus()) {
                     Utils.dismissProgressDialog();
-                    Utils.showInfoDialog(getActivity(), "" + response.body().getMessage());
-                    return;
-                }
-
-
-                ApiClient.createKeywordsPdf( strKeyword, strUId, strBookIds, "0", strFileType, new Callback<CreatePdfFileUrlResModel>() {
-                    @Override
-                    public void onResponse(Call<CreatePdfFileUrlResModel> call, retrofit2.Response<CreatePdfFileUrlResModel> response) {
-                        Utils.dismissProgressDialog();
-//                    Log.e("responseData :", new GsonBuilder().setPrettyPrinting().create().toJson(response.body()));
-
-                        if (response.isSuccessful()) {
-                            if (response.body().isStatus()) {
-                                String strTmpPdfUrl = response.body().getPdf_url();
-                                if (strTmpPdfUrl != null && strTmpPdfUrl.length() > 0) {
-                                    callAddMyShelfApi(strTmpPdfUrl, strKeyword, strUId, strEdtRenamefile, totalKeywordCount, strFileType, isShare);
-                                } else {
-                                    Utils.showInfoDialog(getActivity(), "KeywordData not saved");
+//                    Utils.showInfoDialog(getActivity(), "" + response.body().getMessage());
+                    Dialog dialog = new IosDialog.Builder(getActivity())
+                            .setMessage(response.body().getMessage())
+                            .setMessageColor(Color.parseColor("#1565C0"))
+                            .setMessageSize(18)
+                            .setNegativeButtonColor(Color.parseColor("#981010"))
+                            .setNegativeButtonSize(18)
+                            .setNegativeButton("OK", new IosDialog.OnClickListener() {
+                                @Override
+                                public void onClick(IosDialog dialog, View v) {
+                                    dialog.dismiss();
                                 }
-                            }else {
-                                Utils.showInfoDialog(getActivity(), "KeywordData not saved");
-                            }
+                            })
+                            .setPositiveButtonColor(Color.parseColor("#981010"))
+                            .setPositiveButtonSize(18)
+                            .setPositiveButton("Save Again", new IosDialog.OnClickListener() {
+                                @Override
+                                public void onClick(IosDialog dialog, View v) {
+                                    dialog.dismiss();
+                                    callCreatePdfApi(strEdtRenamefile, strFileType, totalKeywordCount, isShare);
+                                }
+                            }).build();
 
-                        } else {
-                            Utils.showInfoDialog(getActivity(), "KeywordData not saved");
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Call<CreatePdfFileUrlResModel> call, Throwable t) {
-                        String message = t.getMessage();
-                        Log.e("error", "onFailure--- " + message);
-                        Utils.dismissProgressDialog();
-                    }
-                });
-
+                    dialog.show();
+                }
+                else {
+                    callCreatePdfApi(strEdtRenamefile, strFileType, totalKeywordCount, isShare);
+                }
             }
             @Override
             public void onFailure(Call<CheckMyShelfFileNameResModel> call, Throwable t) {
@@ -1456,7 +1450,40 @@ public class KeywordsMainFragment extends Fragment implements IOnBackPressed, Ke
                 Utils.dismissProgressDialog();
             }
         });
+    }
+    
+    private void callCreatePdfApi(String strEdtRenamefile, String strFileType, String totalKeywordCount, boolean isShare)
+    {
+        ApiClient.createKeywordsPdf( strKeyword, strUId, strBookIds, "0", strFileType, new Callback<CreatePdfFileUrlResModel>() {
+            @Override
+            public void onResponse(Call<CreatePdfFileUrlResModel> call, retrofit2.Response<CreatePdfFileUrlResModel> response) {
+                Utils.dismissProgressDialog();
+//                    Log.e("responseData :", new GsonBuilder().setPrettyPrinting().create().toJson(response.body()));
 
+                if (response.isSuccessful()) {
+                    if (response.body().isStatus()) {
+                        String strTmpPdfUrl = response.body().getPdf_url();
+                        if (strTmpPdfUrl != null && strTmpPdfUrl.length() > 0) {
+                            callAddMyShelfApi(strTmpPdfUrl, strKeyword, strUId, strEdtRenamefile, totalKeywordCount, strFileType, isShare);
+                        } else {
+                            Utils.showInfoDialog(getActivity(), "KeywordData not saved");
+                        }
+                    }else {
+                        Utils.showInfoDialog(getActivity(), "KeywordData not saved");
+                    }
+
+                } else {
+                    Utils.showInfoDialog(getActivity(), "KeywordData not saved");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<CreatePdfFileUrlResModel> call, Throwable t) {
+                String message = t.getMessage();
+                Log.e("error", "onFailure--- " + message);
+                Utils.dismissProgressDialog();
+            }
+        });    
     }
 
     private void callAddMyShelfApi(String fileUrl, String strKeyword, String strUId, String strEdtRenamefile, String totalKeywordCount, String strFileType, boolean isShare) {
