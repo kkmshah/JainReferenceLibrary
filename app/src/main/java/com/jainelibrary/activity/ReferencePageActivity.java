@@ -50,6 +50,7 @@ import com.jainelibrary.model.BooksDataModel;
 import com.jainelibrary.model.HoldAndSearchResModel;
 import com.jainelibrary.retrofit.ApiClient;
 import com.jainelibrary.retrofitResModel.BookListResModel;
+import com.jainelibrary.retrofitResModel.CheckMyShelfFileNameResModel;
 import com.jainelibrary.retrofitResModel.ShareOrDownloadMyShelfResModel;
 import com.jainelibrary.utils.SharedPrefManager;
 import com.jainelibrary.utils.Utils;
@@ -1132,7 +1133,7 @@ public class ReferencePageActivity extends AppCompatActivity implements Referenc
 
                     if (strUserID != null && strUserID.length() > 0 && imageUrlList.size() > 0) {
                         Log.e("userid", strUserID);
-                        callAddMyShelfApi(imageUrlList, strUserID, strEdtRenamefile, false);
+                        callMyShelfApi(imageUrlList, strUserID, strEdtRenamefile, false);
                     }
 
                 } else {
@@ -1160,7 +1161,7 @@ public class ReferencePageActivity extends AppCompatActivity implements Referenc
                     strEdtRenamefile = edtRenameFile.getText().toString();
                     if (strUserID != null && strUserID.length() > 0 && imageUrlList.size() > 0) {
                         Log.e("userid", strUserID);
-                        callAddMyShelfApi(imageUrlList, strUserID, strEdtRenamefile, true);
+                        callMyShelfApi(imageUrlList, strUserID, strEdtRenamefile, true);
                     }
                 }
             }
@@ -1194,6 +1195,58 @@ public class ReferencePageActivity extends AppCompatActivity implements Referenc
 
             @Override
             public void onSlide(@NonNull View bottomSheet, float slideOffset) {
+            }
+        });
+    }
+
+    private void callMyShelfApi(ArrayList<String> imagesUrl, String strUserId, String strEdtRenamefile, boolean notesDialog)
+    {
+        ApiClient.checkMyShelfFileName(strUserId, strEdtRenamefile, new Callback<CheckMyShelfFileNameResModel>() {
+            @Override
+            public void onResponse(Call<CheckMyShelfFileNameResModel> call, retrofit2.Response<CheckMyShelfFileNameResModel> response) {
+                if (!response.isSuccessful()  ) {
+                    Utils.dismissProgressDialog();
+                    Utils.showInfoDialog(ReferencePageActivity.this, "Please try again!");
+                    return;
+                }
+
+                if(!response.body().isStatus()) {
+                    Utils.dismissProgressDialog();
+
+                    Dialog dialog = new IosDialog.Builder(ReferencePageActivity.this)
+                            .setMessage(response.body().getMessage())
+                            .setMessageColor(Color.parseColor("#1565C0"))
+                            .setMessageSize(18)
+                            .setNegativeButtonColor(Color.parseColor("#981010"))
+                            .setNegativeButtonSize(18)
+                            .setNegativeButton("OK", new IosDialog.OnClickListener() {
+                                @Override
+                                public void onClick(IosDialog dialog, View v) {
+                                    dialog.dismiss();
+                                }
+                            })
+                            .setPositiveButtonColor(Color.parseColor("#981010"))
+                            .setPositiveButtonSize(18)
+                            .setPositiveButton("Save Again", new IosDialog.OnClickListener() {
+                                @Override
+                                public void onClick(IosDialog dialog, View v) {
+                                    dialog.dismiss();
+                                    callAddMyShelfApi(imagesUrl, strUserID, strEdtRenamefile, notesDialog);
+                                }
+                            }).build();
+
+                    dialog.show();
+                }
+                else
+                {
+                    callAddMyShelfApi(imagesUrl, strUserID, strEdtRenamefile, notesDialog);
+                }
+            }
+            @Override
+            public void onFailure(Call<CheckMyShelfFileNameResModel> call, Throwable t) {
+                String message = t.getMessage();
+                Log.e("error", "onFailure--- " + message);
+                Utils.dismissProgressDialog();
             }
         });
     }
@@ -1280,7 +1333,7 @@ public class ReferencePageActivity extends AppCompatActivity implements Referenc
 
         String filename = strEdtRenamefile;
         String typeref = "1";
-        String count = strTotalCount;
+//        String count = strTotalCount;
         String fileType = "4";
         Log.e("fileType :", " " + fileType);
         Log.e("strUserId " + strUserId, "strBookId" + strBookId + " strKeyWordId " + strKeyWordId + " file " + "pdf_" + "JainRefLibrary" + "_" + strBookName + " type " + strType + " typeref " + typeref);
@@ -1288,7 +1341,7 @@ public class ReferencePageActivity extends AppCompatActivity implements Referenc
         Gson gson = new Gson();
         String jsonImagesUrl = gson.toJson(imagesUrl);  // JSON representation of the list
 
-        ApiClient.addMyShelfWithImagesUrl(uid, bookid, typeid, type, typeref, filename, null, count, fileType, jsonImagesUrl, new Callback<AddShelfResModel>() {
+        ApiClient.addMyShelfWithImagesUrl(uid, bookid, typeid, type, typeref, filename, null, strTotalCount, fileType, jsonImagesUrl, new Callback<AddShelfResModel>() {
             @Override
             public void onResponse(Call<AddShelfResModel> call, Response<AddShelfResModel> response) {
                 if (response.isSuccessful()) {

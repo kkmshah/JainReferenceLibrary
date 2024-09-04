@@ -830,42 +830,37 @@ public class KeywordSearchDetailsActivity extends AppCompatActivity implements K
 
                 if(!response.body().isStatus()) {
                     Utils.dismissProgressDialog();
-                    Utils.showInfoDialog(KeywordSearchDetailsActivity.this, "" + response.body().getMessage());
-                    return;
+
+                    Dialog dialog = new IosDialog.Builder(KeywordSearchDetailsActivity.this)
+                            .setMessage(response.body().getMessage())
+                            .setMessageColor(Color.parseColor("#1565C0"))
+                            .setMessageSize(18)
+                            .setNegativeButtonColor(Color.parseColor("#981010"))
+                            .setNegativeButtonSize(18)
+                            .setNegativeButton("OK", new IosDialog.OnClickListener() {
+                                @Override
+                                public void onClick(IosDialog dialog, View v) {
+                                    dialog.dismiss();
+                                }
+                            })
+                            .setPositiveButtonColor(Color.parseColor("#981010"))
+                            .setPositiveButtonSize(18)
+                            .setPositiveButton("Save Again", new IosDialog.OnClickListener() {
+                                @Override
+                                public void onClick(IosDialog dialog, View v) {
+                                    dialog.dismiss();
+                                    callCreateKeyboardBookDetailsPdf(strKeyId, strBookIds, strUId, strEdtRenamefile, totalKeywordCount, isShare);
+                                }
+                            }).build();
+
+                    dialog.show();
+                }
+                else
+                {
+                    callCreateKeyboardBookDetailsPdf(strKeyId, strBookIds, strUId, strEdtRenamefile, totalKeywordCount, isShare);
                 }
 
-
                 Log.e("responseData Req", strKeyId + "" +strBookIds);
-                ApiClient.createKeywordBookDetailsPdf( strKeyId, strBookIds, new Callback<CreatePdfFileUrlResModel>() {
-                    @Override
-                    public void onResponse(Call<CreatePdfFileUrlResModel> call, retrofit2.Response<CreatePdfFileUrlResModel> response) {
-                        Utils.dismissProgressDialog();
-                    Log.e("responseData :", new GsonBuilder().setPrettyPrinting().create().toJson(response.body()));
-
-                        if (response.isSuccessful()) {
-                            if (response.body().isStatus()) {
-                                String strTmpPdfUrl = response.body().getPdf_url();
-                                if (strTmpPdfUrl != null && strTmpPdfUrl.length() > 0) {
-                                    callAddMyShelfApi(strTmpPdfUrl, strUId, strEdtRenamefile, totalKeywordCount, isShare);
-                                } else {
-                                    Utils.showInfoDialog(KeywordSearchDetailsActivity.this, "KeywordData not saved");
-                                }
-                            }else {
-                                Utils.showInfoDialog(KeywordSearchDetailsActivity.this, "KeywordData not saved");
-                            }
-
-                        } else {
-                            Utils.showInfoDialog(KeywordSearchDetailsActivity.this, "KeywordData not saved");
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Call<CreatePdfFileUrlResModel> call, Throwable t) {
-                        String message = t.getMessage();
-                        Log.e("error", "onFailure--- " + message);
-                        Utils.dismissProgressDialog();
-                    }
-                });
 
             }
             @Override
@@ -876,6 +871,40 @@ public class KeywordSearchDetailsActivity extends AppCompatActivity implements K
             }
         });
 
+    }
+
+    private void callCreateKeyboardBookDetailsPdf(String strKeyId, String strBookIds, String strUId, String strEdtRenamefile, String totalKeywordCount, boolean isShare)
+    {
+        ApiClient.createKeywordBookDetailsPdf( strKeyId, strBookIds, new Callback<CreatePdfFileUrlResModel>() {
+            @Override
+            public void onResponse(Call<CreatePdfFileUrlResModel> call, retrofit2.Response<CreatePdfFileUrlResModel> response) {
+                Utils.dismissProgressDialog();
+                Log.e("responseData :", new GsonBuilder().setPrettyPrinting().create().toJson(response.body()));
+
+                if (response.isSuccessful()) {
+                    if (response.body().isStatus()) {
+                        String strTmpPdfUrl = response.body().getPdf_url();
+                        if (strTmpPdfUrl != null && strTmpPdfUrl.length() > 0) {
+                            callAddMyShelfApi(strTmpPdfUrl, strUId, strEdtRenamefile, totalKeywordCount, isShare);
+                        } else {
+                            Utils.showInfoDialog(KeywordSearchDetailsActivity.this, "KeywordData not saved");
+                        }
+                    }else {
+                        Utils.showInfoDialog(KeywordSearchDetailsActivity.this, "KeywordData not saved");
+                    }
+
+                } else {
+                    Utils.showInfoDialog(KeywordSearchDetailsActivity.this, "KeywordData not saved");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<CreatePdfFileUrlResModel> call, Throwable t) {
+                String message = t.getMessage();
+                Log.e("error", "onFailure--- " + message);
+                Utils.dismissProgressDialog();
+            }
+        });
     }
 
     private void callAddMyShelfApi(String fileUrl, String strUId, String strEdtRenamefile, String totalKeywordCount, boolean isShare) {

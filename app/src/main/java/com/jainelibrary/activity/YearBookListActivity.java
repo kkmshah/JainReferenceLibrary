@@ -6,7 +6,9 @@ import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.Dialog;
 import android.content.Intent;
+import android.graphics.Color;
 import android.inputmethodservice.Keyboard;
 import android.net.Uri;
 import android.os.Build;
@@ -40,6 +42,7 @@ import com.jainelibrary.retrofitResModel.CreatePdfFileUrlResModel;
 import com.jainelibrary.retrofitResModel.ShareOrDownloadMyShelfResModel;
 import com.jainelibrary.utils.SharedPrefManager;
 import com.jainelibrary.utils.Utils;
+import com.wc.widget.dialog.IosDialog;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -182,43 +185,35 @@ public class YearBookListActivity extends AppCompatActivity implements YearBookL
 
                 if(!response.body().isStatus()) {
                     Utils.dismissProgressDialog();
-                    Utils.showInfoDialog(YearBookListActivity.this, "" + response.body().getMessage());
-                    return;
-                }
 
-
-                Log.e("responseData Req", strYearTypeId+ "==" + strYearValue + "==" +strBookIds);
-                ApiClient.createYearBookPdf( strYearTypeId, strYearValue, strBookIds, new Callback<CreatePdfFileUrlResModel>() {
-                    @Override
-                    public void onResponse(Call<CreatePdfFileUrlResModel> call, retrofit2.Response<CreatePdfFileUrlResModel> response) {
-                        Utils.dismissProgressDialog();
-                        Log.e("responseData :", new GsonBuilder().setPrettyPrinting().create().toJson(response.body()));
-
-                        if (response.isSuccessful()) {
-                            if (response.body().isStatus()) {
-                                String strTmpPdfUrl = response.body().getPdf_url();
-                                if (strTmpPdfUrl != null && strTmpPdfUrl.length() > 0) {
-                                    callAddMyShelfApi(strTmpPdfUrl, strUId, strEdtRenamefile, totalKeywordCount, isShare);
-                                } else {
-                                    Utils.showInfoDialog(YearBookListActivity.this, "KeywordData not saved");
+                    Dialog dialog = new IosDialog.Builder(YearBookListActivity.this)
+                            .setMessage(response.body().getMessage())
+                            .setMessageColor(Color.parseColor("#1565C0"))
+                            .setMessageSize(18)
+                            .setNegativeButtonColor(Color.parseColor("#981010"))
+                            .setNegativeButtonSize(18)
+                            .setNegativeButton("OK", new IosDialog.OnClickListener() {
+                                @Override
+                                public void onClick(IosDialog dialog, View v) {
+                                    dialog.dismiss();
                                 }
-                            }else {
-                                Utils.showInfoDialog(YearBookListActivity.this, "KeywordData not saved");
-                            }
+                            })
+                            .setPositiveButtonColor(Color.parseColor("#981010"))
+                            .setPositiveButtonSize(18)
+                            .setPositiveButton("Save Again", new IosDialog.OnClickListener() {
+                                @Override
+                                public void onClick(IosDialog dialog, View v) {
+                                    dialog.dismiss();
+                                    callCreateYearBookPdf(strYearTypeId, strYearValue, strUId, strEdtRenamefile, totalKeywordCount, isShare);
+                                }
+                            }).build();
 
-                        } else {
-                            Utils.showInfoDialog(YearBookListActivity.this, "KeywordData not saved");
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Call<CreatePdfFileUrlResModel> call, Throwable t) {
-                        String message = t.getMessage();
-                        Log.e("error", "onFailure--- " + message);
-                        Utils.dismissProgressDialog();
-                    }
-                });
-
+                    dialog.show();
+                }
+                else
+                {
+                    callCreateYearBookPdf(strYearTypeId, strYearValue, strUId, strEdtRenamefile, totalKeywordCount, isShare);
+                }
             }
             @Override
             public void onFailure(Call<CheckMyShelfFileNameResModel> call, Throwable t) {
@@ -228,6 +223,41 @@ public class YearBookListActivity extends AppCompatActivity implements YearBookL
             }
         });
 
+    }
+
+    private void callCreateYearBookPdf(String strYearTypeId, String strYearValue, String strUId, String strEdtRenamefile, String totalKeywordCount, boolean isShare)
+    {
+        Log.e("responseData Req", strYearTypeId+ "==" + strYearValue + "==" +strBookIds);
+        ApiClient.createYearBookPdf( strYearTypeId, strYearValue, strBookIds, new Callback<CreatePdfFileUrlResModel>() {
+            @Override
+            public void onResponse(Call<CreatePdfFileUrlResModel> call, retrofit2.Response<CreatePdfFileUrlResModel> response) {
+                Utils.dismissProgressDialog();
+                Log.e("responseData :", new GsonBuilder().setPrettyPrinting().create().toJson(response.body()));
+
+                if (response.isSuccessful()) {
+                    if (response.body().isStatus()) {
+                        String strTmpPdfUrl = response.body().getPdf_url();
+                        if (strTmpPdfUrl != null && strTmpPdfUrl.length() > 0) {
+                            callAddMyShelfApi(strTmpPdfUrl, strUId, strEdtRenamefile, totalKeywordCount, isShare);
+                        } else {
+                            Utils.showInfoDialog(YearBookListActivity.this, "KeywordData not saved");
+                        }
+                    }else {
+                        Utils.showInfoDialog(YearBookListActivity.this, "KeywordData not saved");
+                    }
+
+                } else {
+                    Utils.showInfoDialog(YearBookListActivity.this, "KeywordData not saved");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<CreatePdfFileUrlResModel> call, Throwable t) {
+                String message = t.getMessage();
+                Log.e("error", "onFailure--- " + message);
+                Utils.dismissProgressDialog();
+            }
+        });
     }
 
     private void callAddMyShelfApi(String fileUrl, String strUId, String strEdtRenamefile, String totalKeywordCount, boolean isShare) {

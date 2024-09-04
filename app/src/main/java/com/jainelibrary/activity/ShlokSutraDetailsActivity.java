@@ -341,43 +341,35 @@ public class ShlokSutraDetailsActivity extends AppCompatActivity implements Shlo
 
                 if(!response.body().isStatus()) {
                     Utils.dismissProgressDialog();
-                    Utils.showInfoDialog(ShlokSutraDetailsActivity.this, "" + response.body().getMessage());
-                    return;
-                }
 
-
-                Log.e("responseData Req", strGSId + "");
-                ApiClient.createShlokGranthDetailsPdf( strGSId,  new Callback<CreatePdfFileUrlResModel>() {
-                    @Override
-                    public void onResponse(Call<CreatePdfFileUrlResModel> call, retrofit2.Response<CreatePdfFileUrlResModel> response) {
-                        Utils.dismissProgressDialog();
-                        Log.e("responseData :", new GsonBuilder().setPrettyPrinting().create().toJson(response.body()));
-
-                        if (response.isSuccessful()) {
-                            if (response.body().isStatus()) {
-                                String strTmpPdfUrl = response.body().getPdf_url();
-                                if (strTmpPdfUrl != null && strTmpPdfUrl.length() > 0) {
-                                    callAddMyShelfApi(strTmpPdfUrl, strGSId, strUId, strEdtRenamefile, totalKeywordCount, isShare);
-                                } else {
-                                    Utils.showInfoDialog(ShlokSutraDetailsActivity.this, "KeywordData not saved");
+                    Dialog dialog = new IosDialog.Builder(ShlokSutraDetailsActivity.this)
+                            .setMessage(response.body().getMessage())
+                            .setMessageColor(Color.parseColor("#1565C0"))
+                            .setMessageSize(18)
+                            .setNegativeButtonColor(Color.parseColor("#981010"))
+                            .setNegativeButtonSize(18)
+                            .setNegativeButton("OK", new IosDialog.OnClickListener() {
+                                @Override
+                                public void onClick(IosDialog dialog, View v) {
+                                    dialog.dismiss();
                                 }
-                            }else {
-                                Utils.showInfoDialog(ShlokSutraDetailsActivity.this, "KeywordData not saved");
-                            }
+                            })
+                            .setPositiveButtonColor(Color.parseColor("#981010"))
+                            .setPositiveButtonSize(18)
+                            .setPositiveButton("Save Again", new IosDialog.OnClickListener() {
+                                @Override
+                                public void onClick(IosDialog dialog, View v) {
+                                    dialog.dismiss();
+                                    callCreateShlokGranthDetailsPdf(strGSId, strUId, strEdtRenamefile, totalKeywordCount, isShare);
+                                }
+                            }).build();
 
-                        } else {
-                            Utils.showInfoDialog(ShlokSutraDetailsActivity.this, "KeywordData not saved");
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Call<CreatePdfFileUrlResModel> call, Throwable t) {
-                        String message = t.getMessage();
-                        Log.e("error", "onFailure--- " + message);
-                        Utils.dismissProgressDialog();
-                    }
-                });
-
+                    dialog.show();
+                }
+                else
+                {
+                    callCreateShlokGranthDetailsPdf(strGSId, strUId, strEdtRenamefile, totalKeywordCount, isShare);
+                }
             }
             @Override
             public void onFailure(Call<CheckMyShelfFileNameResModel> call, Throwable t) {
@@ -389,7 +381,43 @@ public class ShlokSutraDetailsActivity extends AppCompatActivity implements Shlo
 
     }
 
+    private void callCreateShlokGranthDetailsPdf(String strGSId,  String strUId, String strEdtRenamefile, String totalKeywordCount, boolean isShare)
+    {
+        Log.e("responseData Req", strGSId + "");
+        ApiClient.createShlokGranthDetailsPdf( strGSId,  new Callback<CreatePdfFileUrlResModel>() {
+            @Override
+            public void onResponse(Call<CreatePdfFileUrlResModel> call, retrofit2.Response<CreatePdfFileUrlResModel> response) {
+                Utils.dismissProgressDialog();
+                Log.e("responseData :", new GsonBuilder().setPrettyPrinting().create().toJson(response.body()));
+
+                if (response.isSuccessful()) {
+                    if (response.body().isStatus()) {
+                        String strTmpPdfUrl = response.body().getPdf_url();
+                        if (strTmpPdfUrl != null && strTmpPdfUrl.length() > 0) {
+                            callAddMyShelfApi(strTmpPdfUrl, strGSId, strUId, strEdtRenamefile, totalKeywordCount, isShare);
+                        } else {
+                            Utils.showInfoDialog(ShlokSutraDetailsActivity.this, "KeywordData not saved");
+                        }
+                    }else {
+                        Utils.showInfoDialog(ShlokSutraDetailsActivity.this, "KeywordData not saved");
+                    }
+
+                } else {
+                    Utils.showInfoDialog(ShlokSutraDetailsActivity.this, "KeywordData not saved");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<CreatePdfFileUrlResModel> call, Throwable t) {
+                String message = t.getMessage();
+                Log.e("error", "onFailure--- " + message);
+                Utils.dismissProgressDialog();
+            }
+        });
+    }
+
     private void callAddMyShelfApi(String fileUrl, String strGSId, String strUId, String strEdtRenamefile, String totalCount, boolean isShare) {
+        Log.e("TotalCountMyshelf", totalCount);
         String type =  "1";
         String typeref = REF_TYPE_REFERENCE_PAGE;
 
