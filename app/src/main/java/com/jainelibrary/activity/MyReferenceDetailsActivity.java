@@ -317,10 +317,21 @@ public class MyReferenceDetailsActivity extends AppCompatActivity implements MyR
             public void onResponse(Call<DeleteMyShelfResModel> call, retrofit2.Response<DeleteMyShelfResModel> response) {
                 Utils.dismissProgressDialog();
                 if (response.isSuccessful()) {                     /*Log.e("responseData :", new GsonBuilder().setPrettyPrinting().create().toJson(response));*/
-
-
                     if (response.body().isStatus()) {
-                        Utils.showInfoDialog(MyReferenceDetailsActivity.this, "" + response.body().getMessage());
+                        Dialog dialog = new IosDialog.Builder(MyReferenceDetailsActivity.this)
+                                .setMessage(response.body().getMessage())
+                                .setMessageColor(Color.parseColor("#1565C0"))
+                                .setMessageSize(18)
+                                .setPositiveButtonColor(Color.parseColor("#981010"))
+                                .setPositiveButtonSize(18)
+                                .setPositiveButton("OK", new IosDialog.OnClickListener() {
+                                    @Override
+                                    public void onClick(IosDialog dialog, View v) {
+                                        dialog.dismiss();
+                                        onBackPressed();
+                                    }
+                                }).build();
+                        dialog.show();
                         onBackPressed();
                     } else {
                         Log.e("error--", "statusFalse--" + response.body().getMessage());

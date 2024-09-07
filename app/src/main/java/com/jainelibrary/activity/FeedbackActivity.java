@@ -2,8 +2,10 @@ package com.jainelibrary.activity;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -31,6 +33,7 @@ import com.jainelibrary.model.YearTypeResModel;
 import com.jainelibrary.retrofit.ApiClient;
 import com.jainelibrary.utils.SharedPrefManager;
 import com.jainelibrary.utils.Utils;
+import com.wc.widget.dialog.IosDialog;
 
 import java.util.ArrayList;
 
@@ -204,11 +207,21 @@ public class FeedbackActivity extends AppCompatActivity {
                     /*Log.e("responseData :", new GsonBuilder().setPrettyPrinting().create().toJson(response));*/
 
                     if (response.body().isStatus()) {
-                        Utils.showInfoDialog(activity, "" + response.body().getMessage());
+                        Dialog dialog = new IosDialog.Builder(activity)
+                                .setMessage(response.body().getMessage())
+                                .setMessageColor(Color.parseColor("#1565C0"))
+                                .setMessageSize(18)
+                                .setPositiveButtonColor(Color.parseColor("#981010"))
+                                .setPositiveButtonSize(18)
+                                .setPositiveButton("OK", new IosDialog.OnClickListener() {
+                                    @Override
+                                    public void onClick(IosDialog dialog, View v) {
+                                        dialog.dismiss();
+                                        onBackPressed();
+                                    }
+                                }).build();
+                        dialog.show();
                         Log.e("error--", "statusTrue--" + response.body().getMessage());
-
-                        onBackPressed();
-
                     } else {
                         Utils.showInfoDialog(activity, "" + response.body().getMessage());
                         Log.e("error--", "statusFalse--" + response.body().getMessage());

@@ -1,11 +1,13 @@
 package com.jainelibrary.fragment;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.DownloadManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.inputmethodservice.Keyboard;
 import android.net.Uri;
 import android.os.Build;
@@ -58,6 +60,7 @@ import com.jainelibrary.retrofitResModel.ShareOrDownloadMyShelfResModel;
 import com.jainelibrary.utils.SharedPrefManager;
 import com.jainelibrary.utils.StorageManager;
 import com.jainelibrary.utils.Utils;
+import com.wc.widget.dialog.IosDialog;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -591,8 +594,21 @@ public class FilesFragment extends Fragment implements FilesImageAdapter.OnImage
                     /*Log.e("responseData :", new GsonBuilder().setPrettyPrinting().create().toJson(response));*/
 
                     if (response.body().isStatus()) {
-                        Utils.showInfoDialog(getActivity(), "" + response.body().getMessage());
-                        callMyShelfListApi(strUId, strFlag, isGallery, true);
+                        Dialog dialog = new IosDialog.Builder(getActivity())
+                                .setMessage(response.body().getMessage())
+                                .setMessageColor(Color.parseColor("#1565C0"))
+                                .setMessageSize(18)
+                                .setPositiveButtonColor(Color.parseColor("#981010"))
+                                .setPositiveButtonSize(18)
+                                .setPositiveButton("OK", new IosDialog.OnClickListener() {
+                                    @Override
+                                    public void onClick(IosDialog dialog, View v) {
+                                        dialog.dismiss();
+                                        callMyShelfListApi(strUId, strFlag, isGallery, true);
+                                    }
+                                }).build();
+                        dialog.show();
+
                     } else {
                         Log.e("error--", "statusFalse--" + response.body().getMessage());
                     }
