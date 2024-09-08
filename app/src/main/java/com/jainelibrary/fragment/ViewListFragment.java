@@ -458,39 +458,6 @@ public class ViewListFragment extends Fragment implements ViewListAdapter.ViewLi
         popup.show();
     }
 
-    private void callAllAddMyShelfApi(String strUid, String strBookId) {
-
-        if (!ConnectionManager.checkInternetConnection(getActivity())) {
-            Utils.showInfoDialog(getActivity(), "Please check internet connection");
-            return;
-        }
-        Utils.showProgressDialog(getActivity(), "Please Wait...", false);
-
-        ApiClient.addAllMyShelf(strUid, strBookId,new Callback<AddAllMyShelfResModel>() {
-            @Override
-            public void onResponse(Call<AddAllMyShelfResModel> call, retrofit2.Response<AddAllMyShelfResModel> response) {
-                if (response.isSuccessful()) {
-                    Utils.dismissProgressDialog();
-
-                    //   Log.e("responseData :", new GsonBuilder().setPrettyPrinting().create().toJson(response));
-
-                    if (response.body().isStatus()) {
-                        strUserId = SharedPrefManager.getInstance(getActivity()).getStringPref(SharedPrefManager.KEY_USER_ID);
-                        Utils.showInfoDialog(getActivity(), "" + response.body().getMessage());
-                    }else{
-                        Utils.showInfoDialog(getActivity(), "" + response.body().getMessage());
-                    }
-                }
-            }
-
-            @Override
-            public void onFailure(Call<AddAllMyShelfResModel> call, Throwable throwable) {
-                Utils.dismissProgressDialog();
-                Log.e("onFailure :", "Move All Api : "+throwable.getMessage());
-            }
-        });
-    }
-
     private void callDownloadMyShelfsApi(String strUserId, String strPDfUrl, String strBookName) {
         if (!ConnectionManager.checkInternetConnection(getActivity())) {
             Utils.showInfoDialog(getActivity(), "Please check internet connection");

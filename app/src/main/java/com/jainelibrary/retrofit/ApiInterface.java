@@ -385,7 +385,7 @@ public interface ApiInterface {
 
     @FormUrlEncoded
     @POST("jrl/move_search_keywords_to_my_shelf")
-    public Call<AddAllMyShelfResModel> addAllMyShelf(@Field("user_id") String userId,@Field("hold_id") String holdId);
+    public Call<AddAllMyShelfResModel> addAllMyShelf(@Field("user_id") String userId,@Field("hold_id") String holdId,@Field("direction") String direction);
 
     @FormUrlEncoded
     @POST("jrl/getUserLogDetails")

@@ -222,15 +222,15 @@
     <TextView
         android:id="@+id/tvMoveAll"
         android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerInParent="true"
         android:background="@color/dark_voilet"
         android:backgroundTint="@color/dark_voilet"
-        android:textSize="18sp"
         android:gravity="center"
+        android:text="Save all to my references"
         android:textColor="@color/white"
-        android:layout_centerInParent="true"
-        android:layout_alignParentBottom="true"
-        android:text="Move all to my references"
-        android:layout_height="50dp"/>
+        android:textSize="18sp" />
 
     <LinearLayout
         android:id="@+id/ll_buttons"
