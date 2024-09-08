@@ -151,7 +151,15 @@ public class OtpActivity extends AppCompatActivity {
                             Intent i = new Intent(OtpActivity.this, KeywordHighlightActivity.class);
                             setResult(RESULT_OK, i);
                             finish();
-                        } else if (isLoginId == null || isLoginId.length() == 0) {
+                        } else if (isLoginId != null && isLoginId.equalsIgnoreCase(Utils.Is_Forgot_Password_Id)) {
+                            SharedPrefManager.getInstance(OtpActivity.this).setBooleanPreference(SharedPrefManager.IS_LOGIN, false);
+
+                            Intent intent = new Intent(OtpActivity.this, ResetPasswordActivity.class);
+                            intent.putExtra("UserId", getIntent().getStringExtra("UserId"));
+                            intent.putExtra("UserName", getIntent().getStringExtra("UserName"));
+                            startActivity(intent);
+                        }
+                        else if (isLoginId == null || isLoginId.length() == 0) {
                             Intent i = new Intent(OtpActivity.this, MainActivity.class);
                             startActivity(i);
                             finish();

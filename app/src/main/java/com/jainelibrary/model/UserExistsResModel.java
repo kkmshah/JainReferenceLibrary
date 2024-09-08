@@ -1,9 +1,10 @@
 package com.jainelibrary.model;
 
-public class UserNameExistsResModel {
+public class UserExistsResModel {
     boolean status;
     String message;
     String user_id;
+    String user_name;
 
     public boolean isStatus() {
         return status;
@@ -19,11 +20,19 @@ public class UserNameExistsResModel {
         this.message = message;
     }
 
-    public String getUser_id() {
+    public String getUserId() {
         return user_id;
     }
 
-    public void setUser_id(String user_id) {
+    public void setUserId(String user_id) {
         this.user_id = user_id;
+    }
+
+    public String getUserName() {
+        return user_name;
+    }
+
+    public void setUserName(String user_name) {
+        this.user_name = user_name;
     }
 }

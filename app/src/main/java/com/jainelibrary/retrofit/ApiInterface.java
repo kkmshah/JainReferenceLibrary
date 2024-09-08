@@ -28,7 +28,7 @@ import com.jainelibrary.model.UpdateMyShelfNotesModel;
 import com.jainelibrary.model.UploadPDFModel;
 import com.jainelibrary.model.UserDetailsResModel;
 import com.jainelibrary.model.UserGuideResModel;
-import com.jainelibrary.model.UserNameExistsResModel;
+import com.jainelibrary.model.UserExistsResModel;
 import com.jainelibrary.model.YearResModel;
 import com.jainelibrary.model.YearResponseModel;
 import com.jainelibrary.model.YearTypeResModel;
@@ -519,8 +519,8 @@ public interface ApiInterface {
     public Call<ShareOrDownloadMyShelfResModel> downloadMyShelfs(@Field("uid") String userId, @Field("type_ref") String type_ref);
 
     @FormUrlEncoded
-    @POST("jrl/check_username_exists")
-    public Call<UserNameExistsResModel> checkUserNameExists(@Field("username") String username);
+    @POST("jrl/check_user_exists")
+    public Call<UserExistsResModel> checkUserExists(@Field("mobile") String mobile);
 
     @FormUrlEncoded
     @POST("jrl/send_otp_user")

@@ -23,8 +23,8 @@ import com.jainelibrary.model.SendOtpResModel;
 import com.jainelibrary.model.UpdateMyShelfNotesModel;
 import com.jainelibrary.model.UploadPDFModel;
 import com.jainelibrary.model.UserDetailsResModel;
+import com.jainelibrary.model.UserExistsResModel;
 import com.jainelibrary.model.UserGuideResModel;
-import com.jainelibrary.model.UserNameExistsResModel;
 import com.jainelibrary.model.YearResModel;
 import com.jainelibrary.model.YearResponseModel;
 import com.jainelibrary.model.YearTypeResModel;
@@ -436,8 +436,8 @@ public class ApiClient {
         getApiClient().downloadMyShelfs(strUserId, type_ref).enqueue(listener);
     }
 
-    public static void checkUserNameExists(String strUserName, Callback<UserNameExistsResModel> listener) {
-        getApiClient().checkUserNameExists(strUserName).enqueue(listener);
+    public static void checkUserExists(String strMobile, Callback<UserExistsResModel> listener) {
+        getApiClient().checkUserExists(strMobile).enqueue(listener);
     }
 
     public static void sendOTP(String strUserId, Callback<ApiResponseModel> listener) {

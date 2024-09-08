@@ -13,11 +13,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.jainelibrary.activity.KeywordHighlightActivity;
+import com.jainelibrary.activity.LoginWithOtpActivity;
 import com.jainelibrary.activity.LoginWithPasswordActivity;
+import com.jainelibrary.activity.OtpActivity;
 import com.jainelibrary.activity.ResetPasswordActivity;
 import com.jainelibrary.manager.ConnectionManager;
 import com.jainelibrary.model.ApiResponseModel;
-import com.jainelibrary.model.UserNameExistsResModel;
+import com.jainelibrary.model.SendOtpResModel;
+import com.jainelibrary.model.UserExistsResModel;
 import com.jainelibrary.retrofit.ApiClient;
 import com.jainelibrary.utils.Utils;
 
@@ -27,8 +30,8 @@ import retrofit2.Callback;
 public class ForgotPasswordActivity extends AppCompatActivity {
 
     Button btnSubmit;
-    EditText edtUserName;
-    String strUserName, strUserId;
+    EditText edtMobile;
+    String strMobileNo, strUserId, strUserName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,31 +47,31 @@ public class ForgotPasswordActivity extends AppCompatActivity {
         btnSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                strUserName = edtUserName.getText().toString();
+                strMobileNo = edtMobile.getText().toString();
                 if(checkValidation()){
-                    callCheckUserNameApi();
+                    callCheckUserMobileApi();
                 }
             }
         });
     }
 
-    private void callCheckUserNameApi() {
+    private void callCheckUserMobileApi() {
         if (!ConnectionManager.checkInternetConnection(ForgotPasswordActivity.this)) {
             Utils.showInfoDialog(ForgotPasswordActivity.this, "Please check internet connection");
             return;
         }
         Utils.showProgressDialog(ForgotPasswordActivity.this, "Please Wait...", false);
-        ApiClient.checkUserNameExists(strUserName, new Callback<UserNameExistsResModel>() {
+        ApiClient.checkUserExists(strMobileNo, new Callback<UserExistsResModel>() {
             @Override
-            public void onResponse(Call<UserNameExistsResModel> call, retrofit2.Response<UserNameExistsResModel> response) {
+            public void onResponse(Call<UserExistsResModel> call, retrofit2.Response<UserExistsResModel> response) {
                 Utils.dismissProgressDialog();
                 if (response.isSuccessful()) {
                     /*Log.e("responseData :", new GsonBuilder().setPrettyPrinting().create().toJson(response));*/
-
                     if (response.body().isStatus()) {
-                       strUserId = response.body().getUser_id();
-                       if(strUserId != null && strUserId.length() > 0){
-                           callSendOTPApi(strUserId);
+                       strUserId = response.body().getUserId();
+                       strUserName = response.body().getUserName();
+                       if(strUserId != null && strUserId.length() > 0 && strUserName != null && strUserName.length() > 0){
+                           callSendOtpApi(strMobileNo);
                        }
                        //Toast.makeText(ForgotPasswordActivity.this, response.body().getMessage(), Toast.LENGTH_SHORT).show();
                     } else {
@@ -78,7 +81,7 @@ public class ForgotPasswordActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Call<UserNameExistsResModel> call, Throwable t) {
+            public void onFailure(Call<UserExistsResModel> call, Throwable t) {
                 String message = t.getMessage();
                 Log.e("error", "onFailure--- " + message);
                 Utils.dismissProgressDialog();
@@ -86,24 +89,27 @@ public class ForgotPasswordActivity extends AppCompatActivity {
         });
     }
 
-    private void callSendOTPApi(String strUserId) {
+    private void callSendOtpApi(String strMobile) {
         if (!ConnectionManager.checkInternetConnection(ForgotPasswordActivity.this)) {
             Utils.showInfoDialog(ForgotPasswordActivity.this, "Please check internet connection");
             return;
         }
         Utils.showProgressDialog(ForgotPasswordActivity.this, "Please Wait...", false);
-        ApiClient.sendOTP(strUserId, new Callback<ApiResponseModel>() {
+        ApiClient.sendOtp(strMobile, new Callback<SendOtpResModel>() {
             @Override
-            public void onResponse(Call<ApiResponseModel> call, retrofit2.Response<ApiResponseModel> response) {
+            public void onResponse(Call<SendOtpResModel> call, retrofit2.Response<SendOtpResModel> response) {
                 Utils.dismissProgressDialog();
                 if (response.isSuccessful()) {
                     /*Log.e("responseData :", new GsonBuilder().setPrettyPrinting().create().toJson(response));*/
 
                     if (response.body().isStatus()) {
-                        //Toast.makeText(ForgotPasswordActivity.this, response.body().getMessage(), Toast.LENGTH_SHORT).show();
-                        Intent intent = new Intent(ForgotPasswordActivity.this, ResetPasswordActivity.class);
-                        intent.putExtra("UserId", strUserId);
-                        startActivity(intent);
+                        Intent i = new Intent(ForgotPasswordActivity.this, OtpActivity.class);
+                        i.putExtra("isLoginId", Utils.Is_Forgot_Password_Id);
+                        i.putExtra("mobile", strMobile);
+                        i.putExtra("UserId", strUserId);
+                        i.putExtra("UserName", strUserName);
+                        startActivity(i);
+                        finish();
                     } else {
                         Utils.showInfoDialog(ForgotPasswordActivity.this, response.body().getMessage());
                     }
@@ -111,7 +117,7 @@ public class ForgotPasswordActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Call<ApiResponseModel> call, Throwable t) {
+            public void onFailure(Call<SendOtpResModel> call, Throwable t) {
                 String message = t.getMessage();
                 Log.e("error", "onFailure--- " + message);
                 Utils.dismissProgressDialog();
@@ -120,8 +126,8 @@ public class ForgotPasswordActivity extends AppCompatActivity {
     }
 
     private boolean checkValidation() {
-        if(strUserName == null || strUserName.length() == 0){
-            edtUserName.setError("Please enter username");
+        if(strMobileNo == null || strMobileNo.length() == 0){
+            edtMobile.setError("Please enter mobile no.");
             return false;
         }
 
@@ -130,7 +136,7 @@ public class ForgotPasswordActivity extends AppCompatActivity {
 
     private void initComponent() {
         btnSubmit = findViewById(R.id.btnSubmit);
-        edtUserName = findViewById(R.id.edtUserName);
+        edtMobile = findViewById(R.id.edtMobile);
     }
 
     private void setHeader() {

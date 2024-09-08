@@ -140,6 +140,7 @@ public class Utils {
     public static String Is_Pdf_Store_Login_Id = "8";
     public static String Is_Notes_Login_Id = "9";
     public static String Is_Higlight_Id = "10";
+    public static String Is_Forgot_Password_Id = "11";
     private static ProgressDialog pDialog;
 
     public static boolean checkAndRequestPermissions(Context context) {

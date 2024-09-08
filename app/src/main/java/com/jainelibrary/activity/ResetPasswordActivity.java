@@ -16,8 +16,8 @@ import com.jainelibrary.ForgotPasswordActivity;
 import com.jainelibrary.R;
 import com.jainelibrary.manager.ConnectionManager;
 import com.jainelibrary.model.ApiResponseModel;
-import com.jainelibrary.model.UserNameExistsResModel;
 import com.jainelibrary.retrofit.ApiClient;
+import com.jainelibrary.utils.SharedPrefManager;
 import com.jainelibrary.utils.Utils;
 
 import retrofit2.Call;
@@ -26,8 +26,8 @@ import retrofit2.Callback;
 public class ResetPasswordActivity extends AppCompatActivity {
 
     Button btnReset;
-    EditText edtOTP, edtPWD, edtCPWD;
-    String strOTP, strPWD, strCPWD, strUserId;
+    EditText edtUserName, edtPWD, edtCPWD;
+    String strPWD, strCPWD, strOTP, strUserId, strUserName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +36,9 @@ public class ResetPasswordActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         strUserId = intent.getStringExtra("UserId");
+        strUserName = intent.getStringExtra("UserName");
+
+        strOTP = SharedPrefManager.getInstance(ResetPasswordActivity.this).getStringPref(SharedPrefManager.IS_CODE);
 
         initComponent();
         setHeader();
@@ -43,10 +46,10 @@ public class ResetPasswordActivity extends AppCompatActivity {
     }
 
     private void declaration() {
+        edtUserName.setText(strUserName);
         btnReset.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                strOTP = edtOTP.getText().toString();
                 strPWD = edtPWD.getText().toString();
                 strCPWD = edtCPWD.getText().toString();
                 if(checkValidation()){
@@ -90,18 +93,13 @@ public class ResetPasswordActivity extends AppCompatActivity {
     }
 
     private boolean checkValidation() {
-        if(strOTP == null || strOTP.length() == 0){
-            edtOTP.setError("Please enter otp");
-            return false;
-        }
-
         if(strPWD == null || strPWD.length() == 0){
-            edtOTP.setError("Please enter password");
+            edtPWD.setError("Please enter password");
             return false;
         }
 
         if(strCPWD == null || strCPWD.length() == 0){
-            edtOTP.setError("Please enter confirm password");
+            edtCPWD.setError("Please enter confirm password");
             return false;
         }
 
@@ -115,7 +113,7 @@ public class ResetPasswordActivity extends AppCompatActivity {
 
     private void initComponent() {
         btnReset = findViewById(R.id.btnReset);
-        edtOTP = findViewById(R.id.edtOTP);
+        edtUserName = findViewById(R.id.edtUserName);
         edtPWD = findViewById(R.id.edtPWD);
         edtCPWD = findViewById(R.id.edtCPWD);
     }
@@ -134,4 +132,10 @@ public class ResetPasswordActivity extends AppCompatActivity {
         tvPageName.setText("Reset Password");
     }
 
+    @Override
+    public void onBackPressed() {
+        Intent i = new Intent(ResetPasswordActivity.this, MainActivity.class);
+        startActivity(i);
+        finish();
+    }
 }
