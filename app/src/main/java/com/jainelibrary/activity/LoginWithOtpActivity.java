@@ -20,6 +20,7 @@ import com.jainelibrary.ForgotPasswordActivity;
 import com.jainelibrary.R;
 import com.jainelibrary.manager.ConnectionManager;
 import com.jainelibrary.model.SendOtpResModel;
+import com.jainelibrary.model.UserExistsResModel;
 import com.jainelibrary.retrofit.ApiClient;
 import com.jainelibrary.utils.SharedPrefManager;
 import com.jainelibrary.utils.Utils;
@@ -84,7 +85,7 @@ public class LoginWithOtpActivity extends AppCompatActivity {
             public void onClick(View view) {
                 strMobile = edtMobile.getText().toString();
                 if (strMobile != null && strMobile.length() == 10) {
-                    callSendOtpApi(strMobile);
+                    callCheckUserMobileApi(strMobile);
                 } else {
                     Utils.showInfoDialog(LoginWithOtpActivity.this, "Please enter 10 digit number");
                     return;
@@ -105,6 +106,39 @@ public class LoginWithOtpActivity extends AppCompatActivity {
         });
         TextView tvPageName = headerView.findViewById(R.id.tvPage);
         tvPageName.setText("Login With Otp");
+    }
+
+    private void callCheckUserMobileApi(String strMobile) {
+        if (!ConnectionManager.checkInternetConnection(LoginWithOtpActivity.this)) {
+            Utils.showInfoDialog(LoginWithOtpActivity.this, "Please check internet connection");
+            return;
+        }
+        Utils.showProgressDialog(LoginWithOtpActivity.this, "Please Wait...", false);
+        ApiClient.checkUserExists(strMobile, new Callback<UserExistsResModel>() {
+            @Override
+            public void onResponse(Call<UserExistsResModel> call, retrofit2.Response<UserExistsResModel> response) {
+                Utils.dismissProgressDialog();
+                if (response.isSuccessful()) {
+                    /*Log.e("responseData :", new GsonBuilder().setPrettyPrinting().create().toJson(response));*/
+                    if (response.body().isStatus()) {
+                        String strUserId = response.body().getUserId();
+                        if(strUserId != null && strUserId.length() > 0){
+                            callSendOtpApi(strMobile);
+                        }
+                        //Toast.makeText(ForgotPasswordActivity.this, response.body().getMessage(), Toast.LENGTH_SHORT).show();
+                    } else {
+                        Utils.showInfoDialog(LoginWithOtpActivity.this, response.body().getMessage());
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<UserExistsResModel> call, Throwable t) {
+                String message = t.getMessage();
+                Log.e("error", "onFailure--- " + message);
+                Utils.dismissProgressDialog();
+            }
+        });
     }
 
     private void callSendOtpApi(String strMobile) {
