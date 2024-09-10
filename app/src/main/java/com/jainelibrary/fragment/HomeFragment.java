@@ -292,16 +292,26 @@ public class HomeFragment extends Fragment {
         cvMyReference.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent i = new Intent(getActivity(), MyReferenceActivity.class);
-                startActivity(i);
+                boolean isLogin = SharedPrefManager.getInstance(getActivity()).getBooleanPreference(SharedPrefManager.IS_LOGIN);
+                if (isLogin) {
+                    Intent i = new Intent(getActivity(), MyReferenceActivity.class);
+                    startActivity(i);
+                } else {
+                    askLogin();
+                }
             }
         });
 
         cvHold.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent i = new Intent(getActivity(), HoldAndSearchActivity.class);
-                startActivity(i);
+                boolean isLogin = SharedPrefManager.getInstance(getActivity()).getBooleanPreference(SharedPrefManager.IS_LOGIN);
+                if (isLogin) {
+                    Intent i = new Intent(getActivity(), HoldAndSearchActivity.class);
+                    startActivity(i);
+                } else {
+                    askLogin();
+                }
             }
         });
 

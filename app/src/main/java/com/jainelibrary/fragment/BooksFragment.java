@@ -57,6 +57,7 @@ import com.jainelibrary.model.PdfStoreListResModel;
 import com.jainelibrary.model.UserDetailsResModel;
 import com.jainelibrary.retrofit.ApiClient;
 import com.jainelibrary.retrofitResModel.BookListResModel;
+import com.jainelibrary.retrofitResModel.ShareOrDownloadMyShelfResModel;
 import com.jainelibrary.utils.SharedPrefManager;
 import com.jainelibrary.utils.StorageManager;
 import com.jainelibrary.utils.Utils;
@@ -417,7 +418,8 @@ public class BooksFragment extends Fragment implements
                         if (strOptionPdfUrl != null && strOptionPdfUrl.length() > 0) {
                             String bookImage = notesDetailList.get(position).getBook_image();
                             String shareText = strBookNames + "shared with you by " + strUsername;
-                            share(shareText, strBookNames + "\n" +strOptionPdfUrl, bookImage);
+//                            share(shareText, strBookNames + "\n" +strOptionPdfUrl, bookImage);
+                            callShareMyShelfsApi(shareText, strBookNames + "\n" +strOptionPdfUrl, bookImage);
                         } else {
                             if (isSelectedButNotPdf) {
                                 Utils.showInfoDialog(getActivity(), "This reference does not have pdf");
@@ -428,7 +430,7 @@ public class BooksFragment extends Fragment implements
                         return true;
                     case R.id.download:
                         if (strOptionPdfUrl != null && strOptionPdfUrl.length() > 0) {
-                            downloadFile(strOptionPdfUrl, strBookNames);
+                            callDownloadMyShelfsApi(strOptionPdfUrl, strBookNames);
                         } else {
                             if (isSelectedButNotPdf) {
                                 Utils.showInfoDialog(getActivity(), "This reference does not have pdf");
@@ -490,24 +492,88 @@ public class BooksFragment extends Fragment implements
         });
     }
 
-
-    public void downloadFile(String strUrl, String strBookName) {
+    private void callDownloadMyShelfsApi(String strUrl, String strBookName) {
+        if (!ConnectionManager.checkInternetConnection(getActivity())) {
+            Utils.showInfoDialog(getActivity(), "Please check internet connection");
+            return;
+        }
 
         if (strUrl == null || strUrl.contains(".jpg")) {
             Utils.showInfoDialog(getActivity(), "This reference does not have pdf");
             return;
         }
-        Utils.downloadPdf(strBookName, strUrl, getActivity());
+
+        strTypeRef = Utils.REF_TYPE_BOOK_PAGE;
+        Utils.showProgressDialog(getActivity(), "Please Wait...", false);
+
+        ApiClient.downloadMyShelfs(strUId, strTypeRef, new Callback<ShareOrDownloadMyShelfResModel>() {
+            @Override
+            public void onResponse(Call<ShareOrDownloadMyShelfResModel> call, retrofit2.Response<ShareOrDownloadMyShelfResModel> response) {
+                if (response.isSuccessful()) {
+                    Utils.dismissProgressDialog();
+
+                    if (response.body().isStatus()) {
+                        Utils.downloadPdf(strBookName, strUrl, getActivity());
+                    }else{
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ShareOrDownloadMyShelfResModel> call, Throwable throwable) {
+                Utils.dismissProgressDialog();
+                Log.e("onFailure :", "Move All Api : "+throwable.getMessage());
+            }
+        });
     }
 
-    public void share(String shareData, String strMessage, String imageUrl) {
-//        Intent sharingIntent = new Intent(Intent.ACTION_SEND);
-//        sharingIntent.setType("text/plain");
-//        sharingIntent.putExtra(Intent.EXTRA_SUBJECT, shareData);
-//        sharingIntent.putExtra(Intent.EXTRA_TEXT, strMessage);
-//        startActivity(Intent.createChooser(sharingIntent, shareData));
-        Utils.shareContentWithImage(getActivity(), shareData, strMessage, imageUrl);
+//    public void downloadFile(String strUrl, String strBookName) {
+//
+//        if (strUrl == null || strUrl.contains(".jpg")) {
+//            Utils.showInfoDialog(getActivity(), "This reference does not have pdf");
+//            return;
+//        }
+//        Utils.downloadPdf(strBookName, strUrl, getActivity());
+//    }
+
+    private void callShareMyShelfsApi(String shareData, String strMessage, String imageUrl) {
+        if (!ConnectionManager.checkInternetConnection(getActivity())) {
+            Utils.showInfoDialog(getActivity(), "Please check internet connection");
+            return;
+        }
+
+        strTypeRef = Utils.REF_TYPE_BOOK_PAGE;
+        Utils.showProgressDialog(getActivity(), "Please Wait...", false);
+
+        ApiClient.shareMyShelfs(strUId, strTypeRef, new Callback<ShareOrDownloadMyShelfResModel>() {
+            @Override
+            public void onResponse(Call<ShareOrDownloadMyShelfResModel> call, retrofit2.Response<ShareOrDownloadMyShelfResModel> response) {
+                if (response.isSuccessful()) {
+                    Utils.dismissProgressDialog();
+
+                    if (response.body().isStatus()) {
+                        Utils.shareContentWithImage(getActivity(), shareData, strMessage, imageUrl);
+                    }else{
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ShareOrDownloadMyShelfResModel> call, Throwable throwable) {
+                Utils.dismissProgressDialog();
+                Log.e("onFailure :", "Move All Api : "+throwable.getMessage());
+            }
+        });
     }
+
+//    public void share(String shareData, String strMessage, String imageUrl) {
+////        Intent sharingIntent = new Intent(Intent.ACTION_SEND);
+////        sharingIntent.setType("text/plain");
+////        sharingIntent.putExtra(Intent.EXTRA_SUBJECT, shareData);
+////        sharingIntent.putExtra(Intent.EXTRA_TEXT, strMessage);
+////        startActivity(Intent.createChooser(sharingIntent, shareData));
+//        Utils.shareContentWithImage(getActivity(), shareData, strMessage, imageUrl);
+//    }
 
     private void setMyShelfList(ArrayList<MyShelfResModel.MyShelfModel> myShelfList) {
         if (myShelfList == null || myShelfList.size() == 0) {

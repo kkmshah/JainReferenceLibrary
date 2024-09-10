@@ -675,7 +675,7 @@ public class Utils {
                      /*Log.e("responseData :", new GsonBuilder().setPrettyPrinting().create().toJson(response));*/
 
                     if (response.body().isStatus()) {
-                        Utils.showInfoDialog((Activity) mContext, "Logout Successfully");
+//                        Utils.showInfoDialog((Activity) mContext, "Logout Successfully");
                         SharedPrefManager.getInstance(mContext).logout();
                         Intent is = new Intent(mContext, MainActivity.class);
                         is.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);

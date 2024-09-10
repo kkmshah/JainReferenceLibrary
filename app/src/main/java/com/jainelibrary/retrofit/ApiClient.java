@@ -387,8 +387,8 @@ public class ApiClient {
         getApiClient().getUserGuide(strType).enqueue(listener);
     }
 
-    public static void addAllMyShelf(String strUid, String strBookId, String strDirection, Callback<AddAllMyShelfResModel> listener) {
-        getApiClient().addAllMyShelf(strUid, strBookId, strDirection).enqueue(listener);
+    public static void addAllMyShelf(String strUid, String strBookId, String previous, String next, Callback<AddAllMyShelfResModel> listener) {
+        getApiClient().addAllMyShelf(strUid, strBookId, previous, next).enqueue(listener);
     }
 
     public static void getYearList(String strYear, Callback<BookListResModel> listener) {

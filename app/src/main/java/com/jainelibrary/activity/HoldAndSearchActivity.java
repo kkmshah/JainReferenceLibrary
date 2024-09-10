@@ -12,6 +12,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
@@ -641,9 +642,9 @@ public class HoldAndSearchActivity extends AppCompatActivity implements HoldAndS
         Button btnCancel = dialogView.findViewById(R.id.btnCancel);
         Button btnSave = dialogView.findViewById(R.id.btnSave);
 
-        RadioButton rbPreviousPage = dialogView.findViewById(R.id.rbPreviousPage);
-        RadioButton rbReferencePage = dialogView.findViewById(R.id.rbReferencePage);
-        RadioButton rbNextPage = dialogView.findViewById(R.id.rbNextPage);
+        CheckBox cbPreviousPage = dialogView.findViewById(R.id.cbPreviousPage);
+        CheckBox cbReferencePage = dialogView.findViewById(R.id.cbReferencePage);
+        CheckBox cbNextPage = dialogView.findViewById(R.id.cbNextPage);
 
         btnCancel.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -655,23 +656,17 @@ public class HoldAndSearchActivity extends AppCompatActivity implements HoldAndS
         btnSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                boolean previous = cbPreviousPage.isChecked();
+                boolean next = cbNextPage.isChecked();
 
-                int direction = 0;
-                if (rbNextPage.isChecked()) {
-                    direction = 1;
-                } else if (rbPreviousPage.isChecked()) {
-                    direction = -1;
-                }
-
-                Log.e("Direction---", "" + direction);
                 dialogView.dismiss();
 
-                callAllAddMyShelfApi(strUid, strBookId, "" + direction);
+                callAllAddMyShelfApi(strUid, strBookId, previous, next);
             }
         });
     }
 
-    private void callAllAddMyShelfApi(String strUid, String strBookId, String strDirection) {
+    private void callAllAddMyShelfApi(String strUid, String strBookId, boolean previous, boolean next) {
 
         if (!ConnectionManager.checkInternetConnection(HoldAndSearchActivity.this)) {
             Utils.showInfoDialog(HoldAndSearchActivity.this, "Please check internet connection");
@@ -679,7 +674,7 @@ public class HoldAndSearchActivity extends AppCompatActivity implements HoldAndS
         }
 
         Utils.showProgressDialog(HoldAndSearchActivity.this, "Please Wait...", false);
-        ApiClient.addAllMyShelf(strUid, strBookId, strDirection, new Callback<AddAllMyShelfResModel>() {
+        ApiClient.addAllMyShelf(strUid, strBookId, Boolean.toString(previous), Boolean.toString(next), new Callback<AddAllMyShelfResModel>() {
             @Override
             public void onResponse(Call<AddAllMyShelfResModel> call, retrofit2.Response<AddAllMyShelfResModel> response) {
                 Utils.dismissProgressDialog();

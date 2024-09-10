@@ -2,7 +2,9 @@ package com.jainelibrary.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Dialog;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -19,6 +21,7 @@ import com.jainelibrary.model.ApiResponseModel;
 import com.jainelibrary.retrofit.ApiClient;
 import com.jainelibrary.utils.SharedPrefManager;
 import com.jainelibrary.utils.Utils;
+import com.wc.widget.dialog.IosDialog;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -74,9 +77,22 @@ public class ResetPasswordActivity extends AppCompatActivity {
 
                     if (response.body().isStatus()) {
 
-                        Utils.showInfoDialog(ResetPasswordActivity.this, response.body().getMessage());
-                        Intent intent = new Intent(ResetPasswordActivity.this, LoginWithPasswordActivity.class);
-                        startActivity(intent);
+                        Dialog dialog = new IosDialog.Builder(ResetPasswordActivity.this)
+                                .setMessage(response.body().getMessage())
+                                .setMessageColor(Color.parseColor("#1565C0"))
+                                .setMessageSize(18)
+                                .setPositiveButtonColor(Color.parseColor("#981010"))
+                                .setPositiveButtonSize(18)
+                                .setPositiveButton("OK", new IosDialog.OnClickListener() {
+                                    @Override
+                                    public void onClick(IosDialog dialog, View v) {
+                                        dialog.dismiss();
+
+                                        Intent intent = new Intent(ResetPasswordActivity.this, LoginWithPasswordActivity.class);
+                                        startActivity(intent);
+                                    }
+                                }).build();
+                        dialog.show();
                     } else {
                         Utils.showInfoDialog(ResetPasswordActivity.this, response.body().getMessage());
                     }

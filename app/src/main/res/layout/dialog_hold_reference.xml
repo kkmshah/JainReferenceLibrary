@@ -52,56 +52,76 @@
                 android:padding="5dp"
                 android:weightSum="1">
 
-                <RadioGroup
-                    android:id="@+id/rgHoldReference"
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
 
-                    <RadioButton
-                        android:id="@+id/rbPreviousPage"
-                        android:layout_width="match_parent"
-                        android:layout_height="30dp"
-                        android:layout_gravity="center_horizontal"
+                    <CheckBox
+                        android:id="@+id/cbPreviousPage"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:buttonTint="@color/colorPrimary"
-                        android:checked="false"
+                        android:gravity="center" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="top"
                         android:text="Previous Page"
                         android:textColor="@color/colorPrimary"
                         android:textSize="16sp" />
 
-                    <RadioGroup
-                        android:id="@+id/rgReference"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content">
+                </LinearLayout>
 
-                        <RadioButton
-                            android:id="@+id/rbReferencePage"
-                            android:layout_width="match_parent"
-                            android:layout_height="30dp"
-                            android:layout_marginTop="10dp"
-                            android:layout_gravity="center_horizontal"
-                            android:buttonTint="@color/colorPrimary"
-                            android:checked="true"
-                            android:text="Reference Page"
-                            android:textColor="@color/colorPrimary"
-                            android:textSize="16sp"
-                            android:clickable="false"
-                            android:enabled="false"/>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
 
-                    </RadioGroup>
-
-                    <RadioButton
-                        android:id="@+id/rbNextPage"
-                        android:layout_width="match_parent"
-                        android:layout_height="30dp"
-                        android:layout_marginTop="10dp"
-                        android:layout_gravity="center_horizontal"
+                    <CheckBox
+                        android:id="@+id/cbReferencePage"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:buttonTint="@color/colorPrimary"
-                        android:checked="false"
+                        android:gravity="center"
+                        android:checked="true"
+                        android:clickable="false"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="top"
+                        android:text="Reference Page"
+                        android:textColor="@color/colorPrimary"
+                        android:textSize="16sp" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <CheckBox
+                        android:id="@+id/cbNextPage"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:buttonTint="@color/colorPrimary"
+                        android:gravity="center" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="top"
                         android:text="Next Page"
                         android:textColor="@color/colorPrimary"
                         android:textSize="16sp" />
 
-                </RadioGroup>
+                </LinearLayout>
 
             </LinearLayout>
 
