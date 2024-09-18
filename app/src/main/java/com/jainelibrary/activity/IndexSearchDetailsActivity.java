@@ -389,6 +389,7 @@ public class IndexSearchDetailsActivity extends AppCompatActivity
 
     private void callCreateBookIndexPdf(String strIndexId, String strUId, String strEdtRenamefile, String totalKeywordCount, boolean isShare)
     {
+        Utils.showProgressDialog(IndexSearchDetailsActivity.this, "Please Wait...", false);
         Log.e("responseData Req", strIndexId);
         ApiClient.createBookIndexPdf(strIndexId, new Callback<CreatePdfFileUrlResModel>() {
             @Override

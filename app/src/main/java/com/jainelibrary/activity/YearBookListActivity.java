@@ -227,6 +227,7 @@ public class YearBookListActivity extends AppCompatActivity implements YearBookL
 
     private void callCreateYearBookPdf(String strYearTypeId, String strYearValue, String strUId, String strEdtRenamefile, String totalKeywordCount, boolean isShare)
     {
+        Utils.showProgressDialog(YearBookListActivity.this, "Please Wait...", false);
         Log.e("responseData Req", strYearTypeId+ "==" + strYearValue + "==" +strBookIds);
         ApiClient.createYearBookPdf( strYearTypeId, strYearValue, strBookIds, new Callback<CreatePdfFileUrlResModel>() {
             @Override

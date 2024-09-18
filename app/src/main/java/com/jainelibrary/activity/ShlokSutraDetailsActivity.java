@@ -383,6 +383,7 @@ public class ShlokSutraDetailsActivity extends AppCompatActivity implements Shlo
 
     private void callCreateShlokGranthDetailsPdf(String strGSId,  String strUId, String strEdtRenamefile, String totalKeywordCount, boolean isShare)
     {
+        Utils.showProgressDialog(ShlokSutraDetailsActivity.this, "Please Wait...", false);
         Log.e("responseData Req", strGSId + "");
         ApiClient.createShlokGranthDetailsPdf( strGSId,  new Callback<CreatePdfFileUrlResModel>() {
             @Override

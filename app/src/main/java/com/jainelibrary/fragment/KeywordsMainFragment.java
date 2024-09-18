@@ -1454,6 +1454,7 @@ public class KeywordsMainFragment extends Fragment implements IOnBackPressed, Ke
     
     private void callCreatePdfApi(String strEdtRenamefile, String strFileType, String totalKeywordCount, boolean isShare)
     {
+        Utils.showProgressDialog(getActivity(), "Please Wait...", false);
         ApiClient.createKeywordsPdf( strKeyword, strUId, strBookIds, "0", strFileType, new Callback<CreatePdfFileUrlResModel>() {
             @Override
             public void onResponse(Call<CreatePdfFileUrlResModel> call, retrofit2.Response<CreatePdfFileUrlResModel> response) {
