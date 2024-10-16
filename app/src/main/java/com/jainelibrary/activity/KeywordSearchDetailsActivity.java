@@ -492,7 +492,7 @@ public class KeywordSearchDetailsActivity extends AppCompatActivity implements K
                 // String strPdfFile = PdfCreator.createTextPdf(mediaStorageKeyWordDir.getAbsolutePath(), strEdtRenamefile, mReferenceStringList);
 
                 if ( Integer.valueOf(strTotalCount) > 0) {
-                    saveKeywordDetailsFile( strKeyId, strBookIds, strUID, strEdtRenamefile, strTotalCount, true);
+                    callCreateKeyboardBookDetailsPdf(strKeyId, strBookIds, strUID, strEdtRenamefile, strTotalCount, true);
                 }
 
 //                if (strPdfFile != null && strPdfFile.length() > 0) {
@@ -831,29 +831,58 @@ public class KeywordSearchDetailsActivity extends AppCompatActivity implements K
                 if(!response.body().isStatus()) {
                     Utils.dismissProgressDialog();
 
-                    Dialog dialog = new IosDialog.Builder(KeywordSearchDetailsActivity.this)
-                            .setMessage(response.body().getMessage())
-                            .setMessageColor(Color.parseColor("#1565C0"))
-                            .setMessageSize(18)
-                            .setNegativeButtonColor(Color.parseColor("#981010"))
-                            .setNegativeButtonSize(18)
-                            .setNegativeButton("OK", new IosDialog.OnClickListener() {
-                                @Override
-                                public void onClick(IosDialog dialog, View v) {
-                                    dialog.dismiss();
-                                }
-                            })
-                            .setPositiveButtonColor(Color.parseColor("#981010"))
-                            .setPositiveButtonSize(18)
-                            .setPositiveButton("Save Again", new IosDialog.OnClickListener() {
-                                @Override
-                                public void onClick(IosDialog dialog, View v) {
-                                    dialog.dismiss();
-                                    callCreateKeyboardBookDetailsPdf(strKeyId, strBookIds, strUId, strEdtRenamefile, totalKeywordCount, isShare);
-                                }
-                            }).build();
+                    AlertDialog.Builder builder = new AlertDialog.Builder(KeywordSearchDetailsActivity.this);
+                    builder.setMessage(response.body().getMessage());
 
+                    builder.setPositiveButton("Share", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                            callCreateKeyboardBookDetailsPdf(strKeyId, strBookIds, strUId, strEdtRenamefile, totalKeywordCount, true);
+                        }
+                    });
+
+                    builder.setNegativeButton("Save Again", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                            callCreateKeyboardBookDetailsPdf(strKeyId, strBookIds, strUId, strEdtRenamefile, totalKeywordCount, isShare);
+                        }
+                    });
+
+                    builder.setNeutralButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+
+                    AlertDialog dialog = builder.create();
                     dialog.show();
+
+//                    Dialog dialog = new IosDialog.Builder(KeywordSearchDetailsActivity.this)
+//                            .setMessage(response.body().getMessage())
+//                            .setMessageColor(Color.parseColor("#1565C0"))
+//                            .setMessageSize(18)
+//                            .setNegativeButtonColor(Color.parseColor("#981010"))
+//                            .setNegativeButtonSize(18)
+//                            .setNegativeButton("OK", new IosDialog.OnClickListener() {
+//                                @Override
+//                                public void onClick(IosDialog dialog, View v) {
+//                                    dialog.dismiss();
+//                                }
+//                            })
+//                            .setPositiveButtonColor(Color.parseColor("#981010"))
+//                            .setPositiveButtonSize(18)
+//                            .setPositiveButton("Save Again", new IosDialog.OnClickListener() {
+//                                @Override
+//                                public void onClick(IosDialog dialog, View v) {
+//                                    dialog.dismiss();
+//                                    callCreateKeyboardBookDetailsPdf(strKeyId, strBookIds, strUId, strEdtRenamefile, totalKeywordCount, isShare);
+//                                }
+//                            }).build();
+//
+//                    dialog.show();
                 }
                 else
                 {
@@ -886,7 +915,14 @@ public class KeywordSearchDetailsActivity extends AppCompatActivity implements K
                     if (response.body().isStatus()) {
                         String strTmpPdfUrl = response.body().getPdf_url();
                         if (strTmpPdfUrl != null && strTmpPdfUrl.length() > 0) {
-                            callAddMyShelfApi(strTmpPdfUrl, strUId, strEdtRenamefile, totalKeywordCount, isShare);
+                            String strPdfLink = response.body().getPdf_url();
+                            String strPdfImage = response.body().getPdf_image();
+                            if (isShare) {
+                                callShareMyShelfsApi(strUId, shareText, strPdfLink, strPdfImage);
+                            }
+                            else {
+                                callAddMyShelfApi(strTmpPdfUrl, strUId, strEdtRenamefile, totalKeywordCount, isShare);
+                            }
                         } else {
                             Utils.showInfoDialog(KeywordSearchDetailsActivity.this, "KeywordData not saved");
                         }
@@ -923,14 +959,7 @@ public class KeywordSearchDetailsActivity extends AppCompatActivity implements K
                     /*Log.e("responseData :", new GsonBuilder().setPrettyPrinting().create().toJson(response));*/
                     Utils.dismissProgressDialog();
                     if (response.body().isStatus()) {
-                        String strPdfLink = response.body().getPdf_url();
-                        String strPdfImage = response.body().getPdf_image();
-                        if (isShare) {
-                            callShareMyShelfsApi(strUId, shareText, strPdfLink, strPdfImage);
-                        }
-                        else {
-                            Utils.showInfoDialog(KeywordSearchDetailsActivity.this, "Keywords Added In My Reference.");
-                        }
+                        Utils.showInfoDialog(KeywordSearchDetailsActivity.this, "Keywords Added In My Reference.");
                     } else {
                         Utils.showInfoDialog(KeywordSearchDetailsActivity.this, "" + response.body().getMessage());
                     }

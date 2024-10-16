@@ -1,6 +1,8 @@
 package com.jainelibrary.activity;
 
+import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.inputmethodservice.Keyboard;
@@ -250,7 +252,7 @@ public class ShlokSutraDetailsActivity extends AppCompatActivity implements Shlo
                 String strEdtRenamefile = edtRenameFile.getText().toString();
                 //String strPdfFile = PdfCreator.createTextPdf(mediaStorageKeyWordRefDir.getAbsolutePath(), strEdtRenamefile, mReferenceStringList);
                 if ( mSlokSutraDetailsList.size() > 0) {
-                    saveDetailsFile(strGSID, strUID, strEdtRenamefile, strTotalCount, true);
+                    callCreateShlokGranthDetailsPdf(strGSID, strUID, strEdtRenamefile, strTotalCount, true);
                 }
             }
         });
@@ -342,29 +344,58 @@ public class ShlokSutraDetailsActivity extends AppCompatActivity implements Shlo
                 if(!response.body().isStatus()) {
                     Utils.dismissProgressDialog();
 
-                    Dialog dialog = new IosDialog.Builder(ShlokSutraDetailsActivity.this)
-                            .setMessage(response.body().getMessage())
-                            .setMessageColor(Color.parseColor("#1565C0"))
-                            .setMessageSize(18)
-                            .setNegativeButtonColor(Color.parseColor("#981010"))
-                            .setNegativeButtonSize(18)
-                            .setNegativeButton("OK", new IosDialog.OnClickListener() {
-                                @Override
-                                public void onClick(IosDialog dialog, View v) {
-                                    dialog.dismiss();
-                                }
-                            })
-                            .setPositiveButtonColor(Color.parseColor("#981010"))
-                            .setPositiveButtonSize(18)
-                            .setPositiveButton("Save Again", new IosDialog.OnClickListener() {
-                                @Override
-                                public void onClick(IosDialog dialog, View v) {
-                                    dialog.dismiss();
-                                    callCreateShlokGranthDetailsPdf(strGSId, strUId, strEdtRenamefile, totalKeywordCount, isShare);
-                                }
-                            }).build();
+                    AlertDialog.Builder builder = new AlertDialog.Builder(ShlokSutraDetailsActivity.this);
+                    builder.setMessage(response.body().getMessage());
 
+                    builder.setPositiveButton("Share", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                            callCreateShlokGranthDetailsPdf(strGSId, strUId, strEdtRenamefile, totalKeywordCount, true);
+                        }
+                    });
+
+                    builder.setNegativeButton("Save Again", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                            callCreateShlokGranthDetailsPdf(strGSId, strUId, strEdtRenamefile, totalKeywordCount, isShare);
+                        }
+                    });
+
+                    builder.setNeutralButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+
+                    AlertDialog dialog = builder.create();
                     dialog.show();
+
+//                    Dialog dialog = new IosDialog.Builder(ShlokSutraDetailsActivity.this)
+//                            .setMessage(response.body().getMessage())
+//                            .setMessageColor(Color.parseColor("#1565C0"))
+//                            .setMessageSize(18)
+//                            .setNegativeButtonColor(Color.parseColor("#981010"))
+//                            .setNegativeButtonSize(18)
+//                            .setNegativeButton("OK", new IosDialog.OnClickListener() {
+//                                @Override
+//                                public void onClick(IosDialog dialog, View v) {
+//                                    dialog.dismiss();
+//                                }
+//                            })
+//                            .setPositiveButtonColor(Color.parseColor("#981010"))
+//                            .setPositiveButtonSize(18)
+//                            .setPositiveButton("Save Again", new IosDialog.OnClickListener() {
+//                                @Override
+//                                public void onClick(IosDialog dialog, View v) {
+//                                    dialog.dismiss();
+//                                    callCreateShlokGranthDetailsPdf(strGSId, strUId, strEdtRenamefile, totalKeywordCount, isShare);
+//                                }
+//                            }).build();
+//
+//                    dialog.show();
                 }
                 else
                 {
@@ -395,7 +426,14 @@ public class ShlokSutraDetailsActivity extends AppCompatActivity implements Shlo
                     if (response.body().isStatus()) {
                         String strTmpPdfUrl = response.body().getPdf_url();
                         if (strTmpPdfUrl != null && strTmpPdfUrl.length() > 0) {
-                            callAddMyShelfApi(strTmpPdfUrl, strGSId, strUId, strEdtRenamefile, totalKeywordCount, isShare);
+                            String strPdfLink = response.body().getPdf_url();
+                            String strPdfImage = response.body().getPdf_image();
+                            if (isShare) {
+                                callShareMyShelfsApi(strUserId, shareText, strPdfLink, strPdfImage);
+                            }
+                            else {
+                                callAddMyShelfApi(strTmpPdfUrl, strGSId, strUId, strEdtRenamefile, totalKeywordCount, isShare);
+                            }
                         } else {
                             Utils.showInfoDialog(ShlokSutraDetailsActivity.this, "KeywordData not saved");
                         }
@@ -431,14 +469,7 @@ public class ShlokSutraDetailsActivity extends AppCompatActivity implements Shlo
                     /*Log.e("responseData :", new GsonBuilder().setPrettyPrinting().create().toJson(response));*/
                     Utils.dismissProgressDialog();
                     if (response.body().isStatus()) {
-                        String strPdfLink = response.body().getPdf_url();
-                        String strPdfImage = response.body().getPdf_image();
-                        if (isShare) {
-                            callShareMyShelfsApi(strUserId, shareText, strPdfLink, strPdfImage);
-                        }
-                        else {
-                            Utils.showInfoDialog(ShlokSutraDetailsActivity.this, "Shlok Added In My Reference..");
-                        }
+                        Utils.showInfoDialog(ShlokSutraDetailsActivity.this, "Shlok Added In My Reference..");
                     } else {
                         Utils.showInfoDialog(ShlokSutraDetailsActivity.this, "" + response.body().getMessage());
                     }

@@ -269,7 +269,7 @@ public class IndexSearchDetailsActivity extends AppCompatActivity
                 bottomSheetDialog.cancel();
                 String strEdtRenamefile = edtRenameFile.getText().toString();
                 if(Integer.valueOf(strTotalCount) > 0) {
-                    saveBookIndexFile(strIndexId, strUID, strEdtRenamefile, strTotalCount, true);
+                    callCreateBookIndexPdf(strIndexId, strUID, strEdtRenamefile, strTotalCount, true);
                 }
             }
         });
@@ -348,29 +348,59 @@ public class IndexSearchDetailsActivity extends AppCompatActivity
 
                 if(!response.body().isStatus()) {
                     Utils.dismissProgressDialog();
-                    Dialog dialog = new IosDialog.Builder(IndexSearchDetailsActivity.this)
-                            .setMessage(response.body().getMessage())
-                            .setMessageColor(Color.parseColor("#1565C0"))
-                            .setMessageSize(18)
-                            .setNegativeButtonColor(Color.parseColor("#981010"))
-                            .setNegativeButtonSize(18)
-                            .setNegativeButton("OK", new IosDialog.OnClickListener() {
-                                @Override
-                                public void onClick(IosDialog dialog, View v) {
-                                    dialog.dismiss();
-                                }
-                            })
-                            .setPositiveButtonColor(Color.parseColor("#981010"))
-                            .setPositiveButtonSize(18)
-                            .setPositiveButton("Save Again", new IosDialog.OnClickListener() {
-                                @Override
-                                public void onClick(IosDialog dialog, View v) {
-                                    dialog.dismiss();
-                                    callCreateBookIndexPdf(strIndexId, strUId, strEdtRenamefile, totalKeywordCount, isShare);
-                                }
-                            }).build();
 
+                    AlertDialog.Builder builder = new AlertDialog.Builder(IndexSearchDetailsActivity.this);
+                    builder.setMessage(response.body().getMessage());
+
+                    builder.setPositiveButton("Share", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                            callCreateBookIndexPdf(strIndexId, strUId, strEdtRenamefile, totalKeywordCount, true);
+                        }
+                    });
+
+                    builder.setNegativeButton("Save Again", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                            callCreateBookIndexPdf(strIndexId, strUId, strEdtRenamefile, totalKeywordCount, isShare);
+                        }
+                    });
+
+                    builder.setNeutralButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+
+                    AlertDialog dialog = builder.create();
                     dialog.show();
+
+//                    Dialog dialog = new IosDialog.Builder(IndexSearchDetailsActivity.this)
+//                            .setMessage(response.body().getMessage())
+//                            .setMessageColor(Color.parseColor("#1565C0"))
+//                            .setMessageSize(18)
+//                            .setNegativeButtonColor(Color.parseColor("#981010"))
+//                            .setNegativeButtonSize(18)
+//                            .setNegativeButton("OK", new IosDialog.OnClickListener() {
+//                                @Override
+//                                public void onClick(IosDialog dialog, View v) {
+//                                    dialog.dismiss();
+//                                }
+//                            })
+//                            .setPositiveButtonColor(Color.parseColor("#981010"))
+//                            .setPositiveButtonSize(18)
+//                            .setPositiveButton("Save Again", new IosDialog.OnClickListener() {
+//                                @Override
+//                                public void onClick(IosDialog dialog, View v) {
+//                                    dialog.dismiss();
+//                                    callCreateBookIndexPdf(strIndexId, strUId, strEdtRenamefile, totalKeywordCount, isShare);
+//                                }
+//                            }).build();
+//
+//                    dialog.show();
                 }
                 else
                 {
@@ -401,7 +431,14 @@ public class IndexSearchDetailsActivity extends AppCompatActivity
                     if (response.body().isStatus()) {
                         String strTmpPdfUrl = response.body().getPdf_url();
                         if (strTmpPdfUrl != null && strTmpPdfUrl.length() > 0) {
-                            callAddMyShelfApi(strTmpPdfUrl, strUId, strEdtRenamefile, totalKeywordCount, isShare);
+                            String strPdfLink = response.body().getPdf_url();
+                            String strPdfImage = response.body().getPdf_image();
+                            if (isShare) {
+                                callShareMyShelfsApi(strUId, shareText, strPdfLink, strPdfImage);
+                            }
+                            else {
+                                callAddMyShelfApi(strTmpPdfUrl, strUId, strEdtRenamefile, totalKeywordCount, isShare);
+                            }
                         } else {
                             Utils.showInfoDialog(IndexSearchDetailsActivity.this, "KeywordData not saved");
                         }
@@ -861,14 +898,7 @@ public class IndexSearchDetailsActivity extends AppCompatActivity
                     /*Log.e("responseData :", new GsonBuilder().setPrettyPrinting().create().toJson(response));*/
                     Utils.dismissProgressDialog();
                     if (response.body().isStatus()) {
-                        String strPdfLink = response.body().getPdf_url();
-                        String strPdfImage = response.body().getPdf_image();
-                        if (isShare) {
-                            callShareMyShelfsApi(strUId, shareText, strPdfLink, strPdfImage);
-                        }
-                        else {
-                            Utils.showInfoDialog(IndexSearchDetailsActivity.this, "Index added in My Reference.");
-                        }
+                        Utils.showInfoDialog(IndexSearchDetailsActivity.this, "Index added in My Reference.");
                     } else {
                         Utils.showInfoDialog(IndexSearchDetailsActivity.this, "" + response.body().getMessage());
                     }

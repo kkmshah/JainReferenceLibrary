@@ -1133,7 +1133,7 @@ public class ReferencePageActivity extends AppCompatActivity implements Referenc
 
                     if (strUserID != null && strUserID.length() > 0 && imageUrlList.size() > 0) {
                         Log.e("userid", strUserID);
-                        callMyShelfApi(imageUrlList, strUserID, strEdtRenamefile, false);
+                        callAddMyShelfApi(imageUrlList, strUserID, strEdtRenamefile, false);
                     }
 
                 } else {
@@ -1213,29 +1213,59 @@ public class ReferencePageActivity extends AppCompatActivity implements Referenc
                 if(!response.body().isStatus()) {
                     Utils.dismissProgressDialog();
 
-                    Dialog dialog = new IosDialog.Builder(ReferencePageActivity.this)
-                            .setMessage(response.body().getMessage())
-                            .setMessageColor(Color.parseColor("#1565C0"))
-                            .setMessageSize(18)
-                            .setNegativeButtonColor(Color.parseColor("#981010"))
-                            .setNegativeButtonSize(18)
-                            .setNegativeButton("OK", new IosDialog.OnClickListener() {
-                                @Override
-                                public void onClick(IosDialog dialog, View v) {
-                                    dialog.dismiss();
-                                }
-                            })
-                            .setPositiveButtonColor(Color.parseColor("#981010"))
-                            .setPositiveButtonSize(18)
-                            .setPositiveButton("Save Again", new IosDialog.OnClickListener() {
-                                @Override
-                                public void onClick(IosDialog dialog, View v) {
-                                    dialog.dismiss();
-                                    callAddMyShelfApi(imagesUrl, strUserID, strEdtRenamefile, notesDialog);
-                                }
-                            }).build();
 
+                    AlertDialog.Builder builder = new AlertDialog.Builder(ReferencePageActivity.this);
+                    builder.setMessage(response.body().getMessage());
+
+                    builder.setPositiveButton("Share", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                            callAddMyShelfApi(imagesUrl, strUserID, strEdtRenamefile, false);
+                        }
+                    });
+
+                    builder.setNegativeButton("Save Again", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                            callAddMyShelfApi(imagesUrl, strUserID, strEdtRenamefile, notesDialog);
+                        }
+                    });
+
+                    builder.setNeutralButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+
+                    AlertDialog dialog = builder.create();
                     dialog.show();
+
+//                    Dialog dialog = new IosDialog.Builder(ReferencePageActivity.this)
+//                            .setMessage(response.body().getMessage())
+//                            .setMessageColor(Color.parseColor("#1565C0"))
+//                            .setMessageSize(18)
+//                            .setNegativeButtonColor(Color.parseColor("#981010"))
+//                            .setNegativeButtonSize(18)
+//                            .setNegativeButton("OK", new IosDialog.OnClickListener() {
+//                                @Override
+//                                public void onClick(IosDialog dialog, View v) {
+//                                    dialog.dismiss();
+//                                }
+//                            })
+//                            .setPositiveButtonColor(Color.parseColor("#981010"))
+//                            .setPositiveButtonSize(18)
+//                            .setPositiveButton("Save Again", new IosDialog.OnClickListener() {
+//                                @Override
+//                                public void onClick(IosDialog dialog, View v) {
+//                                    dialog.dismiss();
+//                                    callAddMyShelfApi(imagesUrl, strUserID, strEdtRenamefile, notesDialog);
+//                                }
+//                            }).build();
+//
+//                    dialog.show();
                 }
                 else
                 {

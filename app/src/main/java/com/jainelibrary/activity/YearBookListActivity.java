@@ -6,7 +6,9 @@ import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.inputmethodservice.Keyboard;
@@ -186,29 +188,58 @@ public class YearBookListActivity extends AppCompatActivity implements YearBookL
                 if(!response.body().isStatus()) {
                     Utils.dismissProgressDialog();
 
-                    Dialog dialog = new IosDialog.Builder(YearBookListActivity.this)
-                            .setMessage(response.body().getMessage())
-                            .setMessageColor(Color.parseColor("#1565C0"))
-                            .setMessageSize(18)
-                            .setNegativeButtonColor(Color.parseColor("#981010"))
-                            .setNegativeButtonSize(18)
-                            .setNegativeButton("OK", new IosDialog.OnClickListener() {
-                                @Override
-                                public void onClick(IosDialog dialog, View v) {
-                                    dialog.dismiss();
-                                }
-                            })
-                            .setPositiveButtonColor(Color.parseColor("#981010"))
-                            .setPositiveButtonSize(18)
-                            .setPositiveButton("Save Again", new IosDialog.OnClickListener() {
-                                @Override
-                                public void onClick(IosDialog dialog, View v) {
-                                    dialog.dismiss();
-                                    callCreateYearBookPdf(strYearTypeId, strYearValue, strUId, strEdtRenamefile, totalKeywordCount, isShare);
-                                }
-                            }).build();
+                    AlertDialog.Builder builder = new AlertDialog.Builder(YearBookListActivity.this);
+                    builder.setMessage(response.body().getMessage());
 
+                    builder.setPositiveButton("Share", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                            callCreateYearBookPdf(strYearTypeId, strYearValue, strUId, strEdtRenamefile, totalKeywordCount, true);
+                        }
+                    });
+
+                    builder.setNegativeButton("Save Again", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                            callCreateYearBookPdf(strYearTypeId, strYearValue, strUId, strEdtRenamefile, totalKeywordCount, isShare);
+                        }
+                    });
+
+                    builder.setNeutralButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+
+                    AlertDialog dialog = builder.create();
                     dialog.show();
+
+//                    Dialog dialog = new IosDialog.Builder(YearBookListActivity.this)
+//                            .setMessage(response.body().getMessage())
+//                            .setMessageColor(Color.parseColor("#1565C0"))
+//                            .setMessageSize(18)
+//                            .setNegativeButtonColor(Color.parseColor("#981010"))
+//                            .setNegativeButtonSize(18)
+//                            .setNegativeButton("OK", new IosDialog.OnClickListener() {
+//                                @Override
+//                                public void onClick(IosDialog dialog, View v) {
+//                                    dialog.dismiss();
+//                                }
+//                            })
+//                            .setPositiveButtonColor(Color.parseColor("#981010"))
+//                            .setPositiveButtonSize(18)
+//                            .setPositiveButton("Save Again", new IosDialog.OnClickListener() {
+//                                @Override
+//                                public void onClick(IosDialog dialog, View v) {
+//                                    dialog.dismiss();
+//                                    callCreateYearBookPdf(strYearTypeId, strYearValue, strUId, strEdtRenamefile, totalKeywordCount, isShare);
+//                                }
+//                            }).build();
+//
+//                    dialog.show();
                 }
                 else
                 {
@@ -239,7 +270,14 @@ public class YearBookListActivity extends AppCompatActivity implements YearBookL
                     if (response.body().isStatus()) {
                         String strTmpPdfUrl = response.body().getPdf_url();
                         if (strTmpPdfUrl != null && strTmpPdfUrl.length() > 0) {
-                            callAddMyShelfApi(strTmpPdfUrl, strUId, strEdtRenamefile, totalKeywordCount, isShare);
+                            String strPdfLink = response.body().getPdf_url();
+                            String strPdfImage = response.body().getPdf_image();
+                            if (isShare) {
+                                callShareMyShelfsApi(strUId, shareText, strPdfLink, strPdfImage);
+                            }
+                            else {
+                                callAddMyShelfApi(strTmpPdfUrl, strUId, strEdtRenamefile, totalKeywordCount, isShare);
+                            }
                         } else {
                             Utils.showInfoDialog(YearBookListActivity.this, "KeywordData not saved");
                         }
@@ -276,14 +314,7 @@ public class YearBookListActivity extends AppCompatActivity implements YearBookL
                     /*Log.e("responseData :", new GsonBuilder().setPrettyPrinting().create().toJson(response));*/
                     Utils.dismissProgressDialog();
                     if (response.body().isStatus()) {
-                        String strPdfLink = response.body().getPdf_url();
-                        String strPdfImage = response.body().getPdf_image();
-                        if (isShare) {
-                            callShareMyShelfsApi(strUId, shareText, strPdfLink, strPdfImage);
-                        }
-                        else {
-                            Utils.showInfoDialog(YearBookListActivity.this, "Data added in My Reference.");
-                        }
+                        Utils.showInfoDialog(YearBookListActivity.this, "Data added in My Reference.");
                     } else {
                         Utils.showInfoDialog(YearBookListActivity.this, "" + response.body().getMessage());
                     }
@@ -449,7 +480,7 @@ public class YearBookListActivity extends AppCompatActivity implements YearBookL
                 String strEdtRenamefile = edtRenameFile.getText().toString();
                 // String strPdfFile = PdfCreator.createTextPdf(mediaStorageKeyWordDir.getAbsolutePath(), strEdtRenamefile, mReferenceStringList);
                 if ( Integer.valueOf(strReferenceCount) > 0) {
-                    saveYearBookFile(strYearTypeId, strYearValue, strUID, strEdtRenamefile, strReferenceCount, true);
+                    callCreateYearBookPdf(strYearTypeId, strYearValue, strUID, strEdtRenamefile, strReferenceCount, true);
                 }
 
             }

@@ -1193,7 +1193,8 @@ public class KeywordsMainFragment extends Fragment implements IOnBackPressed, Ke
                 String strEdtRenamefile = edtRenameFile.getText().toString();
                 String strCount  = "" + totalAllResults;               // String strPdfFile = PdfCreator.createFile(mediaStorageKeyWordDir.getAbsolutePath(), strEdtRenamefile, mKeywordStringList);
                 if (totalAllResults > 0) {
-                    saveKeywordFile(strKeyword, strUId, strEdtRenamefile, strCount, strFileType, true);
+//                    saveKeywordFile(strKeyword, strUId, strEdtRenamefile, strCount, strFileType, true);
+                    callCreatePdfApi(strEdtRenamefile, strFileType, strCount, true);
 
                 }
             }
@@ -1415,29 +1416,68 @@ public class KeywordsMainFragment extends Fragment implements IOnBackPressed, Ke
                 if(!response.body().isStatus()) {
                     Utils.dismissProgressDialog();
 //                    Utils.showInfoDialog(getActivity(), "" + response.body().getMessage());
-                    Dialog dialog = new IosDialog.Builder(getActivity())
-                            .setMessage(response.body().getMessage())
-                            .setMessageColor(Color.parseColor("#1565C0"))
-                            .setMessageSize(18)
-                            .setNegativeButtonColor(Color.parseColor("#981010"))
-                            .setNegativeButtonSize(18)
-                            .setNegativeButton("OK", new IosDialog.OnClickListener() {
-                                @Override
-                                public void onClick(IosDialog dialog, View v) {
-                                    dialog.dismiss();
-                                }
-                            })
-                            .setPositiveButtonColor(Color.parseColor("#981010"))
-                            .setPositiveButtonSize(18)
-                            .setPositiveButton("Save Again", new IosDialog.OnClickListener() {
-                                @Override
-                                public void onClick(IosDialog dialog, View v) {
-                                    dialog.dismiss();
-                                    callCreatePdfApi(strEdtRenamefile, strFileType, totalKeywordCount, isShare);
-                                }
-                            }).build();
 
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                    builder.setMessage(response.body().getMessage());
+
+                    builder.setPositiveButton("Share", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                            callCreatePdfApi(strEdtRenamefile, strFileType, totalKeywordCount, true);
+                        }
+                    });
+
+                    builder.setNegativeButton("Save Again", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                            callCreatePdfApi(strEdtRenamefile, strFileType, totalKeywordCount, isShare);
+                        }
+                    });
+
+                    builder.setNeutralButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+
+                    AlertDialog dialog = builder.create();
                     dialog.show();
+
+//                    Dialog dialog = new AlertDialog.Builder(getActivity())
+//                            .setMessage(response.body().getMessage())
+//                            .setMessageColor(Color.parseColor("#1565C0"))
+//                            .setMessageSize(18)
+//                            .setNegativeButtonColor(Color.parseColor("#981010"))
+//                            .setNegativeButtonSize(18)
+//                            .setNegativeButton("Save Again", new IosDialog.OnClickListener() {
+//                                @Override
+//                                public void onClick(IosDialog dialog, View v) {
+//                                    dialog.dismiss();
+//                                    callCreatePdfApi(strEdtRenamefile, strFileType, totalKeywordCount, isShare);
+//                                }
+//                            })
+//                            .setNegativeButtonColor(Color.parseColor("#981010"))
+//                            .setNegativeButtonSize(18)
+//                            .setNe ("OK", new IosDialog.OnClickListener() {
+//                                @Override
+//                                public void onClick(IosDialog dialog, View v) {
+//                                    dialog.dismiss();
+//                                }
+//                            })
+//                            .setPositiveButtonColor(Color.parseColor("#981010"))
+//                            .setPositiveButtonSize(18)
+//                            .setPositiveButton("Share", new IosDialog.OnClickListener() {
+//                                @Override
+//                                public void onClick(IosDialog dialog, View v) {
+//                                    dialog.dismiss();
+//                                    callCreatePdfApi(strEdtRenamefile, strFileType, totalKeywordCount, true);
+//                                }
+//                            }).build();
+//
+//                    dialog.show();
                 }
                 else {
                     callCreatePdfApi(strEdtRenamefile, strFileType, totalKeywordCount, isShare);
@@ -1464,8 +1504,14 @@ public class KeywordsMainFragment extends Fragment implements IOnBackPressed, Ke
                 if (response.isSuccessful()) {
                     if (response.body().isStatus()) {
                         String strTmpPdfUrl = response.body().getPdf_url();
+                        String strPdfImage = response.body().getPdf_image();
                         if (strTmpPdfUrl != null && strTmpPdfUrl.length() > 0) {
-                            callAddMyShelfApi(strTmpPdfUrl, strKeyword, strUId, strEdtRenamefile, totalKeywordCount, strFileType, isShare);
+                            if (isShare) {
+                                callShareMyShelfsApi(strUserId, "", strTmpPdfUrl, strPdfImage);
+                            }
+                            else {
+                                callAddMyShelfApi(strTmpPdfUrl, strKeyword, strUId, strEdtRenamefile, totalKeywordCount, strFileType, isShare);
+                            }
                         } else {
                             Utils.showInfoDialog(getActivity(), "KeywordData not saved");
                         }
