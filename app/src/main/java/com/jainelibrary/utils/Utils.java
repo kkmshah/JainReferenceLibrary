@@ -828,7 +828,7 @@ public class Utils {
     }
 
     public static void downloadPdf(String filename, String url, Activity activity) {
-        String imagePath = "JRL_" + filename + System.currentTimeMillis();
+//        String imagePath = "JRL_" + filename + System.currentTimeMillis();
         Uri Download_Uri = Uri.parse(url);
         DownloadManager.Request request = new DownloadManager.Request(Download_Uri);
         DownloadManager downloadManager = (DownloadManager) activity.getApplicationContext().getSystemService(DOWNLOAD_SERVICE);
@@ -843,7 +843,7 @@ public class Utils {
         request.allowScanningByMediaScanner();
         request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
         //Set the local destination for the downloaded file to a path within the application's external files directory
-        request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, imagePath + ".pdf");
+        request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, filename);
 //        Toast.makeText(context, "File Downloaded successfully.", Toast.LENGTH_LONG).show();
         //Enqueue a new download and same the referenceId
         long downloadReference = downloadManager.enqueue(request);

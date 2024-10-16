@@ -104,7 +104,7 @@ public class FilesFragment extends Fragment implements FilesImageAdapter.OnImage
     private ArrayList<FilesImageModel> helpfulTipsModels = new ArrayList<>();
     private MyReferenceFilesListAdapter mAdapter;
     String strKeyword, strTypeRef, strBookName, strType;
-    private String strNote, strOptionId, strOptionPdfUrl, strBookNames;
+    private String strNote, strOptionId, strPdfFileName, strOptionPdfUrl, strBookNames;
     boolean isSelectedButNotPdf = false;
     boolean isReferenceSelected = false;
     private String strUsername;
@@ -432,7 +432,7 @@ public class FilesFragment extends Fragment implements FilesImageAdapter.OnImage
                         return true;
                     case R.id.download:
                         if (strOptionPdfUrl != null && strOptionPdfUrl.length() > 0) {
-                            callDownloadMyShelfsApi(strUId, strOptionPdfUrl, strBookNames);
+                            callDownloadMyShelfsApi(strUId, strOptionPdfUrl, strPdfFileName);
                             //downloadFile(strOptionPdfUrl, strBookNames);
                         } else {
                             if (isSelectedButNotPdf) {
@@ -534,7 +534,7 @@ public class FilesFragment extends Fragment implements FilesImageAdapter.OnImage
         });
     }
 
-    private void callDownloadMyShelfsApi(String strUserId, String strOptionPdfUrl, String strBookName) {
+    private void callDownloadMyShelfsApi(String strUserId, String strOptionPdfUrl, String strPdfFileName) {
         if (!ConnectionManager.checkInternetConnection(getActivity())) {
             Utils.showInfoDialog(getActivity(), "Please check internet connection");
             return;
@@ -561,7 +561,7 @@ public class FilesFragment extends Fragment implements FilesImageAdapter.OnImage
 
                         //Utils.showProgressDialog(getActivity(), "Please wait...", false);
                         if (strOptionPdfUrl != null && strOptionPdfUrl.length() > 0) {
-                            Utils.downloadPdf(strBookName, strOptionPdfUrl, getActivity());
+                            Utils.downloadPdf(strPdfFileName, strOptionPdfUrl, getActivity());
                         } else {
                             Utils.showInfoDialog(getActivity(), "Pdf not found");
                             Log.e("strPdfLinkShare---", "pdfLink--" + strOptionPdfUrl);
@@ -879,6 +879,7 @@ public class FilesFragment extends Fragment implements FilesImageAdapter.OnImage
     public void onMenuClick(ArrayList<MyShelfResModel.MyShelfModel> notesDetailList, int position, ImageView ivMenu) {
         Log.e("onMenuClick :", "" + new GsonBuilder().setPrettyPrinting().create().toJson(notesDetailList.get(position)));
         String strId = notesDetailList.get(position).getId();
+        String strFileName = notesDetailList.get(position).getPdfFileName();
         String strUrl = notesDetailList.get(position).getUrl();
         String strBookName = notesDetailList.get(position).getBook_name();
         String strKeywords = notesDetailList.get(position).getType_name();
@@ -905,6 +906,11 @@ public class FilesFragment extends Fragment implements FilesImageAdapter.OnImage
         if (strId != null && strId.length() > 0) {
             strOptionId = strId;
         }
+
+        if (strFileName != null && strFileName.length() > 0) {
+            strPdfFileName = strFileName;
+        }
+
         if (strUrl != null && strUrl.length() > 0) {
             strOptionPdfUrl = strUrl;
         } else {
@@ -963,6 +969,7 @@ public class FilesFragment extends Fragment implements FilesImageAdapter.OnImage
     public void onMenuGalleryClick(ArrayList<MyShelfResModel.MyShelfModel> notesDetailList, int position, ImageView ivMenu) {
 
         String strId = notesDetailList.get(position).getId();
+        String strFileName = notesDetailList.get(position).getPdfFileName();
         String strUrl = notesDetailList.get(position).getUrl();
         String strBookName = notesDetailList.get(position).getBook_name();
         String strKeywords = notesDetailList.get(position).getType_name();
@@ -985,6 +992,11 @@ public class FilesFragment extends Fragment implements FilesImageAdapter.OnImage
         if (strId != null && strId.length() > 0) {
             strOptionId = strId;
         }
+
+        if (strFileName != null && strFileName.length() > 0) {
+            strPdfFileName = strFileName;
+        }
+
         if (strUrl != null && strUrl.length() > 0) {
             strOptionPdfUrl = strUrl;
         } else {

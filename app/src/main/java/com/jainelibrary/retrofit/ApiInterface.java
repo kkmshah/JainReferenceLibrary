@@ -131,7 +131,8 @@ public interface ApiInterface {
             @Field("uid") String struid,
             @Field("bids") String strBookId,
             @Field("lang_type") String lang_code,
-            @Field("pdf_type") String pdf_type);
+            @Field("pdf_type") String pdf_type,
+            @Field("file_name") String strFilename);
 
 
     @GET("jrl/get_book_lists_pdf")
@@ -142,7 +143,8 @@ public interface ApiInterface {
     @POST("jrl/create_book_lists_pdf")
     public Call<CreatePdfFileUrlResModel> createKeywordBookDetailsPdf(
             @Field("kid") String strKid,
-            @Field("bids") String strBids);
+            @Field("bids") String strBids,
+            @Field("file_name") String strFilename);
 
     @GET("jrl/get_books_pdf")
     public Call<ResponseBody> getShlokGranthDetailsPdf(@Query("gsid") String strGSId);
@@ -152,7 +154,8 @@ public interface ApiInterface {
     @FormUrlEncoded
     @POST("jrl/create_books_pdf")
     public Call<CreatePdfFileUrlResModel> createShlokGranthDetailsPdf(
-            @Field("gsid") String gsid);
+            @Field("gsid") String gsid,
+            @Field("file_name") String strFilename);
 
     @FormUrlEncoded
     @POST("jrl/get_granth")
@@ -552,7 +555,8 @@ public interface ApiInterface {
     public Call<CreatePdfFileUrlResModel> createYearBookPdf(
             @Field("year_type") String yearType,
             @Field("year") String year,
-            @Field("bids") String strBookId);
+            @Field("bids") String strBookId,
+            @Field("file_name") String strFilename);
 
 
     @FormUrlEncoded
@@ -575,7 +579,8 @@ public interface ApiInterface {
     @FormUrlEncoded
     @POST("jrl/create_index_book_ini_pdf")
     public Call<CreatePdfFileUrlResModel> createBookIndexPdf(
-            @Field("index_book_id") String indexBookId);
+            @Field("index_book_id") String indexBookId,
+            @Field("file_name") String strFilename);
 
     @FormUrlEncoded
     @POST("jrl/get_year_category")

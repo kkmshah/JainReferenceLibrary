@@ -416,7 +416,7 @@ public class ShlokSutraDetailsActivity extends AppCompatActivity implements Shlo
     {
         Utils.showProgressDialog(ShlokSutraDetailsActivity.this, "Please Wait...", false);
         Log.e("responseData Req", strGSId + "");
-        ApiClient.createShlokGranthDetailsPdf( strGSId,  new Callback<CreatePdfFileUrlResModel>() {
+        ApiClient.createShlokGranthDetailsPdf( strGSId, strEdtRenamefile, new Callback<CreatePdfFileUrlResModel>() {
             @Override
             public void onResponse(Call<CreatePdfFileUrlResModel> call, retrofit2.Response<CreatePdfFileUrlResModel> response) {
                 Utils.dismissProgressDialog();

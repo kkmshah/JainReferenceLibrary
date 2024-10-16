@@ -421,7 +421,7 @@ public class IndexSearchDetailsActivity extends AppCompatActivity
     {
         Utils.showProgressDialog(IndexSearchDetailsActivity.this, "Please Wait...", false);
         Log.e("responseData Req", strIndexId);
-        ApiClient.createBookIndexPdf(strIndexId, new Callback<CreatePdfFileUrlResModel>() {
+        ApiClient.createBookIndexPdf(strIndexId, strEdtRenamefile, new Callback<CreatePdfFileUrlResModel>() {
             @Override
             public void onResponse(Call<CreatePdfFileUrlResModel> call, retrofit2.Response<CreatePdfFileUrlResModel> response) {
                 Utils.dismissProgressDialog();

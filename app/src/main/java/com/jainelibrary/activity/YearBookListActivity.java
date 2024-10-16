@@ -260,7 +260,7 @@ public class YearBookListActivity extends AppCompatActivity implements YearBookL
     {
         Utils.showProgressDialog(YearBookListActivity.this, "Please Wait...", false);
         Log.e("responseData Req", strYearTypeId+ "==" + strYearValue + "==" +strBookIds);
-        ApiClient.createYearBookPdf( strYearTypeId, strYearValue, strBookIds, new Callback<CreatePdfFileUrlResModel>() {
+        ApiClient.createYearBookPdf( strYearTypeId, strYearValue, strBookIds, strEdtRenamefile, new Callback<CreatePdfFileUrlResModel>() {
             @Override
             public void onResponse(Call<CreatePdfFileUrlResModel> call, retrofit2.Response<CreatePdfFileUrlResModel> response) {
                 Utils.dismissProgressDialog();

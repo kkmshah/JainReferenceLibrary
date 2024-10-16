@@ -71,6 +71,9 @@ public class MyShelfResModel implements Serializable {
         //String is_note_added;
 
         @SerializedName("pdf_file_name")
+        String pdf_file_name;
+
+        @SerializedName("pdf_file_url")
         String url;
 
         @SerializedName("book_pdf_file")
@@ -160,6 +163,10 @@ public class MyShelfResModel implements Serializable {
 
         public void setChecked(boolean checked) {
             isChecked = checked;
+        }
+
+        public String getPdfFileName() {
+            return pdf_file_name;
         }
 
         public String getUrl() {

@@ -905,7 +905,7 @@ public class KeywordSearchDetailsActivity extends AppCompatActivity implements K
     private void callCreateKeyboardBookDetailsPdf(String strKeyId, String strBookIds, String strUId, String strEdtRenamefile, String totalKeywordCount, boolean isShare)
     {
         Utils.showProgressDialog(KeywordSearchDetailsActivity.this, "Please Wait...", false);
-        ApiClient.createKeywordBookDetailsPdf( strKeyId, strBookIds, new Callback<CreatePdfFileUrlResModel>() {
+        ApiClient.createKeywordBookDetailsPdf( strKeyId, strBookIds, strEdtRenamefile, new Callback<CreatePdfFileUrlResModel>() {
             @Override
             public void onResponse(Call<CreatePdfFileUrlResModel> call, retrofit2.Response<CreatePdfFileUrlResModel> response) {
                 Utils.dismissProgressDialog();

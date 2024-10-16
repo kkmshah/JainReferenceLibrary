@@ -158,24 +158,24 @@ public class ApiClient {
         getApiClient().getKeywordsPdf(pageNo, strKeyword, strUid, strBookId, lang_code,pdfType, types).enqueue(listener);
     }
 
-    public static void createKeywordsPdf(String strKeyword, String strUid, String strBookId, String lang_code,String pdfType, Callback<CreatePdfFileUrlResModel> listener) {
-        getApiClient().createKeywordsPdf( strKeyword, strUid, strBookId, lang_code,pdfType).enqueue(listener);
+    public static void createKeywordsPdf(String strKeyword, String strUid, String strBookId, String lang_code,String pdfType, String fileName, Callback<CreatePdfFileUrlResModel> listener) {
+        getApiClient().createKeywordsPdf( strKeyword, strUid, strBookId, lang_code,pdfType, fileName).enqueue(listener);
     }
 
     public static void getKeywordBookDetailsPdf(String strBookDetails, String strBids, Callback<ResponseBody> listener) {
         getApiClient().getKeywordBookDetailsPdf(strBookDetails, strBids).enqueue(listener);
     }
 
-    public static void createKeywordBookDetailsPdf(String strKid, String strBookIds, Callback<CreatePdfFileUrlResModel> listener) {
-        getApiClient().createKeywordBookDetailsPdf(strKid, strBookIds).enqueue(listener);
+    public static void createKeywordBookDetailsPdf(String strKid, String strBookIds, String fileName, Callback<CreatePdfFileUrlResModel> listener) {
+        getApiClient().createKeywordBookDetailsPdf(strKid, strBookIds, fileName).enqueue(listener);
     }
 
     public static void getShlokGranthDetailsPdf(String strGSId, Callback<ResponseBody> listener) {
         getApiClient().getShlokGranthDetailsPdf(strGSId).enqueue(listener);
     }
 
-    public static void createShlokGranthDetailsPdf(String strGSId, Callback<CreatePdfFileUrlResModel> listener) {
-        getApiClient().createShlokGranthDetailsPdf(strGSId).enqueue(listener);
+    public static void createShlokGranthDetailsPdf(String strGSId, String fileName, Callback<CreatePdfFileUrlResModel> listener) {
+        getApiClient().createShlokGranthDetailsPdf(strGSId, fileName).enqueue(listener);
     }
 
     public static void getKeywordBookDetails(String strUId, String strBookDetails, String strBids, Callback<BookListResModel> listener) {
@@ -461,8 +461,8 @@ public class ApiClient {
         getApiClient().getYearBookPdf(strTypeId, type, strBookIds).enqueue(listener);
     }
 
-    public static void createYearBookPdf(String strTypeId, String type, String strBookIds, Callback<CreatePdfFileUrlResModel> listener) {
-        getApiClient().createYearBookPdf(strTypeId, type, strBookIds).enqueue(listener);
+    public static void createYearBookPdf(String strTypeId, String type, String strBookIds, String fileName, Callback<CreatePdfFileUrlResModel> listener) {
+        getApiClient().createYearBookPdf(strTypeId, type, strBookIds, fileName).enqueue(listener);
     }
 
     public static void getYear(String strUserId, String strYearType, String strBookIds, Callback<YearResponseModel> listener) {
@@ -473,8 +473,8 @@ public class ApiClient {
         getApiClient().getBookIndexPdf(strBookId).enqueue(listener);
     }
 
-    public static void createBookIndexPdf(String strIndexBookId, Callback<CreatePdfFileUrlResModel> listener) {
-        getApiClient().createBookIndexPdf(strIndexBookId).enqueue(listener);
+    public static void createBookIndexPdf(String strIndexBookId, String fileName, Callback<CreatePdfFileUrlResModel> listener) {
+        getApiClient().createBookIndexPdf(strIndexBookId, fileName).enqueue(listener);
     }
 
 
