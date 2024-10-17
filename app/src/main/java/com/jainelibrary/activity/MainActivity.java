@@ -100,8 +100,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Log.e("First Time Installed",""+isFirstTime);
         
         if(isFirstTime == null){
-            Utils.showDefaultKeyboardDialog(MainActivity.this);
+//            Utils.showDefaultKeyboardDialog(MainActivity.this);
             SharedPrefManager.getInstance(MainActivity.this).saveStrinKeyword(SharedPrefManager.KEY_IS_FIRST_TIME,"False");
+            SharedPrefManager.getInstance(MainActivity.this).saveStrinKeyword(SharedPrefManager.KEY_SELECT_LANGUAGE, "Indic");
         }
 
         /*String strLanguage = SharedPrefManager.getInstance(this).getStringKeyword(SharedPrefManager.KEY_SELECT_LANGUAGE);
@@ -230,7 +231,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 } else if (rbEnglish.isChecked()) {
                     strDefaultKeyboard = "English";
                 } else {
-                    Utils.showInfoDialog(MainActivity.this, "Please select payment mode");
+                    Utils.showInfoDialog(MainActivity.this, "Please select Language");
                 }
 
                 if (strDefaultKeyboard != null && strDefaultKeyboard.length() > 0) {
