@@ -76,7 +76,7 @@ public class ApiClient {
     private static final MediaType MEDIA_TYPE_JPEG = MediaType.parse("image/jpeg");
     public static Retrofit mRetrofit;
     //static String BASE_URL = "http://mywantgroup.com/jts/apis/jrl/";
-    public static String BASE_URL = "http://jaintatvagyanshala.org/apis/";
+    public static String BASE_URL = "https://jaintatvagyanshala.org/apis/";
 
     public static Retrofit getRetrofitInstance() {
         if (null == mRetrofit) {
