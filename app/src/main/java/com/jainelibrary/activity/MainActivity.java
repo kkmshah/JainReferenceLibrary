@@ -211,7 +211,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void showDefaultKeyboardDialog() {
-        final Dialog dialogView = new Dialog(MainActivity.this, R.style.Theme_AppCompat_Light_Dialog);
+        final Dialog dialogView = new Dialog(MainActivity.this, androidx.appcompat.R.style.Theme_AppCompat_Light_Dialog);
         dialogView.setContentView(R.layout.dialog_default_language);
         dialogView.setCancelable(false);
         dialogView.show();

@@ -372,93 +372,92 @@ public class BooksFragment extends Fragment implements
         popup.getMenuInflater().inflate(R.menu.books_menu, popup.getMenu());
         popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             public boolean onMenuItemClick(MenuItem item) {
-                switch (item.getItemId()) {
-                    case R.id.open:
-                        strKeyword = notesDetailList.get(position).getType_name();
-                        strTypeRef = notesDetailList.get(position).getType_ref();
-                        strBookName = notesDetailList.get(position).getBook_name();
-                        strType = notesDetailList.get(position).getType_ref();
-                        String strUrl = notesDetailList.get(position).getUrl();
-                        if (strType != null && strType.length() > 0) {
-                            MyShelfResModel.MyShelfModel myShelfResModel = new MyShelfResModel.MyShelfModel();
-                            myShelfResModel = notesDetailList.get(position);
-                            String strPage = myShelfResModel.getBookPdfUrl();
-                            String strBookName = myShelfResModel.getBook_name();
-                            if (strPage != null) {
-                                Intent browserIntent = new Intent(getActivity(), PdfViewActivity.class);
-                                browserIntent.putExtra("pdf", strPage);
-                                browserIntent.putExtra("bookName", strBookName);
-                                startActivity(browserIntent);
+                int itemId = item.getItemId();
+                if (itemId == R.id.open) {
+                    strKeyword = notesDetailList.get(position).getType_name();
+                    strTypeRef = notesDetailList.get(position).getType_ref();
+                    strBookName = notesDetailList.get(position).getBook_name();
+                    strType = notesDetailList.get(position).getType_ref();
+                    String strUrl = notesDetailList.get(position).getUrl();
+                    if (strType != null && strType.length() > 0) {
+                        MyShelfResModel.MyShelfModel myShelfResModel = new MyShelfResModel.MyShelfModel();
+                        myShelfResModel = notesDetailList.get(position);
+                        String strPage = myShelfResModel.getBookPdfUrl();
+                        String strBookName = myShelfResModel.getBook_name();
+                        if (strPage != null) {
+                            Intent browserIntent = new Intent(getActivity(), PdfViewActivity.class);
+                            browserIntent.putExtra("pdf", strPage);
+                            browserIntent.putExtra("bookName", strBookName);
+                            startActivity(browserIntent);
                                  /*   Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(strPage));
                                     startActivity(browserIntent);*/
                                    /* Intent i = new Intent(getActivity(), MyReferenceDetailsActivity.class);
                                     i.putExtra("myShelfModel", myShelfResModel);
                                     startActivity(i);*/
-                            } else {
-                                Utils.showInfoDialog(getActivity(), "Pdf not found");
-                            }
+                        } else {
+                            Utils.showInfoDialog(getActivity(), "Pdf not found");
                         }
-                        return true;
-                    case R.id.book_info:
-                        BookListResModel.BookDetailsModel mBookDataModels = new BookListResModel.BookDetailsModel();
-                        mBookDataModels.setKeywordId(notesDetailList.get(position).getBook_id());
-                        mBookDataModels.setBook_id(notesDetailList.get(position).getBook_id());
-                        mBookDataModels.setBook_name(notesDetailList.get(position).getBook_name());
-                        mBookDataModels.setKeyword(notesDetailList.get(position).getBook_name());
-                        mBookDataModels.setFlag("6");
-                        mBookDataModels.setBook_url(notesDetailList.get(position).getBook_image());
+                    }
+                    return true;
+                } else if (itemId == R.id.book_info) {
+                    BookListResModel.BookDetailsModel mBookDataModels = new BookListResModel.BookDetailsModel();
+                    mBookDataModels.setKeywordId(notesDetailList.get(position).getBook_id());
+                    mBookDataModels.setBook_id(notesDetailList.get(position).getBook_id());
+                    mBookDataModels.setBook_name(notesDetailList.get(position).getBook_name());
+                    mBookDataModels.setKeyword(notesDetailList.get(position).getBook_name());
+                    mBookDataModels.setFlag("6");
+                    mBookDataModels.setBook_url(notesDetailList.get(position).getBook_image());
 
-                        mBookDataModels.setBook_image(notesDetailList.get(position).getBook_image());
-                        mBookDataModels.setBook_large_image(notesDetailList.get(position).getBook_large_image());
-                        Intent i = new Intent(getActivity(), BookDetailsActivity.class);
-                        i.putExtra("model", mBookDataModels);
-                        startActivity(i);
-                        return true;
-                    case R.id.share:
-                        if (strOptionPdfUrl != null && strOptionPdfUrl.length() > 0) {
-                            String bookImage = notesDetailList.get(position).getBook_image();
-                            String shareText = strBookNames + "shared with you by " + strUsername;
+                    mBookDataModels.setBook_image(notesDetailList.get(position).getBook_image());
+                    mBookDataModels.setBook_large_image(notesDetailList.get(position).getBook_large_image());
+                    Intent i = new Intent(getActivity(), BookDetailsActivity.class);
+                    i.putExtra("model", mBookDataModels);
+                    startActivity(i);
+                    return true;
+                } else if (itemId == R.id.share) {
+                    if (strOptionPdfUrl != null && strOptionPdfUrl.length() > 0) {
+                        String bookImage = notesDetailList.get(position).getBook_image();
+                        String shareText = strBookNames + "shared with you by " + strUsername;
 //                            share(shareText, strBookNames + "\n" +strOptionPdfUrl, bookImage);
-                            callShareMyShelfsApi(shareText, strBookNames + "\n" +strOptionPdfUrl, bookImage);
+                        callShareMyShelfsApi(shareText, strBookNames + "\n" + strOptionPdfUrl, bookImage);
+                    } else {
+                        if (isSelectedButNotPdf) {
+                            Utils.showInfoDialog(getActivity(), "This reference does not have pdf");
                         } else {
-                            if (isSelectedButNotPdf) {
-                                Utils.showInfoDialog(getActivity(), "This reference does not have pdf");
-                            } else {
-                                Utils.showInfoDialog(getActivity(), "Long press on reference and select reference");
-                            }
+                            Utils.showInfoDialog(getActivity(), "Long press on reference and select reference");
                         }
-                        return true;
-                    case R.id.download:
-                        if (strOptionPdfUrl != null && strOptionPdfUrl.length() > 0) {
-                            callDownloadMyShelfsApi(strOptionPdfUrl, strBookNames);
+                    }
+                    return true;
+                } else if (itemId == R.id.download) {
+                    if (strOptionPdfUrl != null && strOptionPdfUrl.length() > 0) {
+                        callDownloadMyShelfsApi(strOptionPdfUrl, strBookNames);
+                    } else {
+                        if (isSelectedButNotPdf) {
+                            Utils.showInfoDialog(getActivity(), "This reference does not have pdf");
                         } else {
-                            if (isSelectedButNotPdf) {
-                                Utils.showInfoDialog(getActivity(), "This reference does not have pdf");
-                            } else {
-                                Utils.showInfoDialog(getActivity(), "Long press on reference and select reference");
-                            }
+                            Utils.showInfoDialog(getActivity(), "Long press on reference and select reference");
                         }
-                        return true;
-                    case R.id.delete:
-                        strUId = SharedPrefManager.getInstance(getActivity()).getStringPref(SharedPrefManager.KEY_USER_ID);
-                        if (strUId != null && strUId.length() > 0) {
-                            if (isReferenceSelected) {
-                                String strId = notesDetailList.get(position).getId();
-                                if (strId != null && strId.length() > 0) {
-                                    callDeleteMyShelfApi(strId);
-                                } else {
-                                    Log.e("Id", "Id not found");
-                                }
+                    }
+                    return true;
+                } else if (itemId == R.id.delete) {
+                    strUId = SharedPrefManager.getInstance(getActivity()).getStringPref(SharedPrefManager.KEY_USER_ID);
+                    if (strUId != null && strUId.length() > 0) {
+                        if (isReferenceSelected) {
+                            String strId = notesDetailList.get(position).getId();
+                            if (strId != null && strId.length() > 0) {
+                                callDeleteMyShelfApi(strId);
                             } else {
-                                Utils.showInfoDialog(getActivity(), "Long press on reference and select reference");
+                                Log.e("Id", "Id not found");
                             }
                         } else {
-                            askLogin();
+                            Utils.showInfoDialog(getActivity(), "Long press on reference and select reference");
                         }
-                        return true;
-                    default:
-                        return false;
+                    } else {
+                        askLogin();
+                    }
+                    return true;
                 }
+                return false;
             }
         });
         popup.show();

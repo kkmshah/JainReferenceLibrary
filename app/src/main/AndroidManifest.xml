@@ -22,7 +22,8 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
         tools:replace="android:allowBackup"
-        tools:targetApi="m">
+        tools:targetApi="m"
+        android:dataExtractionRules="@xml/data_extraction_rules">
         <activity android:name=".activity.FilterCategoriesActivity"
             android:exported="true"></activity>
         <activity android:name=".activity.BookIndexActivity"

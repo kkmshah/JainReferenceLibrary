@@ -178,7 +178,7 @@ public class SignupActivity extends AppCompatActivity {
 
                     if (response.body().isStatus()) {
                         Utils.showInfoDialog(SignupActivity.this, response.body().getMessage());
-                        final Dialog dialogView = new Dialog(SignupActivity.this, R.style.Theme_AppCompat_Light_Dialog);
+                        final Dialog dialogView = new Dialog(SignupActivity.this, androidx.appcompat.R.style.Theme_AppCompat_Light_Dialog);
                         dialogView.setContentView(R.layout.dialog_login);
                         Button dialogYes, dialogNo;
                         //  dialogYes = (Button) dialogView.findViewById(R.id.btn_yes);
@@ -202,7 +202,7 @@ public class SignupActivity extends AppCompatActivity {
                         });
 
                     } else {
-                        final Dialog dialogView = new Dialog(SignupActivity.this, R.style.Theme_AppCompat_Light_Dialog);
+                        final Dialog dialogView = new Dialog(SignupActivity.this, androidx.appcompat.R.style.Theme_AppCompat_Light_Dialog);
                         dialogView.setContentView(R.layout.dialog_login);
                         Button dialogYes, dialogNo;
                         //  dialogYes = (Button) dialogView.findViewById(R.id.btn_yes);

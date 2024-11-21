@@ -402,25 +402,21 @@ public class ShlokSearchActivity extends AppCompatActivity implements ShlokSearc
 
     @Override
     public boolean onMenuItemClick(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.share:
-                String shareData = " Get Latest JainTatva Books here : https://play.google.com/store/apps/details?id=" + PackageName;
-                Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
-                sharingIntent.setType("text/plain");
-                sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, shareData);
-                sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareData);
-                startActivity(Intent.createChooser(sharingIntent, shareData));
-                return true;
-            case R.id.download:
-
-                // do your code
-                return true;
-            case R.id.shelf:
-                // do your code
-                return true;
-            default:
-                return false;
+        int itemId = item.getItemId();
+        if (itemId == R.id.share) {
+            String shareData = " Get Latest JainTatva Books here : https://play.google.com/store/apps/details?id=" + PackageName;
+            Intent sharingIntent = new Intent(Intent.ACTION_SEND);
+            sharingIntent.setType("text/plain");
+            sharingIntent.putExtra(Intent.EXTRA_SUBJECT, shareData);
+            sharingIntent.putExtra(Intent.EXTRA_TEXT, shareData);
+            startActivity(Intent.createChooser(sharingIntent, shareData));
+            return true;
+        } else if (itemId == R.id.download) {// do your code
+            return true;
+        } else if (itemId == R.id.shelf) {// do your code
+            return true;
         }
+        return false;
     }
 
     /////// Header //////////

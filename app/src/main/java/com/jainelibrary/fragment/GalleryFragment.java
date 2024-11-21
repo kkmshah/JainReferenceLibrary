@@ -603,49 +603,48 @@ public class GalleryFragment extends Fragment implements GalleryAdapter.OnImageC
                 mBookDataModels.setBook_large_image(strBookLargeImageUrl);
                 mBookDataModels.setFlag(strFlag);
 
-                switch (item.getItemId()) {
-                    case R.id.open:
-                        Intent browserIntent = new Intent(getActivity(), PdfViewActivity.class);
-                        browserIntent.putExtra("pdf", strPDfUrl);
-                        browserIntent.putExtra("bookName", strBookName);
-                        startActivity(browserIntent);
+                int itemId = item.getItemId();
+                if (itemId == R.id.open) {
+                    Intent browserIntent = new Intent(getActivity(), PdfViewActivity.class);
+                    browserIntent.putExtra("pdf", strPDfUrl);
+                    browserIntent.putExtra("bookName", strBookName);
+                    startActivity(browserIntent);
 
 //                        Intent is = new Intent(getActivity(), ReferencePageActivity.class);
 //                        is.putExtra("model", mBookDataModels);
 //                        startActivity(is);
-                        return true;
-                    case R.id.book_info:
-                        Intent i = new Intent(getActivity(), BookDetailsActivity.class);
-                        i.putExtra("model", mBookDataModels);
-                        startActivity(i);
-                        return true;
-                    case R.id.reference_info:
-                        Intent reference_intent = new Intent(getActivity(), BookReferenceDetailsActivity.class);
-                        reference_intent.putExtra("model", mBookDataModels);
-                        startActivity(reference_intent);
-                        return true;
-                    case R.id.share:
-                        if (strPDfUrl != null && strPDfUrl.length() > 0) {
-                            shareData = "JRL Book: "+ strBookName;
-                            strMessage = "Book Name: "+ strBookName + "\nBook Link:" + strPDfUrl;
+                    return true;
+                } else if (itemId == R.id.book_info) {
+                    Intent i = new Intent(getActivity(), BookDetailsActivity.class);
+                    i.putExtra("model", mBookDataModels);
+                    startActivity(i);
+                    return true;
+                } else if (itemId == R.id.reference_info) {
+                    Intent reference_intent = new Intent(getActivity(), BookReferenceDetailsActivity.class);
+                    reference_intent.putExtra("model", mBookDataModels);
+                    startActivity(reference_intent);
+                    return true;
+                } else if (itemId == R.id.share) {
+                    if (strPDfUrl != null && strPDfUrl.length() > 0) {
+                        shareData = "JRL Book: " + strBookName;
+                        strMessage = "Book Name: " + strBookName + "\nBook Link:" + strPDfUrl;
 
-                            callShareMyShelfsApi(strUserId, shareData, strMessage, strBookImageUrl);
-                        } else {
-                            Utils.showInfoDialog(getActivity(), "Pdf not found");
-                            Log.e("strPdfLinkShare---", "pdfLink--" + strPDfUrl);
-                        }
-                        return true;
-                    case R.id.download:
-                        callDownloadMyShelfsApi(strUserId, strPDfUrl, strBookName);
-                        return true;
-                    case R.id.my_reference:
-                        if (strBookId != null && strBookName != null) {
-                            callAddMyShelfApi(strUserId, strBookId, strKeywordId);
-                        }
-                        return true;
-                    default:
-                        return false;
+                        callShareMyShelfsApi(strUserId, shareData, strMessage, strBookImageUrl);
+                    } else {
+                        Utils.showInfoDialog(getActivity(), "Pdf not found");
+                        Log.e("strPdfLinkShare---", "pdfLink--" + strPDfUrl);
+                    }
+                    return true;
+                } else if (itemId == R.id.download) {
+                    callDownloadMyShelfsApi(strUserId, strPDfUrl, strBookName);
+                    return true;
+                } else if (itemId == R.id.my_reference) {
+                    if (strBookId != null && strBookName != null) {
+                        callAddMyShelfApi(strUserId, strBookId, strKeywordId);
+                    }
+                    return true;
                 }
+                return false;
             }
         });
         popup.show();

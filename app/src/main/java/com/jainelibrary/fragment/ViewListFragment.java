@@ -401,19 +401,19 @@ public class ViewListFragment extends Fragment implements ViewListAdapter.ViewLi
                 mBookDataModels.setPdf_link(strPDfUrl);
                 mBookDataModels.setFlag(strFlag);
 
-                switch (item.getItemId()) {
-                    case R.id.open:
-                        Intent is = new Intent(getActivity(), ReferencePageActivity.class);
-                        is.putExtra("model", mBookDataModels);
-                        startActivity(is);
-                        return true;
-                    case R.id.book_info:
-                        Intent i = new Intent(getActivity(), BookDetailsActivity.class);
-                        i.putExtra("model", mBookDataModels);
-                        startActivity(i);
-                        return true;
-                    case R.id.share:
-                        if (strPDfUrl != null && strPDfUrl.length() > 0) {
+                int itemId = item.getItemId();
+                if (itemId == R.id.open) {
+                    Intent is = new Intent(getActivity(), ReferencePageActivity.class);
+                    is.putExtra("model", mBookDataModels);
+                    startActivity(is);
+                    return true;
+                } else if (itemId == R.id.book_info) {
+                    Intent i = new Intent(getActivity(), BookDetailsActivity.class);
+                    i.putExtra("model", mBookDataModels);
+                    startActivity(i);
+                    return true;
+                } else if (itemId == R.id.share) {
+                    if (strPDfUrl != null && strPDfUrl.length() > 0) {
                        /*  strBookName = "JRL_" + strBookName ;
                             Utils.downloadsPdf(strBookName, strPDfUrl, getActivity());
                             Intent intentShareFile = new Intent(Intent.ACTION_SEND);
@@ -429,30 +429,29 @@ public class ViewListFragment extends Fragment implements ViewListAdapter.ViewLi
                                 intentShareFile.putExtra(Intent.EXTRA_TEXT, "Sharing File...");
                                 startActivity(Intent.createChooser(intentShareFile, "Share File"));
                             }*/
-                            shareData = " Get Latest JRl Books here : https://play.google.com/store/apps/details?id=" + PackageName;
-                            strMessage = " " + strPDfUrl;
-                            callShareMyShelfsApi(strUserId, shareData, strMessage);
-                        } else {
-                            Utils.showInfoDialog(getActivity(), "Pdf not found");
-                            Log.e("strPdfLinkShare---", "pdfLink--" + strPDfUrl);
-                        }
+                        shareData = " Get Latest JRl Books here : https://play.google.com/store/apps/details?id=" + PackageName;
+                        strMessage = " " + strPDfUrl;
+                        callShareMyShelfsApi(strUserId, shareData, strMessage);
+                    } else {
+                        Utils.showInfoDialog(getActivity(), "Pdf not found");
+                        Log.e("strPdfLinkShare---", "pdfLink--" + strPDfUrl);
+                    }
 
-                        return true;
-                    case R.id.download:
-                        callDownloadMyShelfsApi(strUserId, strPDfUrl, strBookName);
-                        return true;
-                    case R.id.my_reference:
-                        if (strBookId != null && strBookName != null) {
-                           // callAllAddMyShelfApi(strUserId, "");
-                            UploadFile(strBookId, strBookName, strKeywordId);
-                            //callAddMyShelfApi(strBookId, strBookName, strKeywordId);
-                        } else {
-                            Log.e(TAG, "anyone null");
-                        }
-                        return true;
-                    default:
-                        return false;
+                    return true;
+                } else if (itemId == R.id.download) {
+                    callDownloadMyShelfsApi(strUserId, strPDfUrl, strBookName);
+                    return true;
+                } else if (itemId == R.id.my_reference) {
+                    if (strBookId != null && strBookName != null) {
+                        // callAllAddMyShelfApi(strUserId, "");
+                        UploadFile(strBookId, strBookName, strKeywordId);
+                        //callAddMyShelfApi(strBookId, strBookName, strKeywordId);
+                    } else {
+                        Log.e(TAG, "anyone null");
+                    }
+                    return true;
                 }
+                return false;
             }
         });
         popup.show();

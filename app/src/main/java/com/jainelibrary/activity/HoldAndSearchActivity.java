@@ -399,21 +399,21 @@ public class HoldAndSearchActivity extends AppCompatActivity implements HoldAndS
                 mBookDataModels.setType_name(strTypeName);
                 mBookDataModels.setPage_no(strPageNo);
 
-                switch (item.getItemId()) {
-                    case R.id.open:
-                        Intent is = new Intent(getApplicationContext(), ReferencePageActivity.class);
-                        is.putExtra("model", mBookDataModels);
-                        is.putExtra("from", "Hold");
-                        is.putExtra("strBookName", mBookDataModels.getBook_name());
-                        is.putExtra("strTypeName", mBookDataModels.getType_name());
-                        is.putExtra("type_id", filesModel.getType_id());
-                        is.putExtra("strHoldPageNo", mBookDataModels.getPage_no());
-                        startActivity(is);
-                        return true;
-                    case R.id.delete:
-                        Log.e("strId : ", strHoldId + " bookId : " + mBookDataModels.getBook_id());
-                        getDeleteDialog(strHoldId, "Are you sure you want to delete " + mBookDataModels.getBook_name() + ", " + mBookDataModels.getType_name() + ", " + mBookDataModels.getPage_no());
-                        return true;
+                int itemId = item.getItemId();
+                if (itemId == R.id.open) {
+                    Intent is = new Intent(getApplicationContext(), ReferencePageActivity.class);
+                    is.putExtra("model", mBookDataModels);
+                    is.putExtra("from", "Hold");
+                    is.putExtra("strBookName", mBookDataModels.getBook_name());
+                    is.putExtra("strTypeName", mBookDataModels.getType_name());
+                    is.putExtra("type_id", filesModel.getType_id());
+                    is.putExtra("strHoldPageNo", mBookDataModels.getPage_no());
+                    startActivity(is);
+                    return true;
+                } else if (itemId == R.id.delete) {
+                    Log.e("strId : ", strHoldId + " bookId : " + mBookDataModels.getBook_id());
+                    getDeleteDialog(strHoldId, "Are you sure you want to delete " + mBookDataModels.getBook_name() + ", " + mBookDataModels.getType_name() + ", " + mBookDataModels.getPage_no());
+                    return true;
                  /*   case R.id.book_info:
                         Intent i = new Intent(getApplicationContext(), BookDetailsActivity.class);
                         i.putExtra("model", mBookDataModels);
@@ -442,18 +442,17 @@ public class HoldAndSearchActivity extends AppCompatActivity implements HoldAndS
                             Log.e("strPdfLinkShare---", "pdfLink--" + strPDfUrl);
                         }
                         return true;*/
-                    case R.id.my_reference:
-                        if (strHoldId != null &&  strBookName != null) {
-                            if(strUserId != null && strUserId.length() >0){
-                                showHoldReferenceDialog(strUserId,strHoldId);
-                            }
-                           // callAddMyShelfApi(strBookId, strBookName, strKeywordId);
+                } else if (itemId == R.id.my_reference) {
+                    if (strHoldId != null && strBookName != null) {
+                        if (strUserId != null && strUserId.length() > 0) {
+                            showHoldReferenceDialog(strUserId, strHoldId);
                         }
+                        // callAddMyShelfApi(strBookId, strBookName, strKeywordId);
+                    }
 
-                        return true;
-                    default:
-                        return false;
+                    return true;
                 }
+                return false;
             }
         });
         popup.show();
@@ -634,7 +633,7 @@ public class HoldAndSearchActivity extends AppCompatActivity implements HoldAndS
 
     private void showHoldReferenceDialog(String strUid, String strBookId)
     {
-        final Dialog dialogView = new Dialog(HoldAndSearchActivity.this, R.style.Theme_AppCompat_Light_Dialog);
+        final Dialog dialogView = new Dialog(HoldAndSearchActivity.this, androidx.appcompat.R.style.Theme_AppCompat_Light_Dialog);
         dialogView.setContentView(R.layout.dialog_hold_reference);
         dialogView.setCancelable(false);
         dialogView.show();

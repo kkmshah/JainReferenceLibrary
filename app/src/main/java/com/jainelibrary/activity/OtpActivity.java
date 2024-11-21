@@ -253,29 +253,25 @@ public class OtpActivity extends AppCompatActivity {
         public void afterTextChanged(Editable editable) {
 
             String text = editable.toString();
-            switch (view.getId()) {
-                case R.id.etOTPChar1:
-                    if (text.length() == 1)
-                        etOtp2.requestFocus();
-                    else if (text == null || text.length() == 0)
-                        etOtp1.requestFocus();
-                    break;
-                case R.id.etOTPChar2:
-                    if (text.length() == 1)
-                        etOtp3.requestFocus();
-                    else if (text == null || text.length() == 0)
-                        etOtp1.requestFocus();
-                    break;
-                case R.id.etOTPChar3:
-                    if (text.length() == 1)
-                        etOtp4.requestFocus();
-                    else if (text == null || text.length() == 0)
-                        etOtp2.requestFocus();
-                    break;
-                case R.id.etOTPChar4:
-                    if (text == null || text.length() == 0)
-                        etOtp3.requestFocus();
-                    break;
+            int id = view.getId();
+            if (id == R.id.etOTPChar1) {
+                if (text.length() == 1)
+                    etOtp2.requestFocus();
+                else if (text == null || text.length() == 0)
+                    etOtp1.requestFocus();
+            } else if (id == R.id.etOTPChar2) {
+                if (text.length() == 1)
+                    etOtp3.requestFocus();
+                else if (text == null || text.length() == 0)
+                    etOtp1.requestFocus();
+            } else if (id == R.id.etOTPChar3) {
+                if (text.length() == 1)
+                    etOtp4.requestFocus();
+                else if (text == null || text.length() == 0)
+                    etOtp2.requestFocus();
+            } else if (id == R.id.etOTPChar4) {
+                if (text == null || text.length() == 0)
+                    etOtp3.requestFocus();
             }
         }
 

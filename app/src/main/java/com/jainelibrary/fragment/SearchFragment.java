@@ -327,40 +327,39 @@ public class SearchFragment extends Fragment implements GalleryAdapter.OnImageCl
                 mBookDataModels.setBook_large_image(strBookLargeImageUrl);
                 mBookDataModels.setFlag(strFlag);
 
-                switch (item.getItemId()) {
-                    case R.id.open:
-                        Intent is = new Intent(getActivity(), ReferencePageActivity.class);
-                        is.putExtra("model", mBookDataModels);
-                        startActivity(is);
-                        return true;
-                    case R.id.book_info:
-                        Intent i = new Intent(getActivity(), BookDetailsActivity.class);
-                        i.putExtra("model", mBookDataModels);
-                        startActivity(i);
-                        return true;
-                    case R.id.share:
-                        if (strPDfUrl != null && strPDfUrl.length() > 0) {
-                            shareData = "JRL Book: "+ strBookName;
-                            strMessage = "Book Name: "+ strBookName + "\nBook Link:" + strPDfUrl;
+                int itemId = item.getItemId();
+                if (itemId == R.id.open) {
+                    Intent is = new Intent(getActivity(), ReferencePageActivity.class);
+                    is.putExtra("model", mBookDataModels);
+                    startActivity(is);
+                    return true;
+                } else if (itemId == R.id.book_info) {
+                    Intent i = new Intent(getActivity(), BookDetailsActivity.class);
+                    i.putExtra("model", mBookDataModels);
+                    startActivity(i);
+                    return true;
+                } else if (itemId == R.id.share) {
+                    if (strPDfUrl != null && strPDfUrl.length() > 0) {
+                        shareData = "JRL Book: " + strBookName;
+                        strMessage = "Book Name: " + strBookName + "\nBook Link:" + strPDfUrl;
 
-                            callShareMyShelfsApi(strUserId, shareData, strMessage, strBookImageUrl);
-                        } else {
-                            Utils.showInfoDialog(getActivity(), "Pdf not found");
-                            Log.e("strPdfLinkShare---", "pdfLink--" + strPDfUrl);
-                        }
-                        return true;
-                    case R.id.download:
-                        callDownloadMyShelfsApi(strUserId, strPDfUrl, strBookName);
-                        return true;
-                    case R.id.my_reference:
-                        if (strBookId != null && strBookName != null){
-                            UploadFile(strBookId, strBookName,strKeywordId);
-                           // callAddMyShelfApi(strBookId, strBookName,strKeywordId);
-                        }
-                        return true;
-                    default:
-                        return false;
+                        callShareMyShelfsApi(strUserId, shareData, strMessage, strBookImageUrl);
+                    } else {
+                        Utils.showInfoDialog(getActivity(), "Pdf not found");
+                        Log.e("strPdfLinkShare---", "pdfLink--" + strPDfUrl);
+                    }
+                    return true;
+                } else if (itemId == R.id.download) {
+                    callDownloadMyShelfsApi(strUserId, strPDfUrl, strBookName);
+                    return true;
+                } else if (itemId == R.id.my_reference) {
+                    if (strBookId != null && strBookName != null) {
+                        UploadFile(strBookId, strBookName, strKeywordId);
+                        // callAddMyShelfApi(strBookId, strBookName,strKeywordId);
+                    }
+                    return true;
                 }
+                return false;
             }
         });
         popup.show();
