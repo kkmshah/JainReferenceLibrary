@@ -10,7 +10,11 @@ buildscript {
 
     }
     dependencies {
+<<<<<<< Updated upstream
         classpath 'com.android.tools.build:gradle:8.1.4'
+=======
+        classpath 'com.android.tools.build:gradle:7.4.2'
+>>>>>>> Stashed changes
 
 
         // NOTE: Do not place your application dependencies here; they belong
