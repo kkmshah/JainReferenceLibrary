@@ -269,7 +269,7 @@ public class IndexSearchDetailsActivity extends AppCompatActivity
                 bottomSheetDialog.cancel();
                 String strEdtRenamefile = edtRenameFile.getText().toString();
                 if(Integer.valueOf(strTotalCount) > 0) {
-                    callCreateBookIndexPdf(strIndexId, strUID, strEdtRenamefile, strTotalCount, true);
+                    shareBookIndexFile(strIndexId, strUID, strEdtRenamefile, strTotalCount, true);
                 }
             }
         });
@@ -349,6 +349,9 @@ public class IndexSearchDetailsActivity extends AppCompatActivity
                 if(!response.body().isStatus()) {
                     Utils.dismissProgressDialog();
 
+                    String strTmpPdfUrl = response.body().getPdf_url();
+                    String strPdfImage = response.body().getPdf_image();
+
                     AlertDialog.Builder builder = new AlertDialog.Builder(IndexSearchDetailsActivity.this);
                     builder.setMessage(response.body().getMessage());
 
@@ -356,7 +359,10 @@ public class IndexSearchDetailsActivity extends AppCompatActivity
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             dialog.dismiss();
-                            callCreateBookIndexPdf(strIndexId, strUId, strEdtRenamefile, totalKeywordCount, true);
+
+                            if (strTmpPdfUrl != null && strTmpPdfUrl.length() > 0) {
+                                callShareMyShelfsApi(strUId, "", strTmpPdfUrl, strPdfImage);
+                            }
                         }
                     });
 
@@ -401,6 +407,47 @@ public class IndexSearchDetailsActivity extends AppCompatActivity
 //                            }).build();
 //
 //                    dialog.show();
+                }
+                else
+                {
+                    callCreateBookIndexPdf(strIndexId, strUId, strEdtRenamefile, totalKeywordCount, isShare);
+                }
+            }
+            @Override
+            public void onFailure(Call<CheckMyShelfFileNameResModel> call, Throwable t) {
+                String message = t.getMessage();
+                Log.e("error", "onFailure--- " + message);
+                Utils.dismissProgressDialog();
+            }
+        });
+
+    }
+
+    private void shareBookIndexFile(String strIndexId, String strUId, String strEdtRenamefile, String totalKeywordCount, boolean isShare) {
+        if (!ConnectionManager.checkInternetConnection(IndexSearchDetailsActivity.this)) {
+            Utils.showInfoDialog(IndexSearchDetailsActivity.this, "Please check internet connection");
+            return;
+        }
+
+        Utils.showProgressDialog(IndexSearchDetailsActivity.this, "Please Wait...", false);
+        ApiClient.checkMyShelfFileName(strUId, strEdtRenamefile, new Callback<CheckMyShelfFileNameResModel>() {
+            @Override
+            public void onResponse(Call<CheckMyShelfFileNameResModel> call, retrofit2.Response<CheckMyShelfFileNameResModel> response) {
+                if (!response.isSuccessful()  ) {
+                    Utils.dismissProgressDialog();
+                    Utils.showInfoDialog(IndexSearchDetailsActivity.this, "Please try again!");
+                    return;
+                }
+
+                if(!response.body().isStatus()) {
+                    Utils.dismissProgressDialog();
+
+                    String strTmpPdfUrl = response.body().getPdf_url();
+                    String strPdfImage = response.body().getPdf_image();
+
+                    if (strTmpPdfUrl != null && strTmpPdfUrl.length() > 0) {
+                        callShareMyShelfsApi(strUId, "", strTmpPdfUrl, strPdfImage);
+                    }
                 }
                 else
                 {

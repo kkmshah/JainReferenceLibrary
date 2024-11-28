@@ -1194,7 +1194,8 @@ public class KeywordsMainFragment extends Fragment implements IOnBackPressed, Ke
                 String strCount  = "" + totalAllResults;               // String strPdfFile = PdfCreator.createFile(mediaStorageKeyWordDir.getAbsolutePath(), strEdtRenamefile, mKeywordStringList);
                 if (totalAllResults > 0) {
 //                    saveKeywordFile(strKeyword, strUId, strEdtRenamefile, strCount, strFileType, true);
-                    callCreatePdfApi(strEdtRenamefile, strFileType, strCount, true);
+                    shareKeywordFile(strUId, strEdtRenamefile, strCount, strFileType, true);
+//                    callCreatePdfApi(strEdtRenamefile, strFileType, strCount, true);
 
                 }
             }
@@ -1416,6 +1417,8 @@ public class KeywordsMainFragment extends Fragment implements IOnBackPressed, Ke
                 if(!response.body().isStatus()) {
                     Utils.dismissProgressDialog();
 //                    Utils.showInfoDialog(getActivity(), "" + response.body().getMessage());
+                    String strTmpPdfUrl = response.body().getPdf_url();
+                    String strPdfImage = response.body().getPdf_image();
 
                     AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                     builder.setMessage(response.body().getMessage());
@@ -1424,7 +1427,10 @@ public class KeywordsMainFragment extends Fragment implements IOnBackPressed, Ke
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             dialog.dismiss();
-                            callCreatePdfApi(strEdtRenamefile, strFileType, totalKeywordCount, true);
+
+                            if (strTmpPdfUrl != null && strTmpPdfUrl.length() > 0) {
+                                callShareMyShelfsApi(strUId, "", strTmpPdfUrl, strPdfImage);
+                            }
                         }
                     });
 
@@ -1491,7 +1497,45 @@ public class KeywordsMainFragment extends Fragment implements IOnBackPressed, Ke
             }
         });
     }
-    
+
+    private void shareKeywordFile(String strUId, String strEdtRenamefile, String totalKeywordCount, String strFileType, boolean isShare) {
+        if (!ConnectionManager.checkInternetConnection(getActivity())) {
+            Utils.showInfoDialog(getActivity(), "Please check internet connection");
+            return;
+        }
+
+        Utils.showProgressDialog(getActivity(), "Please Wait...", false);
+        ApiClient.checkMyShelfFileName(strUId, strEdtRenamefile, new Callback<CheckMyShelfFileNameResModel>() {
+            @Override
+            public void onResponse(Call<CheckMyShelfFileNameResModel> call, retrofit2.Response<CheckMyShelfFileNameResModel> response) {
+                Utils.dismissProgressDialog();
+                if (!response.isSuccessful()  ) {
+                    Utils.showInfoDialog(getActivity(), "Please try again!");
+                    return;
+                }
+
+                if(!response.body().isStatus()) {
+
+                    String strTmpPdfUrl = response.body().getPdf_url();
+                    String strPdfImage = response.body().getPdf_image();
+
+                    if (strTmpPdfUrl != null && strTmpPdfUrl.length() > 0) {
+                        callShareMyShelfsApi(strUId, "", strTmpPdfUrl, strPdfImage);
+                    }
+                }
+                else {
+                    callCreatePdfApi(strEdtRenamefile, strFileType, totalKeywordCount, isShare);
+                }
+            }
+            @Override
+            public void onFailure(Call<CheckMyShelfFileNameResModel> call, Throwable t) {
+                String message = t.getMessage();
+                Log.e("error", "onFailure--- " + message);
+                Utils.dismissProgressDialog();
+            }
+        });
+    }
+
     private void callCreatePdfApi(String strEdtRenamefile, String strFileType, String totalKeywordCount, boolean isShare)
     {
         Utils.showProgressDialog(getActivity(), "Please Wait...", false);

@@ -492,7 +492,7 @@ public class KeywordSearchDetailsActivity extends AppCompatActivity implements K
                 // String strPdfFile = PdfCreator.createTextPdf(mediaStorageKeyWordDir.getAbsolutePath(), strEdtRenamefile, mReferenceStringList);
 
                 if ( Integer.valueOf(strTotalCount) > 0) {
-                    callCreateKeyboardBookDetailsPdf(strKeyId, strBookIds, strUID, strEdtRenamefile, strTotalCount, true);
+                    shareKeywordDetailsFile(strKeyId, strBookIds, strUID, strEdtRenamefile, strTotalCount, true);
                 }
 
 //                if (strPdfFile != null && strPdfFile.length() > 0) {
@@ -831,6 +831,9 @@ public class KeywordSearchDetailsActivity extends AppCompatActivity implements K
                 if(!response.body().isStatus()) {
                     Utils.dismissProgressDialog();
 
+                    String strTmpPdfUrl = response.body().getPdf_url();
+                    String strPdfImage = response.body().getPdf_image();
+
                     AlertDialog.Builder builder = new AlertDialog.Builder(KeywordSearchDetailsActivity.this);
                     builder.setMessage(response.body().getMessage());
 
@@ -838,7 +841,10 @@ public class KeywordSearchDetailsActivity extends AppCompatActivity implements K
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             dialog.dismiss();
-                            callCreateKeyboardBookDetailsPdf(strKeyId, strBookIds, strUId, strEdtRenamefile, totalKeywordCount, true);
+
+                            if (strTmpPdfUrl != null && strTmpPdfUrl.length() > 0) {
+                                callShareMyShelfsApi(strUId, "", strTmpPdfUrl, strPdfImage);
+                            }
                         }
                     });
 
@@ -883,6 +889,50 @@ public class KeywordSearchDetailsActivity extends AppCompatActivity implements K
 //                            }).build();
 //
 //                    dialog.show();
+                }
+                else
+                {
+                    callCreateKeyboardBookDetailsPdf(strKeyId, strBookIds, strUId, strEdtRenamefile, totalKeywordCount, isShare);
+                }
+
+                Log.e("responseData Req", strKeyId + "" +strBookIds);
+
+            }
+            @Override
+            public void onFailure(Call<CheckMyShelfFileNameResModel> call, Throwable t) {
+                String message = t.getMessage();
+                Log.e("error", "onFailure--- " + message);
+                Utils.dismissProgressDialog();
+            }
+        });
+
+    }
+
+    private void shareKeywordDetailsFile( String strKeyId, String strBookIds, String strUId, String strEdtRenamefile, String totalKeywordCount, boolean isShare) {
+        if (!ConnectionManager.checkInternetConnection(KeywordSearchDetailsActivity.this)) {
+            Utils.showInfoDialog(KeywordSearchDetailsActivity.this, "Please check internet connection");
+            return;
+        }
+
+        Utils.showProgressDialog(KeywordSearchDetailsActivity.this, "Please Wait...", false);
+        ApiClient.checkMyShelfFileName(strUId, strEdtRenamefile, new Callback<CheckMyShelfFileNameResModel>() {
+            @Override
+            public void onResponse(Call<CheckMyShelfFileNameResModel> call, retrofit2.Response<CheckMyShelfFileNameResModel> response) {
+                if (!response.isSuccessful()  ) {
+                    Utils.dismissProgressDialog();
+                    Utils.showInfoDialog(KeywordSearchDetailsActivity.this, "Please try again!");
+                    return;
+                }
+
+                if(!response.body().isStatus()) {
+                    Utils.dismissProgressDialog();
+
+                    String strTmpPdfUrl = response.body().getPdf_url();
+                    String strPdfImage = response.body().getPdf_image();
+
+                    if (strTmpPdfUrl != null && strTmpPdfUrl.length() > 0) {
+                        callShareMyShelfsApi(strUId, "", strTmpPdfUrl, strPdfImage);
+                    }
                 }
                 else
                 {

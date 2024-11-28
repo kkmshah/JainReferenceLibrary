@@ -11,9 +11,9 @@
       "type": "SINGLE",
       "filters": [],
       "attributes": [],
-      "versionCode": 10,
+      "versionCode": 11,
       "versionName": "1.0.0",
-      "outputFile": "JRL_10_1.0.0-release.apk"
+      "outputFile": "JRL_11_1.0.0-release.apk"
     }
   ],
   "elementType": "File"

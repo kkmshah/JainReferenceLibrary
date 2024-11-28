@@ -1133,7 +1133,7 @@ public class ReferencePageActivity extends AppCompatActivity implements Referenc
 
                     if (strUserID != null && strUserID.length() > 0 && imageUrlList.size() > 0) {
                         Log.e("userid", strUserID);
-                        callAddMyShelfApi(imageUrlList, strUserID, strEdtRenamefile, false);
+                        shareMyShelfApi(imageUrlList, strUserID, strEdtRenamefile, false);
                     }
 
                 } else {
@@ -1213,6 +1213,8 @@ public class ReferencePageActivity extends AppCompatActivity implements Referenc
                 if(!response.body().isStatus()) {
                     Utils.dismissProgressDialog();
 
+                    strPdfLink = response.body().getPdf_url();
+                    strSharePdfImageUrl = response.body().getPdf_image();
 
                     AlertDialog.Builder builder = new AlertDialog.Builder(ReferencePageActivity.this);
                     builder.setMessage(response.body().getMessage());
@@ -1221,7 +1223,10 @@ public class ReferencePageActivity extends AppCompatActivity implements Referenc
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             dialog.dismiss();
-                            callAddMyShelfApi(imagesUrl, strUserID, strEdtRenamefile, false);
+
+                            if (strPdfLink != null && strPdfLink.length() > 0) {
+                                callShareMyShelfsApi(strUserId);
+                            }
                         }
                     });
 
@@ -1266,6 +1271,41 @@ public class ReferencePageActivity extends AppCompatActivity implements Referenc
 //                            }).build();
 //
 //                    dialog.show();
+                }
+                else
+                {
+                    callAddMyShelfApi(imagesUrl, strUserID, strEdtRenamefile, notesDialog);
+                }
+            }
+            @Override
+            public void onFailure(Call<CheckMyShelfFileNameResModel> call, Throwable t) {
+                String message = t.getMessage();
+                Log.e("error", "onFailure--- " + message);
+                Utils.dismissProgressDialog();
+            }
+        });
+    }
+
+    private void shareMyShelfApi(ArrayList<String> imagesUrl, String strUserId, String strEdtRenamefile, boolean notesDialog)
+    {
+        ApiClient.checkMyShelfFileName(strUserId, strEdtRenamefile, new Callback<CheckMyShelfFileNameResModel>() {
+            @Override
+            public void onResponse(Call<CheckMyShelfFileNameResModel> call, retrofit2.Response<CheckMyShelfFileNameResModel> response) {
+                if (!response.isSuccessful()  ) {
+                    Utils.dismissProgressDialog();
+                    Utils.showInfoDialog(ReferencePageActivity.this, "Please try again!");
+                    return;
+                }
+
+                if(!response.body().isStatus()) {
+                    Utils.dismissProgressDialog();
+
+                    strPdfLink = response.body().getPdf_url();
+                    strSharePdfImageUrl = response.body().getPdf_image();
+
+                    if (strPdfLink != null && strPdfLink.length() > 0) {
+                        callShareMyShelfsApi(strUserId);
+                    }
                 }
                 else
                 {
